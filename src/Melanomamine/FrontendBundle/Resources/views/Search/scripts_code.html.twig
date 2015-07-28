@@ -1,0 +1,14 @@
+{% block javascripts_footer %}
+    <script type="application/javascript">
+        $(".bigSearch").click(function(e) {
+            keyword = $('#tags-keywords').val();
+            if (keyword==""){
+                alert("Please type the entity to search for");
+                return false;
+            }else{
+                link='{{ path('elasticSearch_search') }}'+keyword+'/';
+                $('.bigSearch').attr('href',link);
+            }
+        })
+    </script>
+{% endblock %}

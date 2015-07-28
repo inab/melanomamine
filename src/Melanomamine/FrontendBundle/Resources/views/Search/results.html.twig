@@ -1,0 +1,94 @@
+{% extends '::frontend.html.twig' %}
+{% block title %}Listing Evidences {% endblock %}
+{% block article %}
+    {% include 'MelanomamineFrontendBundle:Search:tags_code.html.twig' %}
+    {% set tooltipCounter=1 %}
+    {% set stringStickyTooltip = "" %}
+    <div id="evidences">
+        {% if resultSetAbstracts | length != 0 %}
+            {% if resultSetAbstracts.getTotalHits != 0 %}
+                <div id="abstractsResults">
+                    <a name="abstracts"></a>
+                    <h3>Ranked Abstracts for "<span class="underline">{{ keyword }}</span>" keyword search</h3>
+                     <div class="results-summary">
+                    {% set totalHits = resultSetAbstracts.getTotalHits %}
+                    {% set scoreToShow = orderBy | getScoreToShow %}
+                    <table>
+                        <tr>
+                            <td><strong>Total of mentions displayed:</strong> {{ hitsShowed }}</td>
+                            <td><strong>Max. {{scoreToShow}} score:</strong> {# resultSetAbstracts[0].getSource[orderBy] |number_format(2) #}</td>
+                            <td><strong>Minim. {{scoreToShow}} score:</strong> {# set last_index = resultSetAbstracts | length -1 #}{# resultSetAbstracts[last_index].getSource[orderBy] |number_format(2) #}</td>
+                            <td><strong>{{scoreToShow}} mean:</strong> {{ meanScore | number_format(2) }}</td>
+                            <td><strong>{{scoreToShow}} median:</strong> {{ medianScore | number_format(2) }}</td>
+                        </tr>
+                        {% if totalHits > 150 %}
+                            <tr>
+                                {% set totalHits = resultSetAbstracts.getTotalHits %}
+                                <td colspan="5"><strong>Total of mentions:</strong> {{ totalHits }}. (All above scores are for the {{hitsShowed}} displayed hits). <br/>Click here to display all results</td>
+                            </tr>
+                        {% endif %}
+                    </table>
+                </div>
+                    <div class="clear-both"></div>
+                    <table id="tableResults" class="tablesorter">
+                        <thead>
+                            <th>Pubmed Link</th>
+                            <th>Score</th>
+                            <th>Title</th>
+                            <th>Abstract</th>
+                        </thead>
+                        <tbody>
+                            {% set contador = 1 %}
+                            {% for result in arrayResultsAbs %}
+                                <tr class="document {{ cycle(['odd', 'even'], contador) }}">
+                                    {% set contador = contador + 1 %}
+                                    {% set className = result.getType %}
+                                    {% set pmid=result.getSource['pmid'] %}
+                                    {% set title=result.getSource['title'] %}
+                                    {% set text=result.getSource['text'] %}
+                                    {% set score = result.getSource['score'] | number_format(2)%}
+                                    {% set score = score|colorCodingScore %}
+                                    {% if className == "abstracts" %}
+                                        {% set pmid=result.getSource['pmid'] %}
+                                        {% set link="http://www.ncbi.nlm.nih.gov/pubmed/" ~ pmid %}
+                                        {% set imageRoute = 'images/pubmed.png' %}
+                                    {% endif%}
+                                    <td class="center">
+                                        <a href="{{ link }}" target="_blank"><img src="{{ asset(imageRoute) }}" class="outlinkLogo"/></a>
+                                    </td>
+                                    <td class="center">
+                                        {{ score  | raw}}
+                                    </td>
+                                    <td>
+                                        <strong>{{ title | raw }}</strong>
+                                    </td>
+                                    <td>
+                                        {{ text | raw }}
+                                    </td>
+                                </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    <!-- here pagination block for abstracts -->
+                    <div class="pagination">
+                        {{ simple_paginator_render(
+                            'elasticSearch_search_keyword', 'abstracts',
+                                {
+                                    'routeParams' : {'keyword' : keyword},
+                                    'container_class' : 'pagination'
+                                }
+                            )
+                        }}
+                    </div>
+                </div>
+            {% endif %}
+        {% endif %}
+        {# Here we rebuild the stringStickyTooltip inside its container divs #}
+        <div id="mystickytooltip" class="stickytooltip">
+            <div style="padding:5px">
+                {{ stringStickyTooltip | raw }}
+            </div>
+            <div class="stickystatus"></div>
+        </div>
+    {% include 'MelanomamineFrontendBundle:Search:scripts_code.html.twig' %}
+{% endblock %}

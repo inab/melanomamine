@@ -1,0 +1,46 @@
+
+class UtilityExtension extends \Twig_Extension
+{
+    protected $doctrine;
+    protected $generator;
+
+    public function __construct(RegistryInterface $doctrine, UrlGeneratorInterface $generator)
+    {
+        $this->doctrine = $doctrine;
+        $this->generator = $generator;
+    }
+
+    public function getFilters()
+    {
+        return array(
+            new \Twig_SimpleFilter('getScoreToShow', array($this, 'getScoreToShowFilter')),
+        );
+    }
+
+    public function getScoreToShowFilter($orderBy){
+        switch ($orderBy) {
+            case $orderBy == "hepval":
+                $orderBy ="SVM";
+                break;
+            case $orderBy == "svmConfidence":
+                $orderBy ="Conf.";
+                break;
+            case $orderBy == "patternCount":
+                $orderBy ="Pattern";
+                break;
+            case $orderBy == "hepTermVarScore":
+                $orderBy ="Term";
+                break;
+            case $orderBy == "ruleScore":
+                $orderBy ="Rule";
+                break;
+        }
+        return $orderBy;
+    }
+
+    public function getName()
+    {
+        return 'utility_extension';
+    }
+}
+

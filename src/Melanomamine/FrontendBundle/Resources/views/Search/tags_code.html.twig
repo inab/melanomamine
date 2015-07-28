@@ -1,0 +1,18 @@
+<dl class="tabs">
+    <dd class="active"><a href="#keywords" name="keyword">Keywords</a></dd>
+</dl>
+<ul class="tabs-content">
+    <li class="active" id="keywordsTab">
+    <div class="ui-widget">
+        <div class="vis-break cntrtxt">
+            {% if keyword is defined %}
+                <input id="tags-keywords" class="ui-autocomplete-input text tags" onclick="this.value=''" placeholder="e.g. {{ default_keywordSearch }}" aria-haspopup="true" aria-autocomplete="list" role="textbox" autocomplete="off" value="{{ keyword }}">
+            {% else %}
+                <input id="tags-keywords" class="ui-autocomplete-input text tags" onclick="this.value=''" placeholder="e.g. {{ default_keywordSearch }}" aria-haspopup="true" aria-autocomplete="list" role="textbox" autocomplete="off" value="{{ default_keywordSearch }}">
+            {% endif %}
+            <a class="button orange bigSearch" >Search</a>
+        </div>
+    </div>
+  </li>
+</ul>
+<div class="clear-both"></div>
