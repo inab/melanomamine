@@ -38,7 +38,7 @@ twig:
     strict_variables: %kernel.debug%
     globals:
         default_field:  "melanoma"
-        default_keywordSearch:  "melanoma"
+        default_keywordSearch:  "endolysosomal"
         default_whatToSearch_keyword:  "any"
         default_source:   "all"
         mouseover_source: "Document source used (PubMed abstracts/sentences, full text articles, NDAs or EPARs)"

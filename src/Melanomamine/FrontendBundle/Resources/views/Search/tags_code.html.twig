@@ -1,5 +1,9 @@
 <dl class="tabs">
-    <dd class="active"><a href="#keywords" name="keyword">Keywords</a></dd>
+    <dd class="active"><a href="#keywords" name="keyword">Search</a></dd>
+    <dd class="inactive"><a href="#keywords" name="chemicals">Chemicals</a></dd>
+    <dd class="inactive"><a href="#keywords" name="mutations">Mutations</a></dd>
+    <dd class="inactive"><a href="#keywords" name="genes">Genes</a></dd>
+    <dd class="inactive"><a href="#keywords" name="relations">Relations</a></dd>
 </dl>
 <ul class="tabs-content">
     <li class="active" id="keywordsTab">
@@ -11,6 +15,25 @@
                 <input id="tags-keywords" class="ui-autocomplete-input text tags" onclick="this.value=''" placeholder="e.g. {{ default_keywordSearch }}" aria-haspopup="true" aria-autocomplete="list" role="textbox" autocomplete="off" value="{{ default_keywordSearch }}">
             {% endif %}
             <a class="button orange bigSearch" >Search</a>
+        </div>
+
+    </div>
+    <div class="advanceSearch">
+        <div class="large-4 columns">
+            <form class="custom">
+                <fieldset>
+                    <legend>What are you searching?</legend>
+
+                        <span data-tooltip class="has-tip" title="Search in documents with Genes/Proteins"><label for="radioWhatToSearch"><input name="keywordWhatToSearch" type="radio" id="radioKeywordWhatToSearch" style="display:none;" CHECKED value="withGenesProtein"><span class="custom radio"></span> With Genes/Protein</label></span>
+                        <span data-tooltip class="has-tip" title="Search in text where compounds are comentioned"><label for="radioWhatToSearch"><input name="keywordWhatToSearch" type="radio" id="radioKeywordWhatToSearch" style="display:none;" value="withProteinMutations" DISABLED><span class="custom radio"></span> With Protein Mutations</label></span>
+                        <span data-tooltip class="has-tip" title="Search in documents with SNPs"><label for="radioWhatToSearch"><input name="keywordWhatToSearch" type="radio" id="radioKeywordWhatToSearch" style="display:none;" value="withSNPs" DISABLED><span class="custom radio"></span> With SNPs</label></span>
+                        <span data-tooltip class="has-tip" title="Search in documents with DNA mutations"><label for="radioWhatToSearch"><input name="keywordWhatToSearch" type="radio" id="radioKeywordWhatToSearch" style="display:none;" value="withDNAmutations" DISABLED><span class="custom radio"></span> With DNA Mutations</label></span>
+                        <span data-tooltip class="has-tip" title="Search in documents with Chemicals"><label for="radioWhatToSearch"><input name="keywordWhatToSearch" type="radio" id="radioKeywordWhatToSearch" style="display:none;" value="withChemicals" DISABLED><span class="custom radio"></span> With Chemicals</label></span>
+                        <span data-tooltip class="has-tip" title="Search in documents with Drugs"><label for="radioWhatToSearch"><input name="keywordWhatToSearch" type="radio" id="radioKeywordWhatToSearch" style="display:none;" value="withDrugs" DISABLED><span class="custom radio"></span> With Drugs</label></span>
+                        <span data-tooltip class="has-tip" title="Search in documents with Concepts"><label for="radioWhatToSearch"><input name="keywordWhatToSearch" type="radio" id="radioKeywordWhatToSearch" style="display:none;" value="withConcepts" DISABLED><span class="custom radio"></span> With Concepts</label></span>
+                        <span data-tooltip class="has-tip" title="Search in documents with Relations"><label for="radioWhatToSearch"><input name="keywordWhatToSearch" type="radio" id="radioKeywordWhatToSearch" style="display:none;" value="withRelations" DISABLED><span class="custom radio"></span> With Relations</label></span>
+                </fieldset>
+            </form>
         </div>
     </div>
   </li>

@@ -34,6 +34,10 @@ body {
 #wrapper a {
     text-decoration: none;
 }
+#wrapper #top img.logo{
+    height: 40px;
+    vertical-align: bottom;
+}
 section.content {
     margin: 25px auto;
     padding: 0 10px 180px;
@@ -146,7 +150,7 @@ header#top {
     padding-left: 0;
 }
 #applogo a {
-    color: #5697d6;
+    color: #a97354;
     float: left;
     font-family: 'Kaushan Script',cursive;
     font-size: 36px;
@@ -206,6 +210,9 @@ ul.methods li {
     width: auto;
 }
 
+dl dd.inactive{
+    pointer-events: none;
+}
 
 /* -----------------------------------------
     Footer Styles
@@ -264,6 +271,18 @@ section.content {
 }
 section.content a {
     color: #000 !important;
+}
+.tabs dd.active, .tabs li.active {
+    border-top: 3px solid #5c2d2b !important;
+}
+.button {
+    background: #f3b59a none repeat scroll 0 0 ;
+    border: 1px solid #a97354;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) inset;
+}
+.button:hover {
+    background: #a97354 none repeat scroll 0 0 ;
+
 }
 .right-column ul {
     margin: 0;
