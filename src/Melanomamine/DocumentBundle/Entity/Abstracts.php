@@ -42,11 +42,17 @@ class Abstracts
      */
     private $text;
 
+    /**
+     * @var float
+     *
+     * @ORM\Column(name="melanoma_score", type="float")
+     */
+    private $melanoma_score;
 
     /**
      * Get id
      *
-     * @return integer 
+     * @return integer
      */
     public function getId()
     {
@@ -69,7 +75,7 @@ class Abstracts
     /**
      * Get pmid
      *
-     * @return string 
+     * @return string
      */
     public function getPmid()
     {
@@ -92,7 +98,7 @@ class Abstracts
     /**
      * Get title
      *
-     * @return string 
+     * @return string
      */
     public function getTitle()
     {
@@ -115,10 +121,33 @@ class Abstracts
     /**
      * Get text
      *
-     * @return string 
+     * @return string
      */
     public function getText()
     {
         return $this->text;
+    }
+
+     /**
+     * Set melanoma_score
+     *
+     * @param float $melanoma_score
+     * @return Abstracts
+     */
+    public function setMelanoma_score($melanoma_score)
+    {
+        $this->melanoma_score = $melanoma_score;
+
+        return $this;
+    }
+
+    /**
+     * Get melanoma_score
+     *
+     * @return float
+     */
+    public function getMelanoma_score()
+    {
+        return $this->melanoma_score;
     }
 }

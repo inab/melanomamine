@@ -83,8 +83,9 @@ class SearchController extends Controller
         $elasticaQuery  = new \Elastica\Query();
 
         //Order by. Uncomment once the score has been added to the elasticsearch server
-        $elasticaQuery->setSort(array('score' => array('order' => 'desc')));
+        $elasticaQuery->setSort(array('melanoma_score' => array('order' => 'desc')));
         $elasticaQuery->setQuery($elasticaQueryString);
+        #ldd($elasticaQuery);
         //$elasticaQuery->setSize($this->container->getParameter('melanomamine.total_documents_elasticsearch_retrieval'));
         $elasticaQuery->setSize(1500);
         $abstractsInfo = $this->container->get('fos_elastica.index.melanomamine.abstracts');/** To get resultSet to get values for summary**/

@@ -129,6 +129,7 @@ fos_elastica:
                         pmid: { boost: 2, type: string }
                         title: { boost: 3, type: string }
                         text: { boost: 5, type: string }
+                        melanoma_score: { boost: 2, type: float }
                     persistence:
                         driver: orm
                         model: Melanomamine\DocumentBundle\Entity\Abstracts
