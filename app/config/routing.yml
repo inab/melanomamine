@@ -24,12 +24,41 @@ fos_user_change_password:
 
 homepage:
     pattern: /
-    defaults: { _controller: MelanomamineFrontendBundle:Default:home }
+    defaults: { _controller: MelanomamineFrontendBundle:Default:home}
 
-elasticSearch_search:
+search:
     pattern: /search/
     defaults: { _controller: MelanomamineFrontendBundle:Search:search}
 
-elasticSearch_search_keyword:
-    pattern: /search/{keyword}/
-    defaults: { _controller: MelanomamineFrontendBundle:Search:searchKeyword}
+search_keywords:
+    pattern: /search/keywords/{whatToSearch}/{entityName}/
+    defaults: { _controller: MelanomamineFrontendBundle:Search:searchKeywords}
+
+search_genes:
+    pattern: /search/genes/{whatToSearch}/{entityName}/{human}/
+    defaults: { _controller: MelanomamineFrontendBundle:Search:searchGenes, human: "false"}
+
+search_mutations:
+    pattern: /search/mutations/{whatToSearch}/{entityName}/{dna}/{protein}/
+    defaults: { _controller: MelanomamineFrontendBundle:Search:searchMutations, dna: "false", protein: "false"}
+
+
+search_chemicals:
+    pattern: /search/chemicals/{whatToSearch}/{entityName}/
+    defaults: { _controller: MelanomamineFrontendBundle:Search:searchChemicals}
+
+search_diseases:
+    pattern: /search/diseases/{whatToSearch}/{entityName}/
+    defaults: { _controller: MelanomamineFrontendBundle:Search:searchDiseases}
+
+search_mutatedProteins:
+    pattern: /search/mutatedProteins/{whatToSearch}/{entityName}/{human}/
+    defaults: { _controller: MelanomamineFrontendBundle:Search:searchMutatedProteins}
+
+
+
+
+
+#elasticSearch_search_entityType:
+#    pattern: /search/{entityType}/{entityName}/
+#    defaults: { _controller: MelanomamineFrontendBundle:Search:searchEntityType}

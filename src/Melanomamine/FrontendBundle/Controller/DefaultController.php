@@ -11,7 +11,6 @@ class DefaultController extends Controller
 
     public function homeAction()
     {
-        $respuesta = $this->render('MelanomamineFrontendBundle:Default:home.html.twig');
-        return $respuesta;
+        return $this->render('MelanomamineFrontendBundle:Default:home.html.twig');
     }
 }

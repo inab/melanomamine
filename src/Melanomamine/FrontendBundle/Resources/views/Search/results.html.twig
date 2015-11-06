@@ -9,7 +9,7 @@
             {% if resultSetAbstracts.getTotalHits != 0 %}
                 <div id="abstractsResults">
                     <a name="abstracts"></a>
-                    <h3>Ranked Abstracts for "<span class="underline">{{ keyword }}</span>" keyword search</h3>
+                    <h3>Ranked Abstracts for "<span class="underline">{{ entityName }}</span>" keyword search</h3>
                      <div class="results-summary">
                     {% set totalHits = resultSetAbstracts.getTotalHits %}
                     {% set scoreToShow = orderBy | getScoreToShow %}
@@ -42,7 +42,7 @@
                                     {% set pmid=result.getSource['pmid'] %}
                                     {% set title=result.getSource['title'] %}
                                     {% set text=result.getSource['text'] %}
-                                    {% set score = result.getSource['score'] | number_format(2)%}
+                                    {% set score = result.getSource['melanoma_score'] | number_format(2)%}
                                     {% set score = score|colorCodingScore %}
                                     {% if className == "abstracts" %}
                                         {% set pmid=result.getSource['pmid'] %}
@@ -68,9 +68,9 @@
                     <!-- here pagination block for abstracts -->
                     <div class="pagination">
                         {{ simple_paginator_render(
-                            'elasticSearch_search_keyword', 'abstracts',
+                            'search_keywords', 'abstracts',
                                 {
-                                    'routeParams' : {'keyword' : keyword},
+                                    'routeParams' : {'entityType' : entityType, 'whatToSearch' : whatToSearch, 'entityName' : entityName},
                                     'container_class' : 'pagination'
                                 }
                             )

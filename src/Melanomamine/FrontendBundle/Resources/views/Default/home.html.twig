@@ -1,7 +1,10 @@
+{% set entityType = "keywords" %}
+{% set whatToSearch = "freeText" %}
+{% set entityName = "Endolysosomal" %}
 {% extends '::frontend.html.twig' %}
 {% block title %}Welcome to Melanomamine{% endblock %}
 {% block article %}
-    {% include 'MelanomamineFrontendBundle:Search:tags_code.html.twig' %}
+    {% include 'MelanomamineFrontendBundle:Search:tags_home_code.html.twig'%}
     <section class="row display" role="main">
         <article class="twelve columns">
             <h6>MelanomaMine (text mining for melanoma)</h6>

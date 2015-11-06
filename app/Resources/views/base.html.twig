@@ -54,6 +54,11 @@
 
         $(document).ready(function()
         {
+            $('a.tab').click(function(e)
+            {
+                // Cancel the default action
+                e.preventDefault();
+            });
         });
 
 

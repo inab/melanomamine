@@ -1,14 +1,55 @@
 {% block javascripts_footer %}
     <script type="application/javascript">
         $(".bigSearch").click(function(e) {
-            keyword = $('#tags-keywords').val();
-            if (keyword==""){
+            var entityType=$('.tabs dd.active a').attr('name');
+
+            if (entityName==""){
                 alert("Please type the entity to search for");
                 return false;
-            }else{
-                link='{{ path('elasticSearch_search') }}'+keyword+'/';
-                $('.bigSearch').attr('href',link);
             }
+            //whatToSearch depends on entityType previous selection
+            switch(entityType){
+                case "keywords":
+                    whatToSearch = $('input[name=keywordWhatToSearch]:checked').val();
+                    var entityName = $('#tags-keywords').val();
+                    link='{{ path('search') }}'+entityType+'/'+whatToSearch+'/'+entityName+'/';
+                    break;
+                case "genes":
+                    whatToSearch = $('input[name=geneWhatToSearch]:checked').val();
+                    human = $('input[name=geneHuman]').is(':checked');
+                    if(human==true){
+                        human="human"
+                    }else{
+                        human="not_human";
+                    }
+                    var entityName = $('#tags-genes').val();
+                    link='{{ path('search') }}'+entityType+'/'+whatToSearch+'/'+entityName+'/'+human+'/';
+                    break;
+                case "mutations":
+                    whatToSearch = $('input[name=mutationWhatToSearch]:checked').val();
+                    dna = $('input[name=mutationDNA]').is(':checked');
+                    protein = $('input[name=mutationProtein]').is(':checked');
+                    var entityName = $('#tags-mutations').val();
+                    link='{{ path('search') }}'+entityType+'/'+whatToSearch+'/'+entityName+'/'+dna+'/'+protein+'/';
+                    break;
+                case "chemicals":
+                    whatToSearch = $('input[name=chemicalWhatToSearch]:checked').val();
+                    var entityName = $('#tags-chemicals').val();
+                    link='{{ path('search') }}'+entityType+'/'+whatToSearch+'/'+entityName+'/';
+                    break;
+                case "diseases":
+                    whatToSearch = $('input[name=diseaseWhatToSearch]:checked').val();
+                    var entityName = $('#tags-diseases').val();
+                    link='{{ path('search') }}'+entityType+'/'+whatToSearch+'/'+entityName+'/';
+                    break;
+                case "mutatedProteins":
+                    whatToSearch = $('input[name=mutatedProteinWhatToSearch]:checked').val();
+                    var entityName = $('#tags-mutatedProteins').val();
+                    human = $('input[name=mutatedProteinHuman]').is(':checked');
+                    link='{{ path('search') }}'+entityType+'/'+whatToSearch+'/'+entityName+'/'+human+'/';
+                    break;
+            }
+            $('.bigSearch').attr('href',link);
         })
     </script>
 {% endblock %}

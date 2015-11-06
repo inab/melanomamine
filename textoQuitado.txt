@@ -44,3 +44,65 @@ class UtilityExtension extends \Twig_Extension
     }
 }
 
+
+
+/*
+            $client = new \Elastica\Client(array(
+                'host' => 'limtox.cnio.es',
+                'port' => 9205
+            ));
+            $index = $client->getIndex('melanomamine');
+            $type = $index->getType("abstracts");
+            $query = '{
+                       "query": {
+                           "filtered": {
+                               "filter": {
+                                   "bool": {
+                                       "must": [
+                                           {"exists" : { "field" : "mutatedProteins3" }}
+                                       ]
+                                   }
+                               }
+                           }
+                       }
+                   }
+                   ';
+            $path = $index->getName() . '/' . $type->getName() . '/_search';
+            $method="Request::GET";
+            $response = $client->request($path, $method, $query);
+            ld($response);
+            $responseArray=$response->getData();
+            ldd($responseArray);
+            */
+
+            /*
+            $elasticaQuery = new \Elastica\Query();
+            $filterMissing = new \Elastica\Filter\Missing('mutatedProteins3');
+            $queryBool = new \Elastica\Query\Bool();
+            $filterBool = new \Elastica\Filter\Bool();
+            $filterBool->addMustNot($filterMissing);
+            $queryFiltered = new \Elastica\Query\Filtered($queryBool,$filterBool);
+            $elasticaQuery->setQuery($queryFiltered);
+
+
+            echo json_encode($elasticaQuery->toArray(), JSON_PRETTY_PRINT);
+            $abstractsInfo = $this->container->get('fos_elastica.index.melanomamine.abstracts');
+            $data = $abstractsInfo->search($elasticaQuery);
+            $totalHits = $data->getTotalHits();
+            ldd($totalHits);
+            */
+
+            /*$elasticaQuery = new \Elastica\Query();
+            $elasticaQuery->setQuery(
+              new \Elastica\Query\Filtered(
+                new \Elastica\Query\Bool(),(new \Elastica\Filter\Bool())->addMustNot(new \Elastica\Filter\Missing('mutatedProteins3'))
+              )
+            );
+
+
+            echo json_encode($elasticaQuery->toArray(), JSON_PRETTY_PRINT);
+            $abstractsInfo = $this->container->get('fos_elastica.index.melanomamine.abstracts');
+            $data = $abstractsInfo->search($elasticaQuery);
+            $totalHits = $data->getTotalHits();
+            ldd($totalHits);
+            */
