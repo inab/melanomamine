@@ -315,6 +315,7 @@ class SearchController extends Controller
             'meanScore' => $meanScore,
             'medianScore' => $medianScore,
             'rangeScore' => $rangeScore,
+            'human' => $human,
         ));
     }
 
@@ -351,7 +352,6 @@ class SearchController extends Controller
         }
 
         $queryBool->addMust($nestedQuery);
-
 
         if($whatToSearch!="snps"){
             //Second query to search inside nested genes.ontologyId to see if it's a human gene
@@ -420,6 +420,8 @@ class SearchController extends Controller
             'meanScore' => $meanScore,
             'medianScore' => $medianScore,
             'rangeScore' => $rangeScore,
+            'dna' => $dna,
+            'protein' => $protein,
         ));
 
     }
@@ -611,8 +613,10 @@ class SearchController extends Controller
         //First query to search inside nested genes.mention
         $searchNested = new \Elastica\Query\QueryString();
         $searchNested->setParam('query', $entityName);
-        if($whatToSearch=="name"){
+        if($whatToSearch=="proteinName"){
             $searchNested->setParam('fields', array('mutatedProteins3.mention'));
+        }elseif($whatToSearch=="mutationName"){
+            $searchNested->setParam('fields', array('mutatedProteins3.geneMention'));
         }elseif($whatToSearch=="uniprotAccession"){
             $searchNested->setParam('fields', array('mutatedProteins3.uniprotAccession'));
         }elseif($whatToSearch=="geneId"){
@@ -648,7 +652,7 @@ class SearchController extends Controller
         $totalHits = $data->getTotalHits();
         $totalTime = $data->getTotalTime();
         $arrayAbstracts=$data->getResults();
-$paginator = $this->get('ideup.simple_paginator');
+        $paginator = $this->get('ideup.simple_paginator');
         $arrayResultsAbs = $paginator
             //->setMaxPagerItems($this->container->getParameter('etoxMicrome.number_of_pages'), 'abstracts')
             ->setMaxPagerItems(15, 'abstracts')

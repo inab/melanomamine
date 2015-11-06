@@ -17,11 +17,15 @@
                         <tr>
                             <td><strong>Number of Abstracts displayed:</strong> {{ hitsShowed }}</td>
                         </tr>
-                        {% if totalHits > 150 %}
+                        <tr>
+                            <td><strong>Query time:</strong> {{ hitsShowed }}</td>
+                        </tr>
+                        <--  {% if totalHits > 150 %}
                             <tr>
                                 {% set totalHits = resultSetAbstracts.getTotalHits %}
                                 <td colspan="5"><strong>Number of Abstracts:</strong> {{ totalHits }}. (All above scores are for the {{hitsShowed}} displayed hits). <br/>Click here to display all results</td>
                             </tr>
+                        -->
                         {% endif %}
                     </table>
                 </div>

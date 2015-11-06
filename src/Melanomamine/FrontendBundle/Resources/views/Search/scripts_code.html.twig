@@ -29,6 +29,10 @@
                     whatToSearch = $('input[name=mutationWhatToSearch]:checked').val();
                     dna = $('input[name=mutationDNA]').is(':checked');
                     protein = $('input[name=mutationProtein]').is(':checked');
+                    if ((dna=="")&&(protein=="")){
+                        alert("Please select at least one checkbox for \"Dna/Protein mutations\"");
+                        return false;
+                    }
                     var entityName = $('#tags-mutations').val();
                     link='{{ path('search') }}'+entityType+'/'+whatToSearch+'/'+entityName+'/'+dna+'/'+protein+'/';
                     break;
