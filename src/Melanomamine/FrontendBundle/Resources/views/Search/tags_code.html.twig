@@ -407,11 +407,14 @@
                     <fieldset>
                         <legend>Human</legend>
                             {% if human is defined %}
-                                <input type="checkbox" id="mutatedProteinCheckbox" name="mutatedProteinHuman" value="human" checked> (Yes / No)<br>
+                                {% if human == "true" %}
+                                    <input type="checkbox" id="mutatedProteinCheckbox" name="mutatedProteinHuman" value="human" checked> (Yes / No)<br>
+                                {% else %}
+                                    <input type="checkbox" id="mutatedProteinCheckbox" name="mutatedProteinHuman" value="human"> (Yes / No)<br>
+                                {% endif %}
                             {% else %}
                                 <input type="checkbox" id="mutatedProteinCheckbox" name="mutatedProteinHuman" value="human"> (Yes / No)<br>
                             {% endif %}
-
                     </fieldset>
                 </div>
             </form>

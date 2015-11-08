@@ -965,6 +965,7 @@ class SearchController extends Controller
             'medianScore' => $medianScore,
             'rangeScore' => $rangeScore,
             'totalTime' => $totalTime,
+            'human' => $human,
             'stringHtml' => $stringHtml,
         ));
 

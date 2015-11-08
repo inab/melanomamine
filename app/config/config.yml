@@ -44,7 +44,7 @@ twig:
         default_mutationSearch: "V599E"
         default_chemicalSearch: "vemurafenib"
         default_diseaseSearch: "Parkinson"
-        default_mutatedProteinSearch: "{default_mutatedProtein_search_value}"
+        default_mutatedProteinSearch: "BRAF"
         default_mutatedProteinMeshIdSearch: "{default_mutatedProtein_MeshId_search_value}"
         default_whatToSearch_keyword:  "any"
         default_source:   "all"

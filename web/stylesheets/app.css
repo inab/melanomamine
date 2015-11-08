@@ -859,8 +859,11 @@ ol.tutorial li{
 .cytoscape_tool{
     border-top: 1px solid #000;
 }
-span.chemical_highlight{
+span.chemicals_highlight{
     background-color: #f0f6a6;
+}
+span.mutations_highlight{
+    background-color: #8ef3f5;
 }
 span.diseases_highlight{
     background-color: #e2c0f7;
