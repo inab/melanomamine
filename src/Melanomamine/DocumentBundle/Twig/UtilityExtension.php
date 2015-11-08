@@ -21,9 +21,96 @@ class UtilityExtension extends \Twig_Extension
     public function getFilters()
     {
         return array(
+            new \Twig_SimpleFilter('highlight', array($this, 'highlight')),
             new \Twig_SimpleFilter('getScoreToShow', array($this, 'getScoreToShowFilter')),
             new \Twig_SimpleFilter('colorCodingScore', array($this, 'colorCodingScoreFilter')),
         );
+    }
+
+
+    public function highlight($source, $entityName){
+        $offset=0; //To handle the offset of the text's starting point
+        $title=$source["title"];
+        $text=$source["text"];
+        $titleText=$title . $text;
+
+        /*
+            For highlighting we create an array of dictionaries:  [{"start":4, "end": 20, "typeOf": "genes"},{"start":23, "end": 50, "typeOf": "diseases2"},{"start":56, "end": 80, "typeOf": "genes"},{"start":93, "end": 120, "typeOf": "mutatedProteins3"}...]
+            We short it taking into account the "start" field
+            We cut the string in parts and add span tags with colors. Then we concatenate the resulting strings and split the Title
+
+        */
+
+        $arrayDictionaries=[];
+        $arrayIndexes=["chemicals", "diseases2", "genes", "mutatedProteins3", "snps", "species"];
+        ld($source);
+        foreach($arrayIndexes as $index){
+            ld($index);
+            if (array_key_exists($index, $source)){
+                $typeOf=$index;
+                $arrayData=$source[$index];//At $arrayData we have iteratively an array of chemicals, an array of diseases2... etc
+                ld($arrayData);
+                foreach($arrayData as $data){
+                    ld($data);
+                    $dictionaryTmp=[];
+                    $dictionaryTmp["typeOf"]=$typeOf;
+                    $dictionaryTmp["start"]=$data["startMention"];
+                    $dictionaryTmp["end"]=$data["endMention"];
+                    $dictionaryTmp["mention"]=$data["mention"];
+                    array_push($arrayDictionaries, $dictionaryTmp);
+                }
+            }
+        }
+        usort($arrayDictionaries,function($item1, $item2){
+                if ($item1['start'] == $item2['start']) return 0;
+                return ($item1['start'] > $item2['start']) ? 1 : -1;
+            }
+        );
+        ld($arrayDictionaries);
+        //Now we generate the new arrayString with the added highlights:
+        //We have to iterate over the arrayDictionaries and mark $titleTextDefinitive
+        foreach($arrayDictionaries as $dictionary){
+            $start=$dictionary["start"];
+            $end=$dictionary["end"];
+            $typeOf=$dictionary["typeOf"];
+            //The string_to_insert will be different depending on the typeOf. Therefore:
+            switch ($typeOf){
+                case "chemicals":
+                    $str_to_insert="<span class='chemical_highlight'>";
+                    $addToOffset=33;
+                    break;
+                case "diseases2":
+                    $str_to_insert="<span class='diseases_highlight'>";
+                    $addToOffset=33;
+                    break;
+                case "genes":
+                    $str_to_insert="<span class='genes_highlight'>";
+                    $addToOffset=30;
+                    break;
+                case "mutatedProteins3":
+                    $str_to_insert="<span class='mutatedProteins_highlight'>";
+                    $addToOffset=40;
+                    break;
+                case "snps":
+                    $str_to_insert="<span class='snps_highlight'>";
+                    $addToOffset=29;
+                    break;
+                case "species":
+                    $str_to_insert="<span class='species_highlight'>";
+                    $addToOffset=32;
+                    break;
+            }
+            //Change at start position
+            $titleText = substr_replace($titleText, $str_to_insert, $start+$offset-1, 0);
+            $offset=$offset+$addToOffset;
+            //Change at end position
+            $str_to_insert="</span>";
+            $titleText = substr_replace($titleText, $str_to_insert, $end+$offset-1, 0);
+            $offset=$offset+7;
+
+        }
+        ld($titleText);
+        return ($titleText);//Remember to return an array with [0]=title_highlighted, [1]=text_highlighted
     }
 
     public function getScoreToShowFilter($orderBy){

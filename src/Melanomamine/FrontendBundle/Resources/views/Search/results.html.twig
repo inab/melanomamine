@@ -18,9 +18,9 @@
                             <td><strong>Number of Abstracts displayed:</strong> {{ hitsShowed }}</td>
                         </tr>
                         <tr>
-                            <td><strong>Query time:</strong> {{ hitsShowed }}</td>
+                            <td><strong>Query time:</strong> {{ totalTime }} ms.</td>
                         </tr>
-                        <--  {% if totalHits > 150 %}
+                        <!--  {% if totalHits > 150 %}
                             <tr>
                                 {% set totalHits = resultSetAbstracts.getTotalHits %}
                                 <td colspan="5"><strong>Number of Abstracts:</strong> {{ totalHits }}. (All above scores are for the {{hitsShowed}} displayed hits). <br/>Click here to display all results</td>
@@ -39,34 +39,14 @@
                         </thead>
                         <tbody>
                             {% set contador = 1 %}
-                            {% for result in arrayResultsAbs %}
-                                <tr class="document {{ cycle(['odd', 'even'], contador) }}">
-                                    {% set contador = contador + 1 %}
-                                    {% set className = result.getType %}
-                                    {% set pmid=result.getSource['pmid'] %}
-                                    {% set title=result.getSource['title'] %}
-                                    {% set text=result.getSource['text'] %}
-                                    {% set score = result.getSource['melanoma_score'] | number_format(2)%}
-                                    {% set score = score|colorCodingScore %}
-                                    {% if className == "abstracts" %}
-                                        {% set pmid=result.getSource['pmid'] %}
-                                        {% set link="http://www.ncbi.nlm.nih.gov/pubmed/" ~ pmid %}
-                                        {% set imageRoute = 'images/pubmed.png' %}
-                                    {% endif%}
-                                    <td class="center">
-                                        <a href="{{ link }}" target="_blank" title="PMID: {{pmid}}"><img src="{{ asset(imageRoute) }}" class="outlinkLogo"/></a>
-                                    </td>
-                                    <td class="center">
-                                        {{ score  | raw}}
-                                    </td>
-                                    <td>
-                                        <strong>{{ title | raw }}</strong>
-                                    </td>
-                                    <td>
-                                        {{ text | raw }}
-                                    </td>
-                                </tr>
-                        {% endfor %}
+
+
+                            {{ stringHtml | raw }}
+
+
+
+
+
                         </tbody>
                     </table>
                     <!-- here pagination block for abstracts -->

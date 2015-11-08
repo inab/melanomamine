@@ -189,7 +189,7 @@
                                 <span class="has-tip" title="Search for substitutions"><label for="radioWhatToSearch"><input name="mutationWhatToSearch" type="radio" id="radioMutationWhatToSearch" style="display:none;" value="substitutions" ><span class="custom radio"></span> Substitutions</label></span>
                             {% endif %}
 
-                            {% if whatToSearch == "insertios" %}
+                            {% if whatToSearch == "insertions" %}
                                 <span  class="has-tip" title="Search for insertions"><label for="radioWhatToSearch"><input name="mutationWhatToSearch" type="radio" id="radioMutationWhatToSearch" style="display:none;" value="insertions" CHECKED><span class="custom radio"></span> Insertions</label></span>
                             {% else %}
                                 <span  class="has-tip" title="Search for insertions"><label for="radioWhatToSearch"><input name="mutationWhatToSearch" type="radio" id="radioMutationWhatToSearch" style="display:none;" value="insertions"><span class="custom radio"></span> Insertions</label></span>
@@ -235,6 +235,8 @@
                                 {% else %}
                                     <input type="checkbox" id="mutationDNACheckbox" name="mutationDNA" value="dna"> DNA<br>
                                 {% endif %}
+                            {% else %}
+                                <input type="checkbox" id="mutationDNACheckbox" name="mutationDNA" value="dna"> DNA<br>
                             {% endif %}
                             {% if protein is defined %}
                                 {% if protein == "true" %}
@@ -242,6 +244,8 @@
                                 {% else %}
                                     <input type="checkbox" id="mutationProteinCheckbox" name="mutationProtein" value="protein"> Protein<br>
                                 {% endif %}
+                            {% else %}
+                                    <input type="checkbox" id="mutationProteinCheckbox" name="mutationProtein" value="protein"> Protein<br>
                             {% endif %}
                     </fieldset>
                 </div>
@@ -373,7 +377,7 @@
                 <div class="large-3 columns">
                     <fieldset>
                         <legend>What are you searching?</legend>
-                            {% if whatToSearch == "name" or entityType != "mutatedProteins" %}
+                            {% if whatToSearch == "proteinName" or entityType != "mutatedProteins" %}
                                 <span class="has-tip" title="Search for Protein Names"><label for="radioWhatToSearch"><input name="mutatedProteinWhatToSearch" type="radio" id="radioMutatedProteinWhatToSearch" style="display:none;" value="proteinName" CHECKED><span class="custom radio"></span> Protein name</label></span>
                             {% else %}
                                 <span class="has-tip" title="Search for Protein Names"><label for="radioWhatToSearch"><input name="mutatedProteinWhatToSearch" type="radio" id="radioMutatedProteinWhatToSearch" style="display:none;" value="proteinName"><span class="custom radio"></span> Protein name</label></span>

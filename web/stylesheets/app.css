@@ -859,3 +859,21 @@ ol.tutorial li{
 .cytoscape_tool{
     border-top: 1px solid #000;
 }
+span.chemical_highlight{
+    background-color: #f0f6a6;
+}
+span.diseases_highlight{
+    background-color: #e2c0f7;
+}
+span.genes_highlight{
+    background-color: #dffcff;
+}
+span.mutatedProteins_highlight{
+    background-color: #f7dee2;
+}
+span.snps_highlight{
+    background-color: #8aa48a;
+}
+span.species_highlight{
+    background-color: #cdf9c4;
+}
