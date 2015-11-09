@@ -889,9 +889,9 @@ class SearchController extends Controller
         $searchNested = new \Elastica\Query\QueryString();
         $searchNested->setParam('query', $entityName);
         if($whatToSearch=="proteinName"){
-            $searchNested->setParam('fields', array('mutatedProteins3.geneMention'));
-        }elseif($whatToSearch=="mutationName"){
             $searchNested->setParam('fields', array('mutatedProteins3.mention'));
+        }elseif($whatToSearch=="mutationName"){
+            $searchNested->setParam('fields', array('mutatedProteins3.geneMention'));
         }elseif($whatToSearch=="uniprotAccession"){
             $searchNested->setParam('fields', array('mutatedProteins3.uniprotAccession'));
         }elseif($whatToSearch=="geneId"){
