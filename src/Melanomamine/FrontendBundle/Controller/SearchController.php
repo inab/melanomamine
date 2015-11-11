@@ -478,8 +478,6 @@ class SearchController extends Controller
 
             if ($human=="human"){
                 $queryBool->addMust($nestedQuery2);
-            }elseif($human=="not_human"){
-                $queryBool->addMustNot($nestedQuery2);
             }
 
             $elasticaQuery->setQuery($queryBool);
@@ -523,8 +521,6 @@ class SearchController extends Controller
 
             if ($human=="human"){
                 $queryBool->addMust($nestedQuery2);
-            }elseif($human=="not_human"){
-                $queryBool->addMustNot($nestedQuery2);
             }
 
             $elasticaQuery->setQuery($queryBool);
@@ -585,6 +581,7 @@ class SearchController extends Controller
     public function searchMutationsAction($whatToSearch, $entityName, $dna, $protein)
     {
         $message="inside searchMutationsAction";
+
         $entityType="mutations";
         $finder = $this->container->get('fos_elastica.index.melanomamine.abstracts');
 
@@ -616,7 +613,7 @@ class SearchController extends Controller
         $queryBool->addMust($nestedQuery);
 
         if($whatToSearch!="snps"){
-            //Second query to search inside nested genes.ontologyId to see if it's a human gene
+            //Second query to search for the type of mutation:
             $searchNested2 = new \Elastica\Query\QueryString();
             $searchNested2->setParam('fields', array('mutations.mutationClass'));
             if($whatToSearch=="substitutions"){
@@ -637,8 +634,24 @@ class SearchController extends Controller
             $queryBool->AddMust($nestedQuery2);
 
         }
+        //We need a third query to search for dna/protein mutations
+        /*
+        if($whatToSearch!="snps"){
+            //Second query to search for the type of mutation:
+            $searchNested3 = new \Elastica\Query\QueryString();
+            $searchNested3->setParam('fields', array('mutations.sequenceClass'));
+
+            $searchNested3->setParam('query', "Frame_shift");
+            $nestedQuery3 = new \Elastica\Query\Nested();
+            $nestedQuery3->setQuery($searchNested3);
+            $nestedQuery3->setPath('mutations');
+
+            $queryBool->AddMust($nestedQuery3);
+
+        }*/
 
         $elasticaQuery->setQuery($queryBool);
+
 
 
         $data = $finder->search($elasticaQuery);
@@ -889,9 +902,9 @@ class SearchController extends Controller
         $searchNested = new \Elastica\Query\QueryString();
         $searchNested->setParam('query', $entityName);
         if($whatToSearch=="proteinName"){
-            $searchNested->setParam('fields', array('mutatedProteins3.mention'));
-        }elseif($whatToSearch=="mutationName"){
             $searchNested->setParam('fields', array('mutatedProteins3.geneMention'));
+        }elseif($whatToSearch=="mutationName"){
+            $searchNested->setParam('fields', array('mutatedProteins3.mention'));
         }elseif($whatToSearch=="uniprotAccession"){
             $searchNested->setParam('fields', array('mutatedProteins3.uniprotAccession'));
         }elseif($whatToSearch=="geneId"){
@@ -916,8 +929,6 @@ class SearchController extends Controller
 
         if ($human=="human"){
             $queryBool->addMust($nestedQuery2);
-        }elseif($human=="not_human"){
-            $queryBool->addMustNot($nestedQuery2);
         }
 
         $elasticaQuery->setQuery($queryBool);

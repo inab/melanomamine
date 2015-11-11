@@ -10,7 +10,7 @@
             {% if resultSetAbstracts.getTotalHits != 0 %}
                 <div id="abstractsResults">
                     <a name="abstracts"></a>
-                    <h3>Ranked Abstracts for "<span class="underline">{{ entityName }}</span>" keyword search</h3>
+                    <h3>Ranked Abstracts for "<span class="underline">{{ entityName }}</span>" {#  {{ entityType | capitalize }} search</h3> #}
                     <div class="btmspc-dbl">
                         <small>
                             <em>
@@ -36,8 +36,9 @@
                                 {% set totalHits = resultSetAbstracts.getTotalHits %}
                                 <td colspan="5"><strong>Number of Abstracts:</strong> {{ totalHits }}. (All above scores are for the {{hitsShowed}} displayed hits). <br/>Click here to display all results</td>
                             </tr>
+                            {% endif %}
                         -->
-                        {% endif %}
+
                     </table>
                 </div>
                     <div class="clear-both"></div>

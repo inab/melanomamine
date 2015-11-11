@@ -16,12 +16,7 @@
                     break;
                 case "genes":
                     whatToSearch = $('input[name=geneWhatToSearch]:checked').val();
-                    human = $('input[name=geneHuman]').is(':checked');
-                    if(human==true){
-                        human="human"
-                    }else{
-                        human="not_human";
-                    }
+                    human = $('input[name=geneHuman]:checked').val();
                     var entityName = $('#tags-genes').val();
                     link='{{ path('search') }}'+entityType+'/'+whatToSearch+'/'+entityName+'/'+human+'/';
                     break;
@@ -49,7 +44,7 @@
                 case "mutatedProteins":
                     whatToSearch = $('input[name=mutatedProteinWhatToSearch]:checked').val();
                     var entityName = $('#tags-mutatedProteins').val();
-                    human = $('input[name=mutatedProteinHuman]').is(':checked');
+                    human = $('input[name=mutatedProteinsHuman]:checked').val();
                     link='{{ path('search') }}'+entityType+'/'+whatToSearch+'/'+entityName+'/'+human+'/';
                     break;
             }

@@ -39,7 +39,7 @@ twig:
     globals:
         default_field:  "melanoma"
         default_entityType: "keywords"
-        default_keywordSearch:  "endolysosomal"
+        default_keywordSearch:  "metastasis"
         default_geneSearch: "BRAF"
         default_mutationSearch: "V599E"
         default_chemicalSearch: "vemurafenib"
