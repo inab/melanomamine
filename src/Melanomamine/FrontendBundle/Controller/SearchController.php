@@ -69,259 +69,6 @@ class SearchController extends Controller
         return $output;
     }
 
-    public function filterTitleText($source, $filter){
-        $message="Inside filterTitleText";
-        //ld($source);
-
-        /*
-            For highlighting we create an array of dictionaries:  [{"start":4, "end": 20, "typeOf": "genes"},{"start":23, "end": 50, "typeOf": "diseases2"},{"start":56, "end": 80, "typeOf": "genes"},{"start":93, "end": 120, "typeOf": "mutatedProteins3"}...]
-            We short it taking into account the "start" field
-            We cut the string in parts and add span tags with colors. Then we concatenate the resulting strings and split the Title
-
-        */
-        $usedPositions=[];//To track positions already highlighted and avoid double-highlight
-        if($filter=="title"){
-            //Filter source to get only source involved in title positions
-            $titleText=$source["title"];
-            $titleLength=strlen($titleText);
-            $arrayDictionaries=[];
-            $arrayIndexes=["chemicals", "diseases2", "genes", "mutatedProteins3", "snps", "species"];
-            //ld($source);
-            foreach($arrayIndexes as $index){
-                //ld($index);
-                if (array_key_exists($index, $source)){
-                    $typeOf=$index;
-                    $arrayData=$source[$index];//At $arrayData we have iteratively an array of chemicals, an array of diseases2... etc
-                    //ld($arrayData);
-                    foreach($arrayData as $data){
-                        //ld($data);
-                        $dictionaryTmp=[];
-                        $dictionaryTmp["typeOf"]=$typeOf;
-                        if($typeOf == "mutatedProteins3"){
-                            $start=$data["startMutation"];
-                            $end=$data["endMutation"];
-                            $dictionaryTmp["start"]=$start;
-                            $dictionaryTmp["end"]=$end;
-                        }else{
-                            $start=$data["startMention"];
-                            $end=$data["endMention"];
-                            $dictionaryTmp["start"]=$start;
-                            $dictionaryTmp["end"]=$end;
-                        }
-
-                        //Now we check if those positions are already highlighted or not.
-                        //$message="start: $start - end: $end";
-                        //ld($message);
-                        //ld($usedPositions);
-                        if( !in_array($start, $usedPositions) and !in_array($end, $usedPositions)){
-                            //$message="start o end no se encuentran en el array usedPositions. Añadimos todo el rango";
-                            //ld($message);
-                            $dictionaryTmp["mention"]=$data["mention"];
-                            $tmpUsedPositions=range($start,$end);
-                            $usedPositions = array_merge($usedPositions, $tmpUsedPositions);
-                            //ld($usedPositions);
-                            if($start <= $titleLength){
-                                array_push($arrayDictionaries, $dictionaryTmp);
-                                //ld($arrayDictionaries);
-                            }
-                        }else{
-                            $message="start o end se encuentran en el array usedPositions";
-                            //ld($message);
-                        }
-
-                    }
-                }
-            }
-            usort($arrayDictionaries,function($item1, $item2){
-                    if ($item1['start'] == $item2['start']) return 0;
-                    return ($item1['start'] > $item2['start']) ? 1 : -1;
-                }
-            );
-        }elseif($filter=="text"){
-            //Filter source to get only source involved in title positions
-            $titleText=$source["text"];
-
-            $offset=strlen($source["title"]);
-            //ld($offset);
-            $arrayDictionaries=[];
-            $arrayIndexes=["chemicals", "diseases2", "genes", "mutatedProteins3", "snps", "species"];
-            //ld($source);
-            foreach($arrayIndexes as $index){
-                //ld($index);
-                if (array_key_exists($index, $source)){
-                    $typeOf=$index;
-                    $arrayData=$source[$index];//At $arrayData we have iteratively an array of chemicals, an array of diseases2... etc
-                    //ld($arrayData);
-                    foreach($arrayData as $data){
-                        //ld($data);
-                        $dictionaryTmp=[];
-                        $dictionaryTmp["typeOf"]=$typeOf;
-                        if($typeOf == "mutatedProteins3"){
-                            $start=$data["startMutation"];
-                            $end=$data["endMutation"];
-                            $dictionaryTmp["start"]=$start;
-                            $dictionaryTmp["end"]=$end;
-                        }else{
-                            $start=$data["startMention"];
-                            $end=$data["endMention"];
-                            $dictionaryTmp["start"]=$start;
-                            $dictionaryTmp["end"]=$end;
-                        }
-
-                        //Now we check if those positions are already highlighted or not.
-                        //$message="start: $start - end: $end";
-                        //ld($message);
-                        //ld($usedPositions);
-                        if( !in_array($start, $usedPositions) and !in_array($end, $usedPositions)){
-                            //$message="start o end no se encuentran en el array usedPositions. Añadimos todo el rango";
-                            //ld($message);
-                            $dictionaryTmp["mention"]=$data["mention"];
-                            $tmpUsedPositions=range($start,$end);
-                            $usedPositions = array_merge($usedPositions, $tmpUsedPositions);
-                            //ld($usedPositions);
-                            if($start >= $offset){
-                                array_push($arrayDictionaries, $dictionaryTmp);
-                            }
-                        }else{
-                            $message="start o end se encuentran en el array usedPositions";
-                            //ld($message);
-                        }
-                    }
-                }
-            }
-            usort($arrayDictionaries,function($item1, $item2){
-                    if ($item1['start'] == $item2['start']) return 0;
-                    return ($item1['start'] > $item2['start']) ? 1 : -1;
-                }
-            );
-        }
-        return ($arrayDictionaries);
-    }
-
-    public function getHighlighted($source, $titleOrText, $entityName, $startOffset, $filter){
-        $offset=0; //To handle the offset of the text's starting point
-        //$startOffset needs to be substracted to compensate the title positions
-        //ld($source);
-        //ld($titleOrText);
-
-        $arrayDictionaries=$source;
-        //ld($arrayDictionaries);
-        //Now we generate the new arrayString with the added highlights:
-        //We have to iterate over the arrayDictionaries and mark $titleTextDefinitive
-        $counter=1;
-        foreach($arrayDictionaries as $dictionary){
-            $start=$dictionary["start"];
-            //ld($start);
-            $end=$dictionary["end"];
-            $typeOf=$dictionary["typeOf"];
-            //The string_to_insert will be different depending on the typeOf. Therefore:
-            switch ($typeOf){
-                case "chemicals":
-                    $str_to_insert="<span class='chemical_highlight'>";
-                    $addToOffset=33;
-                    break;
-                case "diseases2":
-                    $str_to_insert="<span class='diseases_highlight'>";
-                    $addToOffset=33;
-                    break;
-                case "genes":
-                    $str_to_insert="<span class='genes_highlight'>";
-                    $addToOffset=30;
-                    break;
-                case "mutatedProteins3":
-                    $str_to_insert="<span class='mutatedProteins_highlight'>";
-                    $addToOffset=40;
-                    break;
-                case "snps":
-                    $str_to_insert="<span class='snps_highlight'>";
-                    $addToOffset=29;
-                    break;
-                case "species":
-                    $str_to_insert="<span class='species_highlight'>";
-                    $addToOffset=32;
-                    break;
-            }
-
-            if($filter=="title"){
-                //Change at start position
-                $position=$start-$startOffset+$offset-1;
-                $titleOrText = substr_replace($titleOrText, $str_to_insert, $position, 0);
-                $offset=$offset+$addToOffset;
-
-                //Change at end position
-                $str_to_insert="</span>";
-                $position=$end-$startOffset +$offset;
-                $titleOrText = substr_replace($titleOrText, $str_to_insert, $position, 0);
-                $offset=$offset+7;
-            }elseif($filter=="text"){
-                //Change at start position
-                $position=$start-$startOffset+$offset-1;
-                $titleOrText = substr_replace($titleOrText, $str_to_insert, $position, 0);
-                $offset=$offset+$addToOffset;
-
-                //Change at end position
-                $str_to_insert="</span>";
-                $position=$end-$startOffset +$offset-1;
-                $titleOrText = substr_replace($titleOrText, $str_to_insert, $position, 0);
-                $offset=$offset+7;
-            }
-
-        }
-        //ld($titleOrText);
-        return ($titleOrText);
-    }
-
-    public function getStringHtmlResults($arrayResultsAbs, $entityName){
-        $message="inside getStringHtmlResults";
-        $stringHtml="";
-        //ld($arrayResultsAbs);
-        //ld($entityName);
-        foreach($arrayResultsAbs as $result){
-            //ld($result);
-            $stringHtml.="<tr class='document'>";
-
-            $source=$result->getSource();
-            $pmid = $source['pmid'];
-            $title = $source['title'];
-            $text = $source['text'];
-            $titleText = $title . $text;
-            //ld($titleText);
-
-            //Start Highlight
-            $source=$result->getSource();
-            //First of all we filter $source for title highlight endeavour
-            $sourceTitle=$this->filterTitleText($source, "title");
-            //ld($sourceTitle);
-            //Then we filter $source for text highlight endeavour
-            $sourceText=$this->filterTitleText($source, "text");
-            //ld($sourceText);
-
-            $offset=0;
-
-            $titleHighlighted=$this->getHighlighted($sourceTitle, $title, $entityName, $offset, "title");
-            //ld($titleHighlighted);
-
-            $offset=strlen($title);
-
-            $textHighlighted=$this->getHighlighted($sourceText, $text, $entityName, $offset, "text");
-            //ld($textHighlighted);
-
-            $score = $result->getSource()['melanoma_score_new'];
-            $score = number_format((float)$score, 3, '.', '');
-            $link = "http://www.ncbi.nlm.nih.gov/pubmed/" . $pmid;
-            $imageRoute = 'http://melanomamine.bioinfo.cnio.es/images/pubmed.png';
-            $stringHtml.="<td class='center'>";
-            $stringHtml.="<a href='$link' target='_blank' title='PMID: $pmid'><img src='$imageRoute' class='outlinkLogo'/></a>";
-            $stringHtml.="</td>";
-            $stringHtml.="<td class='center'>$score</td>";
-            $stringHtml.="<td><strong>$titleHighlighted</strong></td>";
-            $stringHtml.="<td>$textHighlighted</td>";
-            $stringHtml.="</tr>";
-        }
-        //ld($stringHtml);
-        return ($stringHtml);
-    }
-
     public function searchKeywordsAction($whatToSearch,$entityName)
     {
 
@@ -418,7 +165,7 @@ class SearchController extends Controller
         $resultSetDocuments = array();
         $arrayResultsDoc = array();
 
-        $stringHtml = $this->getStringHtmlResults($arrayResultsAbs, $entityName);
+        //$stringHtml = $this->getStringHtmlResults($arrayResultsAbs, $entityName);
 
         return $this->render('MelanomamineFrontendBundle:Search:results.html.twig', array(
             'entityType' => $entityType,
@@ -435,7 +182,7 @@ class SearchController extends Controller
             'medianScore' => $medianScore,
             'rangeScore' => $rangeScore,
             'totalTime' => $totalTime,
-            'stringHtml' => $stringHtml,
+            //'stringHtml' => $stringHtml,
         ));
     }
 
@@ -555,7 +302,7 @@ class SearchController extends Controller
         $resultSetDocuments = array();
         $arrayResultsDoc = array();
 
-        $stringHtml = $this->getStringHtmlResults($arrayResultsAbs, $entityName);
+        //$stringHtml = $this->getStringHtmlResults($arrayResultsAbs, $entityName);
 
         return $this->render('MelanomamineFrontendBundle:Search:results.html.twig', array(
             'entityType' => $entityType,
@@ -573,7 +320,7 @@ class SearchController extends Controller
             'rangeScore' => $rangeScore,
             'human' => $human,
             'totalTime' => $totalTime,
-            'stringHtml' => $stringHtml,
+            //'stringHtml' => $stringHtml,
         ));
     }
 
@@ -681,7 +428,7 @@ class SearchController extends Controller
         $resultSetDocuments = array();
         $arrayResultsDoc = array();
 
-        $stringHtml = $this->getStringHtmlResults($arrayResultsAbs, $entityName);
+        //$stringHtml = $this->getStringHtmlResults($arrayResultsAbs, $entityName);
 
 
         return $this->render('MelanomamineFrontendBundle:Search:results.html.twig', array(
@@ -701,7 +448,7 @@ class SearchController extends Controller
             'dna' => $dna,
             'protein' => $protein,
             'totalTime' => $totalTime,
-            'stringHtml' => $stringHtml,
+            //'stringHtml' => $stringHtml,
         ));
 
     }
@@ -760,7 +507,7 @@ class SearchController extends Controller
         $resultSetDocuments = array();
         $arrayResultsDoc = array();
 
-        $stringHtml = $this->getStringHtmlResults($arrayResultsAbs, $entityName);
+        //$stringHtml = $this->getStringHtmlResults($arrayResultsAbs, $entityName);
 
         return $this->render('MelanomamineFrontendBundle:Search:results.html.twig', array(
             'entityType' => $entityType,
@@ -777,7 +524,7 @@ class SearchController extends Controller
             'medianScore' => $medianScore,
             'rangeScore' => $rangeScore,
             'totalTime' => $totalTime,
-            'stringHtml' => $stringHtml,
+            //'stringHtml' => $stringHtml,
         ));
     }
 
@@ -863,7 +610,7 @@ class SearchController extends Controller
         $resultSetDocuments = array();
         $arrayResultsDoc = array();
 
-        $stringHtml = $this->getStringHtmlResults($arrayResultsAbs, $entityName);
+        //$stringHtml = $this->getStringHtmlResults($arrayResultsAbs, $entityName);
 
         return $this->render('MelanomamineFrontendBundle:Search:results.html.twig', array(
             'entityType' => $entityType,
@@ -880,7 +627,7 @@ class SearchController extends Controller
             'medianScore' => $medianScore,
             'rangeScore' => $rangeScore,
             'totalTime' => $totalTime,
-            'stringHtml' => $stringHtml,
+            //'stringHtml' => $stringHtml,
         ));
 
     }
@@ -959,7 +706,7 @@ class SearchController extends Controller
 
         $resultSetDocuments = array();
         $arrayResultsDoc = array();
-        $stringHtml = $this->getStringHtmlResults($arrayResultsAbs, $entityName);
+        //$stringHtml = $this->getStringHtmlResults($arrayResultsAbs, $entityName);
 
         return $this->render('MelanomamineFrontendBundle:Search:results.html.twig', array(
             'entityType' => $entityType,
@@ -977,7 +724,7 @@ class SearchController extends Controller
             'rangeScore' => $rangeScore,
             'totalTime' => $totalTime,
             'human' => $human,
-            'stringHtml' => $stringHtml,
+            //'stringHtml' => $stringHtml,
         ));
 
     }

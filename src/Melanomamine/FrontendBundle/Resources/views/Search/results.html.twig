@@ -17,13 +17,11 @@
                                 Entity mentions are highlighted as follows:
                                 <mark class="termSearched">What you searched</mark>, <span class="genes_highlight">Genes</span>, <span class="mutations_highlight">Mutations</span>, <span class="chemicals_highlight">Chemicals</span>, <span class="diseases_highlight">Diseases</span>, <span class="mutatedProteins_highlight">Mutated Proteins</span>, , <span class="species_highlight">Species</span>
                             </em>
-                            . Curated evidences are indicated by:
-                            <a class="curated" href="#"> </a>
+                            .
                         </small>
                     </div>
                      <div class="results-summary">
                     {% set totalHits = resultSetAbstracts.getTotalHits %}
-                    {% set scoreToShow = orderBy | getScoreToShow %}
                     <table>
                         <tr>
                             <td><strong>Number of Abstracts displayed:</strong> {{ hitsShowed }}</td>
@@ -51,12 +49,26 @@
                         </thead>
                         <tbody>
                             {% set contador = 1 %}
+                            {% for result in arrayResultsAbs %}
+                                <tr class="document {{ cycle(['odd', 'even'], contador) }}">
+                                    {% set contador = contador + 1 %}
+                                    {% set source = result.getSource %}
+                                    {% set pmid = source["pmid"]  %}
+                                    {% set title = source["title"]  %}
+                                    {% set text = source["text"]  %}
+                                    {% set score = source["melanoma_score_new"] %}
+                                    {% set offset = title | length + 1%}
+                                    {% set imageRoute = 'images/pubmed.png' %}
+                                    {% set link="http://www.ncbi.nlm.nih.gov/pubmed/" ~ pmid %}
 
-
-                            {{ stringHtml | raw }}
-
-
-
+                                    <td><a href="{{ link }}" target="_blank"><img src="{{ asset(imageRoute) }}" class="outlinkLogo"/></a></td>
+                                    <td class="center">{{ score }}</td>
+                                    {% set title = title | retrieveHighlighted (source, entityName, startOffset = 0, filter="title") %}
+                                    <td>{{ title | raw }}</td>
+                                    {% set text = text | retrieveHighlighted (source, entityName, offset, filter="text") %}
+                                    <td>{{ text | raw }}</td>
+                                </tr>
+                            {% endfor %}
 
 
                         </tbody>

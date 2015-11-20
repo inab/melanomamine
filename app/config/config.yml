@@ -208,4 +208,3 @@ parameters:
     melanomamine.evidences_per_page: 10
     melanomamine.summaries_per_page: 50
     melanomamine.number_of_pages: 15
-

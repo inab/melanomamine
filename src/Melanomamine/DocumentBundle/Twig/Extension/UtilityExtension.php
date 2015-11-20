@@ -1,6 +1,35 @@
-public function filterTitleText($source, $filter){
+<?php
+
+namespace Melanomamine\DocumentBundle\Twig\Extension;
+
+use Symfony\Bridge\Doctrine\RegistryInterface;
+use Twig_Extension;
+use Twig_Filter_Method;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+
+class UtilityExtension extends \Twig_Extension
+{
+    protected $doctrine;
+    protected $generator;
+
+    public function __construct(RegistryInterface $doctrine, UrlGeneratorInterface $generator)
+    {
+        $this->doctrine = $doctrine;
+        $this->generator = $generator;
+    }
+
+    public function getFilters()
+    {
+        return array(
+            'retrieveHighlighted' => new \Twig_Filter_Method($this, 'retrieveHighlighted'),
+        );
+    }
+
+
+
+    public function filterTitleText($source, $filter){
         $message="Inside filterTitleText";
-        //ld($source);
+        //ld($filter);
 
         /*
             For highlighting we create an array of dictionaries:  [{"start":4, "end": 20, "typeOf": "genes"},{"start":23, "end": 50, "typeOf": "diseases2"},{"start":56, "end": 80, "typeOf": "genes"},{"start":93, "end": 120, "typeOf": "mutatedProteins3"}...]
@@ -30,6 +59,12 @@ public function filterTitleText($source, $filter){
                             $start=$data["startMutation"];
                             $end=$data["endMutation"];
                             $dictionaryTmp["start"]=$start;
+                            $dictionaryTmp["end"]=$end;
+                        }elseif($typeOf=="diseases2"){
+                            //Addded to correct offset error for starting position for diseases in database
+                            $start=$data["startMention"];
+                            $end=$data["endMention"];
+                            $dictionaryTmp["start"]=$start-1;//Addded to correct offset error for starting position for diseases in database
                             $dictionaryTmp["end"]=$end;
                         }else{
                             $start=$data["startMention"];
@@ -90,7 +125,13 @@ public function filterTitleText($source, $filter){
                             $end=$data["endMutation"];
                             $dictionaryTmp["start"]=$start;
                             $dictionaryTmp["end"]=$end;
-                        }else{
+                        }/*elseif($typeOf=="diseases2"){
+                            //Addded to correct offset error for starting position for diseases in database
+                            $start=$data["startMention"];
+                            $end=$data["endMention"];
+                            $dictionaryTmp["start"]=$start-1;//Addded to correct offset error for starting position for diseases in database
+                            $dictionaryTmp["end"]=$end;
+                        }*/else{
                             $start=$data["startMention"];
                             $end=$data["endMention"];
                             $dictionaryTmp["start"]=$start;
@@ -127,12 +168,22 @@ public function filterTitleText($source, $filter){
         return ($arrayDictionaries);
     }
 
-    public function getHighlighted($source, $titleOrText, $entityName, $startOffset, $filter){
+    public function retrieveHighlighted($titleOrText, $source, $entityName, $startOffset, $filter){
+        $message="Inside retrieveHighlighted service";
         $offset=0; //To handle the offset of the text's starting point
         //$startOffset needs to be substracted to compensate the title positions
         //ld($source);
         //ld($titleOrText);
-
+        if($filter=="title"){
+            $source=$this->filterTitleText($source, "title");
+            //ld($startOffset);
+            //ld($source);
+        }elseif($filter=="text"){
+            $source=$this->filterTitleText($source, "text");
+            //ld($titleOrText);
+            //ld($startOffset);
+            //ld($source);
+        }
         $arrayDictionaries=$source;
         //ld($arrayDictionaries);
         //Now we generate the new arrayString with the added highlights:
@@ -146,8 +197,8 @@ public function filterTitleText($source, $filter){
             //The string_to_insert will be different depending on the typeOf. Therefore:
             switch ($typeOf){
                 case "chemicals":
-                    $str_to_insert="<span class='chemical_highlight'>";
-                    $addToOffset=33;
+                    $str_to_insert="<span class='chemicals_highlight'>";
+                    $addToOffset=34;
                     break;
                 case "diseases2":
                     $str_to_insert="<span class='diseases_highlight'>";
@@ -170,10 +221,10 @@ public function filterTitleText($source, $filter){
                     $addToOffset=32;
                     break;
             }
-
+            //ld($str_to_insert);
             if($filter=="title"){
                 //Change at start position
-                $position=$start-$startOffset+$offset-1;
+                $position=$start-$startOffset+$offset;
                 $titleOrText = substr_replace($titleOrText, $str_to_insert, $position, 0);
                 $offset=$offset+$addToOffset;
 
@@ -184,116 +235,73 @@ public function filterTitleText($source, $filter){
                 $offset=$offset+7;
             }elseif($filter=="text"){
                 //Change at start position
-                $position=$start-$startOffset+$offset-1;
+                $position=$start-$startOffset+$offset;
                 $titleOrText = substr_replace($titleOrText, $str_to_insert, $position, 0);
                 $offset=$offset+$addToOffset;
 
                 //Change at end position
                 $str_to_insert="</span>";
-                $position=$end-$startOffset +$offset-1;
+                $position=$end-$startOffset +$offset;
                 $titleOrText = substr_replace($titleOrText, $str_to_insert, $position, 0);
                 $offset=$offset+7;
             }
-
+            //ld($titleOrText);
         }
-        //ld($titleOrText);
         return ($titleOrText);
     }
 
-    public function getStringHtmlResults($arrayResultsAbs, $entityName){
-        $message="inside getStringHtmlResults";
-        $stringHtml="";
-        //ld($arrayResultsAbs);
-        //ld($entityName);
-        foreach($arrayResultsAbs as $result){
-            //ld($result);
-            $stringHtml.="<tr class='document'>";
 
-            $source=$result->getSource();
-            $pmid = $source['pmid'];
-            $title = $source['title'];
-            $text = $source['text'];
-            $titleText = $title . $text;
-            //ld($titleText);
-
-            //Start Highlight
-            $source=$result->getSource();
-            //First of all we filter $source for title highlight endeavour
-            $sourceTitle=$this->filterTitleText($source, "title");
-            //ld($sourceTitle);
-            //Then we filter $source for text highlight endeavour
-            $sourceText=$this->filterTitleText($source, "text");
-            //ld($sourceText);
-
-            $offset=0;
-
-            $titleHighlighted=$this->getHighlighted($sourceTitle, $title, $entityName, $offset, "title");
-            //ld($titleHighlighted);
-
-            $offset=strlen($title);
-
-            $textHighlighted=$this->getHighlighted($sourceText, $text, $entityName, $offset, "text");
-            //ld($textHighlighted);
-
-            $score = $result->getSource()['melanoma_score_new'];
-            $score = number_format((float)$score, 3, '.', '');
-            $link = "http://www.ncbi.nlm.nih.gov/pubmed/" . $pmid;
-            $imageRoute = 'http://melanomamine.bioinfo.cnio.es/images/pubmed.png';
-            $stringHtml.="<td class='center'>";
-            $stringHtml.="<a href='$link' target='_blank' title='PMID: $pmid'><img src='$imageRoute' class='outlinkLogo'/></a>";
-            $stringHtml.="<br/>EntityMention Summary";
-            $stringHtml.="</td>";
-            $stringHtml.="<td class='center'>$score</td>";
-            $stringHtml.="<td><strong>$titleHighlighted</strong></td>";
-            $stringHtml.="<td>$textHighlighted</td>";
-            $stringHtml.="</tr>";
-        }
-        //ld($stringHtml);
-        return ($stringHtml);
-    }
-
-
-
-
-
-
-class UtilityExtension extends \Twig_Extension
-{
-    protected $doctrine;
-    protected $generator;
-
-    public function __construct(RegistryInterface $doctrine, UrlGeneratorInterface $generator)
+    public function colorCodingScoreFilter($score)
     {
-        $this->doctrine = $doctrine;
-        $this->generator = $generator;
-    }
-
-    public function getFilters()
-    {
-        return array(
-            new \Twig_SimpleFilter('getScoreToShow', array($this, 'getScoreToShowFilter')),
-        );
-    }
-
-    public function getScoreToShowFilter($orderBy){
-        switch ($orderBy) {
-            case $orderBy == "hepval":
-                $orderBy ="SVM";
-                break;
-            case $orderBy == "svmConfidence":
-                $orderBy ="Conf.";
-                break;
-            case $orderBy == "patternCount":
-                $orderBy ="Pattern";
-                break;
-            case $orderBy == "hepTermVarScore":
-                $orderBy ="Term";
-                break;
-            case $orderBy == "ruleScore":
-                $orderBy ="Rule";
-                break;
+        if ($score==null){
+            $score="-";
+            return $score;
         }
-        return $orderBy;
+        $score=(float)$score;
+        switch ($score) {
+            case (int)$score === 0:
+                    $score ="<mark class=''>$score</mark>";
+                    break;
+            case $score>5:
+                    $score ="<mark class='score-green-5'>$score</mark>";
+                    break;
+            case $score>4:
+                    $score ="<mark class='score-green-4'>$score</mark>";
+                    break;
+            case $score>3:
+                    $score ="<mark class='score-green-3'>$score</mark>";
+                    break;
+            case $score>2:
+                    $score ="<mark class='score-green-2'>$score</mark>";
+                    break;
+            case $score>1:
+                    $score ="<mark class='score-green-1'>$score</mark>";
+                    break;
+            case $score>0:
+                    $score ="<mark class='score-green-0'>$score</mark>";
+                    break;
+            case $score < -5:
+                    $score ="<mark class='score-red-5'>$score</mark>";
+                    break;
+            case $score < -4:
+                    $score ="<mark class='score-red-4'>$score</mark>";
+                    break;
+            case $score < -3:
+                    $score ="<mark class='score-red-3'>$score</mark>";
+                    break;
+            case $score < -2:
+                    $score ="<mark class='score-red-2'>$score</mark>";
+                    break;
+            case $score < -1:
+                    $score ="<mark class='score-red-1'>$score</mark>";
+                    break;
+            case $score < 0:
+                    $score ="<mark class='score-red-0'>$score</mark>";
+                    break;
+
+
+        }
+        return ($score);
     }
 
     public function getName()
@@ -303,64 +311,4 @@ class UtilityExtension extends \Twig_Extension
 }
 
 
-
-/*
-            $client = new \Elastica\Client(array(
-                'host' => 'limtox.cnio.es',
-                'port' => 9205
-            ));
-            $index = $client->getIndex('melanomamine');
-            $type = $index->getType("abstracts");
-            $query = '{
-                       "query": {
-                           "filtered": {
-                               "filter": {
-                                   "bool": {
-                                       "must": [
-                                           {"exists" : { "field" : "mutatedProteins3" }}
-                                       ]
-                                   }
-                               }
-                           }
-                       }
-                   }
-                   ';
-            $path = $index->getName() . '/' . $type->getName() . '/_search';
-            $method="Request::GET";
-            $response = $client->request($path, $method, $query);
-            ld($response);
-            $responseArray=$response->getData();
-            ldd($responseArray);
-            */
-
-            /*
-            $elasticaQuery = new \Elastica\Query();
-            $filterMissing = new \Elastica\Filter\Missing('mutatedProteins3');
-            $queryBool = new \Elastica\Query\Bool();
-            $filterBool = new \Elastica\Filter\Bool();
-            $filterBool->addMustNot($filterMissing);
-            $queryFiltered = new \Elastica\Query\Filtered($queryBool,$filterBool);
-            $elasticaQuery->setQuery($queryFiltered);
-
-
-            echo json_encode($elasticaQuery->toArray(), JSON_PRETTY_PRINT);
-            $abstractsInfo = $this->container->get('fos_elastica.index.melanomamine.abstracts');
-            $data = $abstractsInfo->search($elasticaQuery);
-            $totalHits = $data->getTotalHits();
-            ldd($totalHits);
-            */
-
-            /*$elasticaQuery = new \Elastica\Query();
-            $elasticaQuery->setQuery(
-              new \Elastica\Query\Filtered(
-                new \Elastica\Query\Bool(),(new \Elastica\Filter\Bool())->addMustNot(new \Elastica\Filter\Missing('mutatedProteins3'))
-              )
-            );
-
-
-            echo json_encode($elasticaQuery->toArray(), JSON_PRETTY_PRINT);
-            $abstractsInfo = $this->container->get('fos_elastica.index.melanomamine.abstracts');
-            $data = $abstractsInfo->search($elasticaQuery);
-            $totalHits = $data->getTotalHits();
-            ldd($totalHits);
-            */
+?>

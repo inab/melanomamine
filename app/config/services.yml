@@ -8,10 +8,11 @@ parameters:
 #        class: AppBundle\Directory\ClassName
 #        arguments: ["@another_service_name", "plain_value", "%parameter_name%"]
 
+
 #Configuration to activate twig extension utilidades
 services:
-    utility.twig_extension:
-        class: Melanomamine\DocumentBundle\Twig\UtilityExtension
+    Melanomamine.twig.extension.utility:
+        class: Melanomamine\DocumentBundle\Twig\Extension\UtilityExtension
         arguments:
             doctrine: "@doctrine"
             router: "@router"
