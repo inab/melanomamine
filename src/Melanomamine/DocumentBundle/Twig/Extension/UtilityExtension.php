@@ -247,6 +247,9 @@ class UtilityExtension extends \Twig_Extension
             }
             //ld($titleOrText);
         }
+        //ld($titleOrText);
+        //Underline entityName
+        $titleOrText=str_replace($entityName, "<span class='underline'>".$entityName."</span>", $titleOrText);
         return ($titleOrText);
     }
 
