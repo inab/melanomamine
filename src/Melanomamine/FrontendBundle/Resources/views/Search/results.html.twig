@@ -23,21 +23,24 @@
                      <div class="results-summary">
                     {% set totalHits = resultSetAbstracts.getTotalHits %}
                     <table>
-                        <tr>
-                            <td><strong>Number of Abstracts displayed:</strong> {{ hitsShowed }}</td>
-                        </tr>
+                        {% if totalHits > 1500 %}
+                            <tr>
+                                {% set totalHits = resultSetAbstracts.getTotalHits %}
+                                <td colspan="5"><strong>Number of Abstracts:</strong> {{ totalHits }}. Only the first 1000 are shown. <br/><span class="grey">(Click here to display all results)</span></td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td><strong>Number of Abstracts:</strong> {{ hitsShowed }}</td>
+                            </tr>
+                        {% endif %}
+
                         <tr>
                             <td><strong>Query time:</strong> {{ totalTime }} ms.</td>
                         </tr>
-                        <!--  {% if totalHits > 150 %}
-                            <tr>
-                                {% set totalHits = resultSetAbstracts.getTotalHits %}
-                                <td colspan="5"><strong>Number of Abstracts:</strong> {{ totalHits }}. (All above scores are for the {{hitsShowed}} displayed hits). <br/>Click here to display all results</td>
-                            </tr>
-                            {% endif %}
-                        -->
+
 
                     </table>
+                    {{ summaryTable | raw }}
                 </div>
                     <div class="clear-both"></div>
                     <table id="tableResults" class="tablesorter">

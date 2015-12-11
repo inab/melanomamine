@@ -164,7 +164,7 @@ fos_elastica:
                                 taxonId:
                                     type: string
                                 existEvidence:
-                                    type: boolean
+                                    type: integer
                     persistence:
                         driver: orm
                         model: Melanomamine\DocumentBundle\Entity\Abstracts

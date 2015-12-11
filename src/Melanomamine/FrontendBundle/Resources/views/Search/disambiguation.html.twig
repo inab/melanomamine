@@ -29,8 +29,8 @@
                         <td class="center">{{ geneProteinName }}</td>
                         <td class="center"><a href="{{ outlinkGenId }}" target="_blank">{{ ncbiGeneId }}</a></td>
                         <td class="center"><a href="{{ outlinkTaxId }}" target="_blank">{{ ncbiTaxId }}</a></td>
-                        {% set stringAliases = arrayAliases | join(", ") %}
-                        <td >{{ stringAliases }}</td>
+                        {% set stringAliases = arrayAliases | join(",&nbsp;&nbsp;&nbsp;") %}
+                        <td >{{ stringAliases | raw }}</td>
                         <td class="disambiguation"><a class="button" href="{{ path('search_genes_expanded', {'whatToSearch': "ncbiGeneId", 'entityName': ncbiGeneId, 'specie': ncbiTaxId, 'searchTerm': entityName }) }}" >Search this {{ entityName }}</a></td>
 
 

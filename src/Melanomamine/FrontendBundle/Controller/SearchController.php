@@ -74,6 +74,147 @@ class SearchController extends Controller
         return $output;
     }
 
+    public function insertMention($dictionarySummary,$field, $mention){
+        //First of all we search for the $field key inside dictionary
+        if (array_key_exists($field, $dictionarySummary)){
+            //We search for the correct place.
+            //First we search if the mention exists
+            $dictionaryField=$dictionarySummary[$field];
+            if(array_key_exists($mention, $dictionaryField)){
+                //If the mention already exists, we count this new mention.
+                $counter=$dictionaryField[$mention];
+                $dictionaryField[$mention]=$counter+1;
+                $dictionarySummary[$field]=$dictionaryField;
+            }else{
+                //We create a new entry for this mention
+                $dictionaryField[$mention]=1;
+                $dictionarySummary[$field]=$dictionaryField;
+            }
+        }else{
+            //Generate a new entry for it in the specified field
+            $tmpDictionary=[];
+            $tmpDictionary[$mention]=1;
+            $dictionarySummary[$field]=$tmpDictionary;
+        }
+
+        return $dictionarySummary;
+    }
+
+    public function createSummaryTable($arrayResults){
+        $message="inside createSummaryTable";
+        //We have to iterate over results in $arrayResults and generate an structure to handle this information
+        //dictionarySummary["genes"]=dictionaryGenes
+        //dictionarySummary["mutations"]=dictionaryMutations   ...and so on
+
+        //dictionaryGenes should have :  dictionaryGenes[gene1]=counter1, dictionaryGenes[gene2]=counter2....    .... dictionaryGenes[genen]=countern
+        // and so on...
+        $dictionarySummary=[];
+        $dictionarySummarySorted=[];
+        foreach($arrayResults as $result){
+            $source=$result->getSource();
+            if ( array_key_exists("genes2", $source) ){
+                $arrayGenes=$source["genes2"];
+                foreach($arrayGenes as $gene){
+                    $mention=$gene["mention"];
+                    $dictionarySummary=$this->insertMention($dictionarySummary,"genes2", $mention);
+                }
+            }
+            if ( array_key_exists("mutations", $source) ){
+                $arrayMutations=$source["mutations"];
+                foreach($arrayMutations as $mutation){
+                    $mention=$mutation["mention"];
+                    $dictionarySummary=$this->insertMention($dictionarySummary,"mutations", $mention);
+                }
+            }
+            if ( array_key_exists("chemicals2", $source) ){
+                $arrayChemicals=$source["chemicals2"];
+                foreach($arrayChemicals as $chemical){
+                    $mention=$chemical["mention"];
+                    $dictionarySummary=$this->insertMention($dictionarySummary,"chemicals2", $mention);
+                }
+            }
+            if ( array_key_exists("diseases2", $source) ){
+                $arrayDiseases=$source["diseases2"];
+                foreach($arrayDiseases as $disease){
+                    $mention=$disease["mention"];
+                    $dictionarySummary=$this->insertMention($dictionarySummary,"diseases2", $mention);
+                }
+            }
+
+            if ( array_key_exists("mutatedProteins3", $source) ){
+                $mutatedProteins=$source["mutatedProteins3"];
+                foreach($mutatedProteins as $mutatedProtein){
+                    $mention=$mutatedProtein["mention"];
+                    $dictionarySummary=$this->insertMention($dictionarySummary,"mutatedProteins3", $mention);
+                }
+            }
+        }
+        //We have to short inner dictionaries and create the stringTable to return
+        if(count($dictionarySummary)!=0){
+            $stringTable="<table class='summaryTable'>";
+
+            if ( array_key_exists("genes2", $dictionarySummary) ){
+                $arrayGenes=$dictionarySummary["genes2"];
+                arsort($arrayGenes);
+
+                $stringTable.="<tr><th>Genes</th><td>";
+                foreach ($arrayGenes as $key => $value){
+                    $stringTable.="$key: $value, ";
+                }
+                $stringTable.="</td></tr>";
+            }
+            if ( array_key_exists("mutations", $dictionarySummary) ){
+                $arrayMutations=$dictionarySummary["mutations"];
+                arsort($arrayMutations);
+
+                $stringTable.="<tr><th>Mutations</th><td>";
+                foreach ($arrayMutations as $key => $value){
+                    $stringTable.="$key: $value, ";
+                }
+                $stringTable.="</td></tr>";
+            }
+            if ( array_key_exists("chemicals2", $dictionarySummary) ){
+                $arrayChemicals=$dictionarySummary["chemicals2"];
+                arsort($arrayChemicals);
+
+                $stringTable.="<tr><th>Chemicals</th><td>";
+                foreach ($arrayChemicals as $key => $value){
+                    $stringTable.="$key: $value, ";
+                }
+                $stringTable.="</td></tr>";
+            }
+            if ( array_key_exists("diseases2", $dictionarySummary) ){
+                $arrayDiseases=$dictionarySummary["diseases2"];
+                arsort($arrayDiseases);
+
+                $stringTable.="<tr><th>Diseases</th><td>";
+                foreach ($arrayDiseases as $key => $value){
+                    $stringTable.="$key: $value, ";
+                }
+                $stringTable.="</td></tr>";
+            }
+
+            if ( array_key_exists("mutatedProteins3", $source) ){
+                $arrayMutatedProteins=$dictionarySummary["mutatedProteins3"];
+                arsort($arrayMutatedProteins);
+
+                $stringTable.="<tr><th>Mutated Proteins</th><td>";
+                foreach ($arrayMutatedProteins as $key => $value){
+                    $stringTable.="$key: $value, ";
+                }
+                $stringTable.="</td></tr>";
+            }
+            $stringTable.="</table>";
+        }
+
+
+        //ld($dictionarySummarySorted);
+
+
+        return $stringTable;
+
+    }
+
     public function searchKeywordsAction($whatToSearch,$entityName)
     {
 
@@ -148,6 +289,8 @@ class SearchController extends Controller
         $totalTime = $data->getTotalTime();
         $arrayAbstracts=$data->getResults();
 
+        $summaryTable = $this->createSummaryTable($arrayAbstracts);
+
         $paginator = $this->get('ideup.simple_paginator');
         $arrayResultsAbs = $paginator
             //->setMaxPagerItems($this->container->getParameter('etoxMicrome.number_of_pages'), 'abstracts')
@@ -187,6 +330,7 @@ class SearchController extends Controller
             'medianScore' => $medianScore,
             'rangeScore' => $rangeScore,
             'totalTime' => $totalTime,
+            'summaryTable' => $summaryTable,
             //'stringHtml' => $stringHtml,
         ));
     }
@@ -216,9 +360,11 @@ class SearchController extends Controller
     {
         $message="inside getArrayQueryExpansion";
         if($queryType=="geneProtein"){
-            $finder = $this->container->get('fos_elastica.index.melanomamine.genesDictionary');
             $entityType="genes";
+        }elseif($queryType=="proteinMutated"){
+            $entityType="mutatedProteins";
         }
+        $finder = $this->container->get('fos_elastica.index.melanomamine.genesDictionary');
 
         $elasticaQuery = new \Elastica\Query();
         //BoolQuery to load 2 queries.
@@ -231,19 +377,21 @@ class SearchController extends Controller
 
         $queryBool->addMust($queryString);
 
+        /*
         //Second query to search inside ncbiTaxId
         $queryString2 = new \Elastica\Query\QueryString();
         $queryString2->setParam('query', 9606);
         $queryString2->setParam('fields', array('ncbiTaxId'));
 
         $queryBool->addMust($queryString2);
-
+        */
         $elasticaQuery->setQuery($queryBool);
 
         $data = $finder->search($elasticaQuery);
         $totalHits = $data->getTotalHits();
         $totalTime = $data->getTotalTime();
         $arrayResults=$data->getResults();
+
 
         //We generate an structure for disambiguation interface. Including Name-ncbiGenId-Array-of-Aliases.
 
@@ -1034,7 +1182,10 @@ class SearchController extends Controller
 
     public function searchMutatedProteinsAction($whatToSearch, $entityName, $specie)
     {
-        ldd($whatToSearch);
+        $message = "inside searchMutatedProteinsAction";
+        if($whatToSearch == "proteinName" && $specie == "queryExpansion"){
+            return $arrayQueryExpanded=$this->disambiguationProcess($entityName, $whatToSearch, $specie, "proteinMutated");
+        }
         $message="inside searchMutatedProteinsAction";
         $entityType="mutatedProteins";
         $finder = $this->container->get('fos_elastica.index.melanomamine.abstracts');
