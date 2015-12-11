@@ -13,6 +13,11 @@ use \Elastica9205\Request;
 class SearchController extends Controller
 {
 
+    public function escapeElasticReservedChars($string) {
+        $regex = "/[\\+\\-\\=\\&\\|\\!\\(\\)\\{\\}\\[\\]\\^\\\"\\~\\*\\<\\>\\?\\:\\\\\\/]/";
+        return preg_replace($regex, addslashes('\\$0'), $string);
+    }
+
     public function mmmr($array, $output = 'mean'){
         //Function to get mean(default), median, mode and range of $array input
         if(!is_array($array)){
@@ -186,14 +191,250 @@ class SearchController extends Controller
         ));
     }
 
+    public function getAliases($ncbiGeneId, $queryType){
+        $message="inside getAliases";
+        $finder = $this->container->get('fos_elastica.index.melanomamine.genesDictionary');
+        $elasticaQuery = new \Elastica\Query();
+        $elasticaQuery->setSize(1000);
+        $queryString = new \Elastica\Query\QueryString();
+        $queryString->setParam('query', $ncbiGeneId);
+        $queryString->setParam('fields', array('ncbiGeneId'));
+        $elasticaQuery->setQuery($queryString);
+        $data = $finder->search($elasticaQuery);
+        $totalHits = $data->getTotalHits();
+        $arrayResults=$data->getResults();
+        //Now we generate an array with the Aliases:
+        $arrayAliases=[];
+        foreach($arrayResults as $result){
+            $source=$result->getSource();
+            array_push($arrayAliases, $source["geneProteinName"]);
+        }
+        return($arrayAliases);
+    }
+
+    public function disambiguationProcess($entityName, $whatToSearch, $specie, $queryType)
+    {
+        $message="inside getArrayQueryExpansion";
+        if($queryType=="geneProtein"){
+            $finder = $this->container->get('fos_elastica.index.melanomamine.genesDictionary');
+            $entityType="genes";
+        }
+
+        $elasticaQuery = new \Elastica\Query();
+        //BoolQuery to load 2 queries.
+        $queryBool = new \Elastica\Query\BoolQuery();
+
+        //First query to search inside geneProteinName
+        $queryString = new \Elastica\Query\QueryString();
+        $queryString->setParam('query', $entityName);
+        $queryString->setParam('fields', array('geneProteinName'));
+
+        $queryBool->addMust($queryString);
+
+        //Second query to search inside ncbiTaxId
+        $queryString2 = new \Elastica\Query\QueryString();
+        $queryString2->setParam('query', 9606);
+        $queryString2->setParam('fields', array('ncbiTaxId'));
+
+        $queryBool->addMust($queryString2);
+
+        $elasticaQuery->setQuery($queryBool);
+
+        $data = $finder->search($elasticaQuery);
+        $totalHits = $data->getTotalHits();
+        $totalTime = $data->getTotalTime();
+        $arrayResults=$data->getResults();
+
+        //We generate an structure for disambiguation interface. Including Name-ncbiGenId-Array-of-Aliases.
+
+        $arrayNameIdAliases=[];
+        foreach($arrayResults as $result){
+            $source=$result->getSource();
+            $ncbiGeneId=$source["ncbiGeneId"];
+            $tmpDictionary["geneProteinName"]=$source["geneProteinName"];
+            $tmpDictionary["ncbiGeneId"]=$ncbiGeneId;
+            $tmpDictionary["ncbiTaxId"]=$source["ncbiTaxId"];
+            $arrayAliases=$this->getAliases($ncbiGeneId, $queryType);
+            $tmpDictionary["arrayAliases"]=$arrayAliases;
+
+            array_push($arrayNameIdAliases, $tmpDictionary);
+        }
+        //If theres is only one element inside arrayNameIdAliases, There is no need for disambiguation
+        $message="Go to disambiguation interface";
+        return $this->render('MelanomamineFrontendBundle:Search:disambiguation.html.twig', array(
+            'entityName' => $entityName,
+            'entityType' => $entityType,
+            'whatToSearch' => $whatToSearch,
+            'arrayNameIdAliases' => $arrayNameIdAliases,
+            'specie' => $specie,
+
+        ));
 
 
-    public function searchGenesAction($whatToSearch, $entityName, $human)
+
+        //En $ncbiGeneId tenemos el id para realizar la búsqueda de la query expansion...
+
+        /*
+        $elasticaQuery = new \Elastica\Query();
+        $elasticaQuery->setSize(1000);
+        //BoolQuery to load 2 queries.
+        $queryBool = new \Elastica\Query\BoolQuery();
+
+        //First query to search inside geneProteinName
+        $queryString = new \Elastica\Query\QueryString();
+        $queryString->setParam('query', $ncbiGeneId);
+        $queryString->setParam('fields', array('ncbiGeneId'));
+
+        $queryBool->addMust($queryString);
+
+        //Second query to search inside ncbiTaxId
+        $queryString2 = new \Elastica\Query\QueryString();
+        $queryString2->setParam('query', 9606);
+        $queryString2->setParam('fields', array('ncbiTaxId'));
+
+        $queryBool->addMust($queryString2);
+
+        $elasticaQuery->setQuery($queryBool);
+        $data = $finder->search($elasticaQuery);
+        $totalHits = $data->getTotalHits();
+        ld($totalHits);
+        $totalTime = $data->getTotalTime();
+        $arrayResults=$data->getResults();
+
+        //We generate
+        ldd($arrayGenes);
+        */
+
+    }
+
+    public function performBasicSearch($searchTerm, $fieldToSearch, $type){
+        $message="inside performBasicSearch";
+        //ld($type);
+        //ld($searchTerm);
+        //ld($fieldToSearch);
+        $finder = $this->container->get('fos_elastica.index.melanomamine.'.$type);
+        $elasticaQuery = new \Elastica\Query();
+        //BoolQuery to load 2 queries.
+        $queryBool = new \Elastica\Query\BoolQuery();
+
+        //First query to search inside geneProteinName
+        $queryString = new \Elastica\Query\QueryString();
+        $searchTerm = $this->escapeElasticReservedChars($searchTerm);
+        $queryString->setParam('query', $searchTerm);
+        $queryString->setParam('fields', array($fieldToSearch));
+        //ld($queryString);
+        $queryBool->addMust($queryString);
+
+        $elasticaQuery->setQuery($queryBool);
+
+        $data = $finder->search($elasticaQuery);
+        $totalHits = $data->getTotalHits();
+        $totalTime = $data->getTotalTime();
+        $arrayResults=$data->getResults();
+
+        //Now we have to iterate over the values of these results and repeat the search
+
+        return($arrayResults);
+    }
+
+    public function performNestedSearch($entityName, $type, $mapping, $property){
+        $message="inside performNestedSearch";
+        $finder = $this->container->get('fos_elastica.index.melanomamine.'.$type);
+        $elasticaQuery = new \Elastica\Query();
+        $elasticaQuery->setSize(1000);
+        $elasticaQuery->setSort(array('melanoma_score_new' => array('order' => 'desc')));
+
+        //BoolQuery to load 2 queries.
+        $queryBool = new \Elastica\Query\BoolQuery();
+
+        //First query to search inside nested genes.mention
+        $searchNested = new \Elastica\Query\QueryString();
+        $entityName=$this->escapeElasticReservedChars($entityName);
+        $searchNested->setParam('query', $entityName);
+        $searchNested->setParam('fields', array($mapping.'.'.$property));
+
+        $nestedQuery = new \Elastica\Query\Nested();
+        $nestedQuery->setQuery($searchNested);
+        $nestedQuery->setPath($mapping);
+
+        $queryBool->addMust($nestedQuery);
+
+        $elasticaQuery->setQuery($queryBool);
+
+
+        $data = $finder->search($elasticaQuery);
+        $totalHits = $data->getTotalHits();
+        $totalTime = $data->getTotalTime();
+        $arrayAbstracts=$data->getResults();
+        //ld($arrayAbstracts);
+        return $arrayAbstracts;
+
+    }
+
+    public function getChemicalsQueryExpansion($entityName){
+        $message="inside getChemicalsQueryExpansion";
+        $arrayAliases=[];
+        array_push($arrayAliases, $entityName);
+        //ld($entityName);
+        $entityName = $this->escapeElasticReservedChars($entityName);
+        $finder = $this->container->get('fos_elastica.index.melanomamine.chemicalsDictionary');
+        $entityType="chemicals";
+
+
+        $elasticaQuery = new \Elastica\Query();
+        //BoolQuery to load 2 queries.
+        $queryBool = new \Elastica\Query\BoolQuery();
+
+        //First query to search inside geneProteinName
+        $queryString = new \Elastica\Query\QueryString();
+        $queryString->setParam('query', $entityName);
+        $queryString->setParam('fields', array('chemicalName'));
+
+        $queryBool->addMust($queryString);
+
+        $elasticaQuery->setQuery($queryBool);
+
+        $data = $finder->search($elasticaQuery);
+        $totalHits = $data->getTotalHits();
+        $totalTime = $data->getTotalTime();
+        $arrayResults=$data->getResults();
+        //Now we have to iterate over the values of these results and repeat the search. We focus in chebiId field
+
+        foreach($arrayResults as $result){
+            $chebi = $result->getSource()["chebi"];
+            //ld($chebi);
+            if( $chebi != ""){
+                $arrayTmp=$this->performBasicSearch($chebi,"chebi","chemicalsDictionary");
+                //$arrayTmp=$this->performBasicSearch("vemurafenib","chemicalName","chemicalsDictionary");
+                //$arrayTmp=$this->performBasicSearch("CHEBI\:63637","chebi","chemicalsDictionary");
+                //ld($arrayTmp);
+                foreach($arrayTmp as $tmpResult){
+                    //ld($tmpResult);
+                    $alias=$tmpResult->getSource()["chemicalName"];
+                    array_push($arrayAliases, $alias);
+                }
+            }
+        }
+        //ld($arrayAliases);
+        //Delete duplicates:
+        $arrayAliases=array_unique($arrayAliases);
+        return $arrayAliases;
+    }
+
+    public function searchGenesAction($whatToSearch, $entityName, $specie)
     {
         $entityType="genes";
         $message="inside searchGenesAction";
 
+
         if ($whatToSearch=="geneProteinName"){
+            #First of all we check for query expansion. But we only do this in geneProteinName searches and never for ncbiGeneId
+            if ($specie=="queryExpansion"){
+                return $arrayQueryExpanded=$this->disambiguationProcess($entityName, $whatToSearch, $specie, "geneProtein");
+                ##########################################################################################
+                ##############Stops here going through queryExpansion disambiguation process##############
+                ##########################################################################################
+            }
             $finder = $this->container->get('fos_elastica.index.melanomamine.abstracts');
 
             $elasticaQuery = new \Elastica\Query();
@@ -213,30 +454,42 @@ class SearchController extends Controller
             $nestedQuery->setPath('genes');
 
             $queryBool->addMust($nestedQuery);
-
-            //Second query to search inside nested genes.ontologyId to see if it's a human gene
-            $searchNested2 = new \Elastica\Query\QueryString();
-            $searchNested2->setParam('query', 9606);
-            $searchNested2->setParam('fields', array('genes.ontologyId'));
-
-            $nestedQuery2 = new \Elastica\Query\Nested();
-            $nestedQuery2->setQuery($searchNested2);
-            $nestedQuery2->setPath('genes');
-
-            if ($human=="human"){
-                $queryBool->addMust($nestedQuery2);
-            }
-
             $elasticaQuery->setQuery($queryBool);
 
+            if ($specie=="all"){
+                //No need for specie restriction:
+                $data = $finder->search($elasticaQuery);
+                $totalHits = $data->getTotalHits();
+                $totalTime = $data->getTotalTime();
+                $arrayAbstracts=$data->getResults();
 
-            $data = $finder->search($elasticaQuery);
-            $totalHits = $data->getTotalHits();
-            $totalTime = $data->getTotalTime();
-            $arrayAbstracts=$data->getResults();
 
+            }else{
+                //We need specie restriction
+                if ($specie=="human"){
+                    $specie="9606";
+                }
+                //Second query to search inside nested genes.ontologyId to see if it's a human gene
+                $searchNested2 = new \Elastica\Query\QueryString();
+                $searchNested2->setParam('query', $specie);
+                $searchNested2->setParam('fields', array('genes.ontologyId'));
+
+                $nestedQuery2 = new \Elastica\Query\Nested();
+                $nestedQuery2->setQuery($searchNested2);
+                $nestedQuery2->setPath('genes');
+
+                $queryBool->addMust($nestedQuery2);
+
+                $elasticaQuery->setQuery($queryBool);
+
+
+                $data = $finder->search($elasticaQuery);
+                $totalHits = $data->getTotalHits();
+                $totalTime = $data->getTotalTime();
+                $arrayAbstracts=$data->getResults();
+            }
         }
-        elseif($whatToSearch=="ncbiGenId"){
+        elseif($whatToSearch=="ncbiGeneId"){
             $finder = $this->container->get('fos_elastica.index.melanomamine.abstracts');
 
             $elasticaQuery = new \Elastica\Query();
@@ -266,7 +519,7 @@ class SearchController extends Controller
             $nestedQuery2->setQuery($searchNested2);
             $nestedQuery2->setPath('mutatedProteins3');
 
-            if ($human=="human"){
+            if ($specie=="human"){
                 $queryBool->addMust($nestedQuery2);
             }
 
@@ -318,9 +571,91 @@ class SearchController extends Controller
             'meanScore' => $meanScore,
             'medianScore' => $medianScore,
             'rangeScore' => $rangeScore,
-            'human' => $human,
+            'specie' => $specie,
             'totalTime' => $totalTime,
             //'stringHtml' => $stringHtml,
+        ));
+    }
+
+
+    public function searchGenesExpandedAction($whatToSearch, $entityName, $specie, $searchTerm)
+    {
+        $entityType="genes";
+        $message="inside searchGenesExpandedAction";
+        //At this time, $entityName contains the ncbiGeneId
+        $arrayAliases=$this->getAliases($entityName, "whatever?");
+
+        //Even though the entityName contains the ncbiGeneId, this is not the term that the user has searched for. We need to get it in order to show it at results template
+
+
+        $finder = $this->container->get('fos_elastica.index.melanomamine.abstracts');
+
+        $elasticaQuery = new \Elastica\Query();
+        $elasticaQuery->setSize(1000);
+        $elasticaQuery->setSort(array('melanoma_score' => array('order' => 'desc')));
+
+        //BoolQuery to load 2 queries.
+        $queryBool = new \Elastica\Query\BoolQuery();
+
+        //First query to search inside nested genes.mention
+        $searchNested = new \Elastica\Query\QueryString();
+        $searchNested->setParam('query', $entityName);
+        $searchNested->setParam('fields', array('genes2.ontology')); //shouldn't be ontology field!! Re-insert data into genes3. ncbiGeneId
+
+        $nestedQuery = new \Elastica\Query\Nested();
+        $nestedQuery->setQuery($searchNested);
+        $nestedQuery->setPath('genes2');
+
+        $queryBool->addMust($nestedQuery);
+
+        $elasticaQuery->setQuery($queryBool);
+
+
+        $data = $finder->search($elasticaQuery);
+        $totalHits = $data->getTotalHits();
+        $totalTime = $data->getTotalTime();
+        $arrayAbstracts=$data->getResults();
+
+        $paginator = $this->get('ideup.simple_paginator');
+        $arrayResultsAbs = $paginator
+            //->setMaxPagerItems($this->container->getParameter('etoxMicrome.number_of_pages'), 'abstracts')
+            ->setMaxPagerItems(15, 'abstracts')
+            //->setItemsPerPage($this->container->getParameter('etoxMicrome.evidences_per_page'), 'abstracts')
+            ->setItemsPerPage(10, 'abstracts')
+            ->paginate($arrayAbstracts,'abstracts')
+            ->getResult()
+        ;
+    ############### Uncomment when a SCORE has been added to the elasticsearch entries
+        //$meanScore=$this->getMmmrScore($data, 'score', 'mean');
+        //$medianScore=$this->getMmmrScore($data, $orderBy, 'median');
+        //$rangeScore=$this->getMmmrScore($data, $orderBy, 'range');
+        //$finderDoc=false;
+        ############### Comment when a SCORE has been added to the elasticsearch entries
+        $meanScore=0;
+        $medianScore=0;
+        $rangeScore=0;
+
+        $resultSetDocuments = array();
+        $arrayResultsDoc = array();
+
+        return $this->render('MelanomamineFrontendBundle:Search:results_query_expanded.html.twig', array(
+            'entityType' => $entityType,
+            'whatToSearch' => $whatToSearch,
+            'entityName' => $entityName,
+            'searchTerm' => $searchTerm,
+            'arrayResultsAbs' => $arrayResultsAbs,
+            'arrayResultsDoc' => $arrayResultsDoc,
+            'resultSetAbstracts' => $data,
+            'resultSetDocuments' => $resultSetDocuments,
+            'orderBy' => "score",
+            'hitsShowed' => $totalHits,
+            'totalHits' => $totalHits,
+            'meanScore' => $meanScore,
+            'medianScore' => $medianScore,
+            'rangeScore' => $rangeScore,
+            'specie' => $specie,
+            'totalTime' => $totalTime,
+            'arrayAliases' => $arrayAliases,
         ));
     }
 
@@ -453,37 +788,101 @@ class SearchController extends Controller
 
     }
 
-    public function searchChemicalsAction($whatToSearch, $entityName)
+    public function searchChemicalsAction($whatToSearch, $entityName, $queryExpansion)
     {
         $entityType="chemicals";
         $message="inside searchChemicalsAction";
-        $finder = $this->container->get('fos_elastica.index.melanomamine.abstracts');
+        //ldd($queryExpansion);
+        # Desambiguation is not needed for Chemical queryExpansion.
+        if($queryExpansion=="true"){
+            #In this case we make a query expansion for the chemicalName and retrieve an array of entityNames to search form
+            $arrayEntityName=$this->getChemicalsQueryExpansion($entityName);
+            //ld($arrayEntityName);
+            //We should retrieve al the abstracts for any of the entityName inside the $arrayEntityName
+            $arrayAbstracts=[];
+            foreach($arrayEntityName as $entityName){
+                $tmpResults=$this->performNestedSearch($entityName, "abstracts", "chemicals2", "mention");//performNestedSearch($entityName, $type, $mapping, $property)
+                $arrayAbstracts=array_merge($arrayAbstracts,$tmpResults);
+            }
+            $totalHits=count($arrayAbstracts);
+            $totalTime=0;
+
+            $paginator = $this->get('ideup.simple_paginator');
+            $arrayResultsAbs = $paginator
+                //->setMaxPagerItems($this->container->getParameter('etoxMicrome.number_of_pages'), 'abstracts')
+                ->setMaxPagerItems(15, 'abstracts')
+                //->setItemsPerPage($this->container->getParameter('etoxMicrome.evidences_per_page'), 'abstracts')
+                ->setItemsPerPage(10, 'abstracts')
+                ->paginate($arrayAbstracts,'abstracts')
+                ->getResult()
+            ;
+            ############### Uncomment when a SCORE has been added to the elasticsearch entries
+            //$meanScore=$this->getMmmrScore($data, 'score', 'mean');
+            //$medianScore=$this->getMmmrScore($data, $orderBy, 'median');
+            //$rangeScore=$this->getMmmrScore($data, $orderBy, 'range');
+            //$finderDoc=false;
+            ############### Comment when a SCORE has been added to the elasticsearch entries
+            $meanScore=0;
+            $medianScore=0;
+            $rangeScore=0;
+
+            $resultSetDocuments = array();
+            $arrayResultsDoc = array();
+
+            //$stringHtml = $this->getStringHtmlResults($arrayResultsAbs, $entityName);
+
+            return $this->render('MelanomamineFrontendBundle:Search:results_query_expanded.html.twig', array(
+                'entityType' => $entityType,
+                'whatToSearch' => $whatToSearch,
+                'entityName' => $entityName,
+                'arrayResultsAbs' => $arrayResultsAbs,
+                'arrayResultsDoc' => $arrayResultsDoc,
+                'resultSetDocuments' => $resultSetDocuments,
+                'entityName' => $entityName,
+                'orderBy' => "score",
+                'hitsShowed' => $totalHits,
+                'meanScore' => $meanScore,
+                'medianScore' => $medianScore,
+                'rangeScore' => $rangeScore,
+                'totalTime' => $totalTime,
+                'totalHits' => $totalHits,
+                'queryExpansion' => $queryExpansion,
+                //'stringHtml' => $stringHtml,
+            ));
 
 
-        $elasticaQuery = new \Elastica\Query();
-        $elasticaQuery->setSize(1000);
-        $elasticaQuery->setSort(array('melanoma_score' => array('order' => 'desc')));
-        //BoolQuery to load 2 queries.
-        $queryBool = new \Elastica\Query\BoolQuery();
+        }elseif($queryExpansion=="false"){
+            #We just search for entityName. No query expansion needeed
+            $finder = $this->container->get('fos_elastica.index.melanomamine.abstracts');
 
-        //First query to search inside nested genes.mention
-        $searchNested = new \Elastica\Query\QueryString();
-        $searchNested->setParam('query', $entityName);
-        $searchNested->setParam('fields', array('chemicals.mention'));
+            $elasticaQuery = new \Elastica\Query();
+            $elasticaQuery->setSize(1000);
+            $elasticaQuery->setSort(array('melanoma_score_new' => array('order' => 'desc')));
+            //BoolQuery to load 2 queries.
+            $queryBool = new \Elastica\Query\BoolQuery();
 
-        $nestedQuery = new \Elastica\Query\Nested();
-        $nestedQuery->setQuery($searchNested);
-        $nestedQuery->setPath('chemicals');
+            //First query to search inside nested genes.mention
+            $searchNested = new \Elastica\Query\QueryString();
+            //We escape entityName but keep it into another variable "searchName" in order to not modify entityName. It will be passed later on to template.
+            $searchName = $this->escapeElasticReservedChars($entityName);
+            $searchNested->setParam('query', $searchName);
+            $searchNested->setParam('fields', array('chemicals.mention'));
 
-        $queryBool->addMust($nestedQuery);
+            $nestedQuery = new \Elastica\Query\Nested();
+            $nestedQuery->setQuery($searchNested);
+            $nestedQuery->setPath('chemicals');
 
-        $elasticaQuery->setQuery($queryBool);
+            $queryBool->addMust($nestedQuery);
+
+            $elasticaQuery->setQuery($queryBool);
 
 
-        $data = $finder->search($elasticaQuery);
-        $totalHits = $data->getTotalHits();
-        $totalTime = $data->getTotalTime();
-        $arrayAbstracts=$data->getResults();
+            $data = $finder->search($elasticaQuery);
+            $totalHits = $data->getTotalHits();
+            $totalTime = $data->getTotalTime();
+            $arrayAbstracts=$data->getResults();
+        }
+
 
         $paginator = $this->get('ideup.simple_paginator');
         $arrayResultsAbs = $paginator
@@ -526,6 +925,7 @@ class SearchController extends Controller
             'totalTime' => $totalTime,
             //'stringHtml' => $stringHtml,
         ));
+
     }
 
     public function searchDiseasesAction($whatToSearch, $entityName)
@@ -632,8 +1032,9 @@ class SearchController extends Controller
 
     }
 
-    public function searchMutatedProteinsAction($whatToSearch, $entityName, $human)
+    public function searchMutatedProteinsAction($whatToSearch, $entityName, $specie)
     {
+        ldd($whatToSearch);
         $message="inside searchMutatedProteinsAction";
         $entityType="mutatedProteins";
         $finder = $this->container->get('fos_elastica.index.melanomamine.abstracts');
@@ -667,7 +1068,7 @@ class SearchController extends Controller
 
         //Second query to search inside nested genes.ontologyId to see if it's a human gene
         $searchNested2 = new \Elastica\Query\QueryString();
-        $searchNested2->setParam('query', 9606);
+        $searchNested2->setParam('query', $human);
         $searchNested2->setParam('fields', array('mutatedProteins3.ncbiTaxId'));
 
         $nestedQuery2 = new \Elastica\Query\Nested();

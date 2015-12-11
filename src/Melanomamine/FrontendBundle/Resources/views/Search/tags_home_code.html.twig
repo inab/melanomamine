@@ -63,10 +63,10 @@
                                 <span class="has-tip" title="Search for Genes/Proteins names"><label for="radioWhatToSearch"><input name="geneWhatToSearch" type="radio" id="radioGeneWhatToSearch" style="display:none;" value="geneProteinName"><span class="custom radio"></span> Genes/Proteins names</label></span>
                             {% endif %}
 
-                            {% if whatToSearch == "ncbiGenId" %}
-                                <span  class="has-tip" title="Search for NCBI genID"><label for="radioWhatToSearch"><input name="geneWhatToSearch" type="radio" id="radioGeneWhatToSearch" style="display:none;" value="ncbiGenId" CHECKED><span class="custom radio"></span> NCBI geneID</label></span>
+                            {% if whatToSearch == "ncbiGeneId" %}
+                                <span  class="has-tip" title="Search for NCBI genID"><label for="radioWhatToSearch"><input name="geneWhatToSearch" type="radio" id="radioGeneWhatToSearch" style="display:none;" value="ncbiGeneId" CHECKED><span class="custom radio"></span> NCBI geneID</label></span>
                             {% else %}
-                                <span  class="has-tip" title="Search for NCBI genID"><label for="radioWhatToSearch"><input name="geneWhatToSearch" type="radio" id="radioGeneWhatToSearch" style="display:none;" value="ncbiGenId"><span class="custom radio"></span> NCBI geneID</label></span>
+                                <span  class="has-tip" title="Search for NCBI genID"><label for="radioWhatToSearch"><input name="geneWhatToSearch" type="radio" id="radioGeneWhatToSearch" style="display:none;" value="ncbiGeneId"><span class="custom radio"></span> NCBI geneID</label></span>
                             {% endif %}
                     </fieldset>
                 </div>
@@ -76,6 +76,8 @@
                             <span class="has-tip" title="Species"><label for="radioSpecies"><input name="geneHuman" type="radio" id="radioGeneSpecies" style="display:none;" value="human" CHECKED><span class="custom radio"></span> Human</label>
                             </span>
                             <span class="has-tip" title="Species"><label for="radioSpecies"><input name="geneHuman" type="radio" id="radioGeneSpecies" style="display:none;" value="all"><span class="custom radio"></span> All</label>
+                            </span>
+                            <span class="has-tip" title="Species"><label for="radioSpecies"><input name="geneHuman" type="radio" id="radioGeneSpecies" style="display:none;" value="queryExpansion"><span class="custom radio"></span> Query Expansion</label>
                             </span>
                     </fieldset>
                 </div>
@@ -151,8 +153,8 @@
 
         </div>
         <div class="advanceSearch">
-            <div class="large-4 columns">
-                <form class="custom">
+            <form class="custom">
+                <div class="large-4 columns">
                     <fieldset>
                         <legend>What are you searching?</legend>
 
@@ -162,8 +164,14 @@
                             <span  class="has-tip" title="S IUPAC International Chemical Identifier (InChi). Only exact match search is currently enabled. See: http://www.iupac.org/home/publications/e-resources/inchi.html"><label for="radioWhatToSearch"><input name="chemicalWhatToSearch" type="radio" id="radioChemicalWhatToSearch" style="display:none;" value="inchis" DISABLED><span class="custom radio"></span> InChi</label></span>
                             <span  class="has-tip" title="Free text search within chemicals mentioning sentences"><label for="radioWhatToSearch"><input name="chemicalWhatToSearch" type="radio" id="radioChemicalWhatToSearch" style="display:none;" value="any" DISABLED><span class="custom radio"></span> Any (Free search)</label></span>
                     </fieldset>
-                </form>
-            </div>
+                </div>
+                <div class="large-3 end columns">
+                    <fieldset>
+                        <legend>Query Expansion</legend>
+                            <input id="checkboxChemicals" type="checkbox" ><label for="checkboxChemicals" class="checkbox-query-expansion">&nbsp;&nbsp;Apply</label>
+                    </fieldset>
+                </div>
+            </form>
         </div>
     </li>
 
@@ -224,6 +232,8 @@
                             <span class="has-tip" title="Species"><label for="radioSpecies"><input name="mutatedProteinsHuman" type="radio" id="radioMutatedProteinsSpecies" style="display:none;" value="human" CHECKED><span class="custom radio"></span> Human</label>
                             </span>
                             <span class="has-tip" title="Species"><label for="radioSpecies"><input name="mutatedProteinsHuman" type="radio" id="radioMutatedProteinsSpecies" style="display:none;" value="all"><span class="custom radio"></span> All</label>
+                            </span>
+                            <span class="has-tip" title="Species"><label for="radioSpecies"><input name="mutatedProteinsHuman" type="radio" id="radioMutatedProteinsSpecies" style="display:none;" value="queryExpansion"><span class="custom radio"></span> Query Expansion</label>
                             </span>
                     </fieldset>
                 </div>

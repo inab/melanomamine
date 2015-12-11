@@ -541,6 +541,20 @@ td.horizontal-header{
     text-align: center;
     vertical-align: top;
 }
+#tableDisambiguation th{
+    text-align: center;
+}
+table#tableDisambiguation .active{
+    text-decoration: underline;
+}
+table#tableDisambiguation td.disambiguation{
+    vertical-align: middle !important;
+    font-size: 40px !important;
+}
+table#tableDisambiguation td.center{
+    text-align: center;
+    vertical-align: top;
+}
 .abstract {
     border-bottom: 1px dotted #E0DFDF;
     margin-bottom: 10px;
@@ -879,4 +893,8 @@ span.snps_highlight{
 }
 span.species_highlight{
     background-color: #cdf9c4;
+}
+
+label.checkbox-query-expansion{
+    display: inline !important;
 }

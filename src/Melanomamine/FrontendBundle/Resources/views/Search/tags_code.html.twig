@@ -141,25 +141,47 @@
                                 <span class="has-tip" title="Search for Genes/Proteins names"><label for="radioWhatToSearch"><input name="geneWhatToSearch" type="radio" id="radioGeneWhatToSearch" style="display:none;" value="geneProteinName"><span class="custom radio"></span> Genes/Proteins names</label></span>
                             {% endif %}
 
-                            {% if whatToSearch == "ncbiGenId" %}
-                                <span  class="has-tip" title="Search for NCBI genID"><label for="radioWhatToSearch"><input name="geneWhatToSearch" type="radio" id="radioGeneWhatToSearch" style="display:none;" value="ncbiGenId" CHECKED><span class="custom radio"></span> NCBI geneID</label></span>
+                            {% if whatToSearch == "ncbiGeneId" %}
+                                <span  class="has-tip" title="Search for NCBI genID"><label for="radioWhatToSearch"><input name="geneWhatToSearch" type="radio" id="radioGeneWhatToSearch" style="display:none;" value="ncbiGeneId" CHECKED><span class="custom radio"></span> NCBI geneID</label></span>
                             {% else %}
-                                <span  class="has-tip" title="Search for NCBI genID"><label for="radioWhatToSearch"><input name="geneWhatToSearch" type="radio" id="radioGeneWhatToSearch" style="display:none;" value="ncbiGenId"><span class="custom radio"></span> NCBI geneID</label></span>
+                                <span  class="has-tip" title="Search for NCBI genID"><label for="radioWhatToSearch"><input name="geneWhatToSearch" type="radio" id="radioGeneWhatToSearch" style="display:none;" value="ncbiGeneId"><span class="custom radio"></span> NCBI geneID</label></span>
                             {% endif %}
                     </fieldset>
                 </div>
                 <div class="large-3 end columns">
                     <fieldset>
                         <legend>Human</legend>
-                            {% if human is defined %}
+                            {% if specie is defined %}
+                                {% if specie=="9606" or specie=="human" %}
+                                    <span class="has-tip" title="Species"><label for="radioSpecies"><input name="geneHuman" type="radio" id="radioGeneSpecies" style="display:none;" value="human" CHECKED><span class="custom radio"></span> Human</label>
+                                    </span>
+                                {% else %}
+                                    <span class="has-tip" title="Species"><label for="radioSpecies"><input name="geneHuman" type="radio" id="radioGeneSpecies" style="display:none;" value="human"><span class="custom radio"></span> Human</label>
+                                    </span>
+                                {% endif %}
+
+                                {% if specie == "all" %}
+                                    <span class="has-tip" title="Species"><label for="radioSpecies"><input name="geneHuman" type="radio" id="radioGeneSpecies" style="display:none;" value="all" CHECKED><span class="custom radio"></span> All</label>
+                                    </span>
+                                {% else %}
+                                    <span class="has-tip" title="Species"><label for="radioSpecies"><input name="geneHuman" type="radio" id="radioGeneSpecies" style="display:none;" value="all"><span class="custom radio"></span> All</label>
+                                    </span>
+                                {% endif %}
+
+                                {% if specie == "queryExpansion" %}
+                                    <span class="has-tip" title="Species"><label for="radioSpecies"><input name="geneHuman" type="radio" id="radioGeneSpecies" style="display:none;" value="queryExpansion" CHECKED><span class="custom radio"></span> Query Expansion</label>
+                                    </span>
+                                {% else %}
+                                    <span class="has-tip" title="Species"><label for="radioSpecies"><input name="geneHuman" type="radio" id="radioGeneSpecies" style="display:none;" value="queryExpansion"><span class="custom radio"></span> Query Expansion</label>
+                                    </span>
+                                {% endif %}
+
+                            {% else %}
                                 <span class="has-tip" title="Species"><label for="radioSpecies"><input name="geneHuman" type="radio" id="radioGeneSpecies" style="display:none;" value="human" CHECKED><span class="custom radio"></span> Human</label>
                                 </span>
                                 <span class="has-tip" title="Species"><label for="radioSpecies"><input name="geneHuman" type="radio" id="radioGeneSpecies" style="display:none;" value="all"><span class="custom radio"></span> All</label>
                                 </span>
-                            {% else %}
-                                <span class="has-tip" title="Species"><label for="radioSpecies"><input name="geneHuman" type="radio" id="radioGeneSpecies" style="display:none;" value="human"><span class="custom radio"></span> Human</label>
-                                </span>
-                                <span class="has-tip" title="Species"><label for="radioSpecies"><input name="geneHuman" type="radio" id="radioGeneSpecies" style="display:none;" value="all" CHECKED><span class="custom radio"></span> All</label>
+                                <span class="has-tip" title="Species"><label for="radioSpecies"><input name="geneHuman" type="radio" id="radioGeneSpecies" style="display:none;" value="queryExpansion"><span class="custom radio"></span> Query Expansion</label>
                                 </span>
                             {% endif %}
                     </fieldset>
@@ -276,45 +298,58 @@
 
         </div>
         <div class="advanceSearch">
-            <div class="large-4 columns">
-                <form class="custom">
+            <form class="custom">
+                <div class="large-4 columns">
                     <fieldset>
                         <legend>What are you searching?</legend>
-                            {% if whatToSearch == "name" or entityType != "chemicals" %}
-                                <span class="has-tip" title="Chemical/compound name"><label for="radioWhatToSearch"><input name="chemicalWhatToSearch" type="radio" id="radioChemicalWhatToSearch" style="display:none;" value="name" CHECKED><span class="custom radio"></span> Name</label></span>
-                            {% else %}
-                                <span class="has-tip" title="Chemical/compound name"><label for="radioWhatToSearch"><input name="chemicalWhatToSearch" type="radio" id="radioChemicalWhatToSearch" style="display:none;" value="name"><span class="custom radio"></span> Name</label></span>
-                            {% endif %}
+                        {% if whatToSearch == "name" or entityType != "chemicals" %}
+                            <span class="has-tip" title="Chemical/compound name"><label for="radioWhatToSearch"><input name="chemicalWhatToSearch" type="radio" id="radioChemicalWhatToSearch" style="display:none;" value="name" CHECKED><span class="custom radio"></span> Name</label></span>
+                        {% else %}
+                            <span class="has-tip" title="Chemical/compound name"><label for="radioWhatToSearch"><input name="chemicalWhatToSearch" type="radio" id="radioChemicalWhatToSearch" style="display:none;" value="name"><span class="custom radio"></span> Name</label></span>
+                        {% endif %}
 
-                            {% if whatToSearch == "id" %}
-                                <span  class="has-tip" title="Chemical compound database identifier (Drugbank, ChEBI, PubChem Compound, PubChem Substance, CAS RN, Human Metabolome Database, KEGG Compound, KEGG Drug, MeSH Substance)"><label for="radioWhatToSearch"><input name="chemicalWhatToSearch" type="radio" id="radioChemicalWhatToSearch" style="display:none;" value="id" CHECKED disabled><span class="custom radio"></span> Chemical Identifiers</label></span>
-                            {% else %}
-                                <span  class="has-tip" title="Chemical compound database identifier (Drugbank, ChEBI, PubChem Compound, PubChem Substance, CAS RN, Human Metabolome Database, KEGG Compound, KEGG Drug, MeSH Substance)"><label for="radioWhatToSearch"><input name="chemicalWhatToSearch" type="radio" id="radioChemicalWhatToSearch" style="display:none;" value="id" disabled><span class="custom radio"></span> Chemical Identifiers</label></span>
-                            {% endif %}
+                        {% if whatToSearch == "id" %}
+                            <span  class="has-tip" title="Chemical compound database identifier (Drugbank, ChEBI, PubChem Compound, PubChem Substance, CAS RN, Human Metabolome Database, KEGG Compound, KEGG Drug, MeSH Substance)"><label for="radioWhatToSearch"><input name="chemicalWhatToSearch" type="radio" id="radioChemicalWhatToSearch" style="display:none;" value="id" CHECKED disabled><span class="custom radio"></span> Chemical Identifiers</label></span>
+                        {% else %}
+                            <span  class="has-tip" title="Chemical compound database identifier (Drugbank, ChEBI, PubChem Compound, PubChem Substance, CAS RN, Human Metabolome Database, KEGG Compound, KEGG Drug, MeSH Substance)"><label for="radioWhatToSearch"><input name="chemicalWhatToSearch" type="radio" id="radioChemicalWhatToSearch" style="display:none;" value="id" disabled><span class="custom radio"></span> Chemical Identifiers</label></span>
+                        {% endif %}
 
-                            {% if whatToSearch == "smiles" %}
-                                <span  class="has-tip" title="SMILES Formula(Simplified Molecular-Input Line-Entry System). Only exact match search is currently enabled. See: http://en.wikipedia.org/wiki/Simplified_molecular-input_line-entry_system"><label for="radioWhatToSearch"><input name="chemicalWhatToSearch" type="radio" id="radioChemicalWhatToSearch" style="display:none;" value="smiles" CHECKED DISABLED><span class="custom radio"></span> SMILES</label></span>
-                            {% else %}
-                                <span  class="has-tip" title="SMILES Formula(Simplified Molecular-Input Line-Entry System). Only exact match search is currently enabled. See: http://en.wikipedia.org/wiki/Simplified_molecular-input_line-entry_system"><label for="radioWhatToSearch"><input name="chemicalWhatToSearch" type="radio" id="radioChemicalWhatToSearch" style="display:none;" value="smiles" DISABLED><span class="custom radio"></span> SMILES</label></span>
-                            {% endif %}
+                        {% if whatToSearch == "smiles" %}
+                            <span  class="has-tip" title="SMILES Formula(Simplified Molecular-Input Line-Entry System). Only exact match search is currently enabled. See: http://en.wikipedia.org/wiki/Simplified_molecular-input_line-entry_system"><label for="radioWhatToSearch"><input name="chemicalWhatToSearch" type="radio" id="radioChemicalWhatToSearch" style="display:none;" value="smiles" CHECKED DISABLED><span class="custom radio"></span> SMILES</label></span>
+                        {% else %}
+                            <span  class="has-tip" title="SMILES Formula(Simplified Molecular-Input Line-Entry System). Only exact match search is currently enabled. See: http://en.wikipedia.org/wiki/Simplified_molecular-input_line-entry_system"><label for="radioWhatToSearch"><input name="chemicalWhatToSearch" type="radio" id="radioChemicalWhatToSearch" style="display:none;" value="smiles" DISABLED><span class="custom radio"></span> SMILES</label></span>
+                        {% endif %}
 
-                            {% if whatToSearch == "inchis" %}
-                                <span  class="has-tip" title="S IUPAC International Chemical Identifier (InChi). Only exact match search is currently enabled. See: http://www.iupac.org/home/publications/e-resources/inchi.html"><label for="radioWhatToSearch"><input name="chemicalWhatToSearch" type="radio" id="radioChemicalWhatToSearch" style="display:none;" value="inchis" CHECKED DISABLED><span class="custom radio"></span> InChi</label></span>
-                            {% else %}
-                                <span  class="has-tip" title="S IUPAC International Chemical Identifier (InChi). Only exact match search is currently enabled. See: http://www.iupac.org/home/publications/e-resources/inchi.html"><label for="radioWhatToSearch"><input name="chemicalWhatToSearch" type="radio" id="radioChemicalWhatToSearch" style="display:none;" value="inchis" DISABLED><span class="custom radio"></span> InChi</label></span>
-                            {% endif %}
+                        {% if whatToSearch == "inchis" %}
+                            <span  class="has-tip" title="S IUPAC International Chemical Identifier (InChi). Only exact match search is currently enabled. See: http://www.iupac.org/home/publications/e-resources/inchi.html"><label for="radioWhatToSearch"><input name="chemicalWhatToSearch" type="radio" id="radioChemicalWhatToSearch" style="display:none;" value="inchis" CHECKED DISABLED><span class="custom radio"></span> InChi</label></span>
+                        {% else %}
+                            <span  class="has-tip" title="S IUPAC International Chemical Identifier (InChi). Only exact match search is currently enabled. See: http://www.iupac.org/home/publications/e-resources/inchi.html"><label for="radioWhatToSearch"><input name="chemicalWhatToSearch" type="radio" id="radioChemicalWhatToSearch" style="display:none;" value="inchis" DISABLED><span class="custom radio"></span> InChi</label></span>
+                        {% endif %}
 
-                            {% if whatToSearch == "any" %}
-                                <span  class="has-tip" title="Free text search within chemicals mentioning sentences"><label for="radioWhatToSearch"><input name="chemicalWhatToSearch" type="radio" id="radioChemicalWhatToSearch" style="display:none;" value="any" CHECKED DISABLED><span class="custom radio"></span> Any (Free search)</label></span>
-                            {% else %}
-                                <span  class="has-tip" title="Free text search within chemicals mentioning sentences"><label for="radioWhatToSearch"><input name="chemicalWhatToSearch" type="radio" id="radioChemicalWhatToSearch" style="display:none;" value="any" DISABLED><span class="custom radio"></span> Any (Free search)</label></span>
-                            {% endif %}
+                        {% if whatToSearch == "any" %}
+                            <span  class="has-tip" title="Free text search within chemicals mentioning sentences"><label for="radioWhatToSearch"><input name="chemicalWhatToSearch" type="radio" id="radioChemicalWhatToSearch" style="display:none;" value="any" CHECKED DISABLED><span class="custom radio"></span> Any (Free search)</label></span>
+                        {% else %}
+                            <span  class="has-tip" title="Free text search within chemicals mentioning sentences"><label for="radioWhatToSearch"><input name="chemicalWhatToSearch" type="radio" id="radioChemicalWhatToSearch" style="display:none;" value="any" DISABLED><span class="custom radio"></span> Any (Free search)</label></span>
+                        {% endif %}
                     </fieldset>
-                </form>
-            </div>
+                </div>
+                <div class="large-3 end columns">
+                    <fieldset>
+                        <legend>Query Expansion</legend>
+                        {% if queryExpansion is defined %}
+                            {% if queryExpansion=="true" %}
+                                <input id="checkboxChemicals" type="checkbox" checked><label for="checkboxChemicals" class="checkbox-query-expansion">&nbsp;&nbsp;Apply</label>
+                            {% else%}
+                                <input id="checkboxChemicals" type="checkbox" ><label for="checkboxChemicals" class="checkbox-query-expansion">&nbsp;&nbsp;Apply</label>
+                            {% endif %}
+                        {% else %}
+                            <input id="checkboxChemicals" type="checkbox" ><label for="checkboxChemicals" class="checkbox-query-expansion">&nbsp;&nbsp;Apply</label>
+                        {% endif %}
+                    </fieldset>
+                </div>
+            </form>
         </div>
     </li>
-
     {% if entityType == "diseases" %}
         <li class="active" id="diseasesTab">
     {% else %}

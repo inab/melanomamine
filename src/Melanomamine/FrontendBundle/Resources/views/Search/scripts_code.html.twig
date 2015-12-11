@@ -34,7 +34,8 @@
                 case "chemicals":
                     whatToSearch = $('input[name=chemicalWhatToSearch]:checked').val();
                     var entityName = $('#tags-chemicals').val();
-                    link='{{ path('search') }}'+entityType+'/'+whatToSearch+'/'+entityName+'/';
+                    var queryExpansion = dna = $('input[id=checkboxChemicals]').is(':checked');
+                    link='{{ path('search') }}'+entityType+'/'+whatToSearch+'/'+entityName+'/'+queryExpansion+'/';
                     break;
                 case "diseases":
                     whatToSearch = $('input[name=diseaseWhatToSearch]:checked').val();

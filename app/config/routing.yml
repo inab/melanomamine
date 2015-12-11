@@ -35,8 +35,12 @@ search_keywords:
     defaults: { _controller: MelanomamineFrontendBundle:Search:searchKeywords}
 
 search_genes:
-    pattern: /search/genes/{whatToSearch}/{entityName}/{human}/
-    defaults: { _controller: MelanomamineFrontendBundle:Search:searchGenes, human: "false"}
+    pattern: /search/genes/{whatToSearch}/{entityName}/{specie}/
+    defaults: { _controller: MelanomamineFrontendBundle:Search:searchGenes, specie: "human"}
+
+search_genes_expanded:
+    pattern: /search/genes_expanded/{whatToSearch}/{entityName}/{specie}/{searchTerm}/
+    defaults: { _controller: MelanomamineFrontendBundle:Search:searchGenesExpanded}
 
 search_mutations:
     pattern: /search/mutations/{whatToSearch}/{entityName}/{dna}/{protein}/
@@ -44,15 +48,15 @@ search_mutations:
 
 
 search_chemicals:
-    pattern: /search/chemicals/{whatToSearch}/{entityName}/
-    defaults: { _controller: MelanomamineFrontendBundle:Search:searchChemicals}
+    pattern: /search/chemicals/{whatToSearch}/{entityName}/{queryExpansion}/
+    defaults: { _controller: MelanomamineFrontendBundle:Search:searchChemicals, queryExpansion: "false"}
 
 search_diseases:
     pattern: /search/diseases/{whatToSearch}/{entityName}/
     defaults: { _controller: MelanomamineFrontendBundle:Search:searchDiseases}
 
 search_mutatedProteins:
-    pattern: /search/mutatedProteins/{whatToSearch}/{entityName}/{human}/
+    pattern: /search/mutatedProteins/{whatToSearch}/{entityName}/{specie}/
     defaults: { _controller: MelanomamineFrontendBundle:Search:searchMutatedProteins}
 
 
