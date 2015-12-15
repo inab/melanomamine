@@ -384,6 +384,13 @@ table.summary a{
 #tanimoto-result{
     float: left
 }
+
+.morecontent span {
+    display: none;
+}
+.morelink {
+    display: block;
+}
 /* -----------------------------------------
     Compounds
 ----------------------------------------- */

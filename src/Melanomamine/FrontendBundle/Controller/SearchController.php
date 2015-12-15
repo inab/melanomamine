@@ -100,7 +100,7 @@ class SearchController extends Controller
         return $dictionarySummary;
     }
 
-    public function createSummaryTable($arrayResults){
+    public function createSummaryTable($arrayResults, $entityName){
         $message="inside createSummaryTable";
         //We have to iterate over results in $arrayResults and generate an structure to handle this information
         //dictionarySummary["genes"]=dictionaryGenes
@@ -152,66 +152,106 @@ class SearchController extends Controller
         //We have to short inner dictionaries and create the stringTable to return
         if(count($dictionarySummary)!=0){
             $stringTable="<table class='summaryTable'>";
-
+            $stringCSV="";  //in stringCSV we generate the content of the CSV file that will be downloaded upon user request
             if ( array_key_exists("genes2", $dictionarySummary) ){
                 $arrayGenes=$dictionarySummary["genes2"];
                 arsort($arrayGenes);
 
-                $stringTable.="<tr><th>Genes</th><td>";
+                $stringTable.="<tr><th>Genes</th><td><span class='more'>";
+                $stringCSV.="GENES\tAppearances\n";
                 foreach ($arrayGenes as $key => $value){
                     $stringTable.="$key: $value, ";
+                    $stringCSV.="$key\t$value\n";
                 }
-                $stringTable.="</td></tr>";
+                $stringTable.="</span></td></tr>";
+                $stringCSV.="\n";
             }
             if ( array_key_exists("mutations", $dictionarySummary) ){
                 $arrayMutations=$dictionarySummary["mutations"];
                 arsort($arrayMutations);
 
-                $stringTable.="<tr><th>Mutations</th><td>";
+                $stringTable.="<tr><th>Mutations</th><td><span class='more'>";
+                $stringCSV.="MUTATIONS\tAppearances\n";
                 foreach ($arrayMutations as $key => $value){
                     $stringTable.="$key: $value, ";
+                    $stringCSV.="$key\t$value\n";
                 }
-                $stringTable.="</td></tr>";
+                $stringTable.="</span></td></tr>";
+                $stringCSV.="\n";
             }
             if ( array_key_exists("chemicals2", $dictionarySummary) ){
                 $arrayChemicals=$dictionarySummary["chemicals2"];
                 arsort($arrayChemicals);
 
-                $stringTable.="<tr><th>Chemicals</th><td>";
+                $stringTable.="<tr><th>Chemicals</th><td><span class='more'>";
+                $stringCSV.="CHEMICALS\tAppearances\n";
                 foreach ($arrayChemicals as $key => $value){
                     $stringTable.="$key: $value, ";
+                    $stringCSV.="$key\t$value\n";
                 }
-                $stringTable.="</td></tr>";
+                $stringTable.="</span></td></tr>";
+                $stringCSV.="\n";
             }
             if ( array_key_exists("diseases2", $dictionarySummary) ){
                 $arrayDiseases=$dictionarySummary["diseases2"];
                 arsort($arrayDiseases);
 
-                $stringTable.="<tr><th>Diseases</th><td>";
+                $stringTable.="<tr><th>Diseases</th><td><span class='more'>";
+                $stringCSV.="DISEASES\tAppearances\n";
                 foreach ($arrayDiseases as $key => $value){
                     $stringTable.="$key: $value, ";
+                    $stringCSV.="$key\t$value\n";
                 }
-                $stringTable.="</td></tr>";
+                $stringTable.="</span></td></tr>";
+                $stringCSV.="\n";
             }
 
             if ( array_key_exists("mutatedProteins3", $source) ){
                 $arrayMutatedProteins=$dictionarySummary["mutatedProteins3"];
                 arsort($arrayMutatedProteins);
 
-                $stringTable.="<tr><th>Mutated Proteins</th><td>";
+                $stringTable.="<tr><th>Mutated Proteins</th><td><span class='more'>";
+                $stringCSV.="MUTATED PROTEINS\tAppearances\n";
                 foreach ($arrayMutatedProteins as $key => $value){
                     $stringTable.="$key: $value, ";
+                    $stringCSV.="$key\t$value\n";
                 }
-                $stringTable.="</td></tr>";
+                $stringTable.="</span></td></tr>";
+                $stringCSV.="\n";
             }
             $stringTable.="</table>";
         }
 
 
         //ld($dictionarySummarySorted);
+        //We create the file with the CSV content
+        $zip = new \ZipArchive();
+        $path = $this->get('kernel')->getRootDir(). "/../web/files/summaryTables";
+        $date=date("Y-m-d_H:i:s");
+        $filename = $entityName."-".$date;
+        $pathToFile="$path/$filename";
+        $pathToZip="$pathToFile.zip";
+
+        if ($zip->open($pathToZip, \ZIPARCHIVE::CREATE )!==TRUE) {
+            exit("cannot open <$pathToZip>\n");
+        }
+        $fp = fopen($pathToFile, 'w');
+        fwrite($fp, $stringCSV);
+        fclose($fp);
+        $zip->addFile($pathToFile,$filename.".csv");
+        $zip->close();
+
+        unlink($pathToFile);
+        $filename=$filename.".zip";
+        //Delete filename keeping only .zip
 
 
-        return $stringTable;
+
+        $arrayResponse=[];
+        $arrayResponse["filename"]=$filename;
+        $arrayResponse["stringTable"]=$stringTable;
+
+        return $arrayResponse;
 
     }
 
@@ -223,7 +263,7 @@ class SearchController extends Controller
 
 
         $elasticaQuery  = new \Elastica\Query();
-        $elasticaQuery->setSize(1000);
+        $elasticaQuery->setSize(500);
         $elasticaQuery->setSort(array('melanoma_score' => array('order' => 'desc')));
 
         $queryString  = new \Elastica\Query\QueryString();
@@ -289,7 +329,10 @@ class SearchController extends Controller
         $totalTime = $data->getTotalTime();
         $arrayAbstracts=$data->getResults();
 
-        $summaryTable = $this->createSummaryTable($arrayAbstracts);
+
+        $arrayResponse = $this->createSummaryTable($arrayAbstracts, $entityName); //this method returns an array with two contents: the filename where the summaryTable file is saved, and the string with the summaryTable
+        $filename = $arrayResponse["filename"];
+        $summaryTable = $arrayResponse["stringTable"];
 
         $paginator = $this->get('ideup.simple_paginator');
         $arrayResultsAbs = $paginator
@@ -331,6 +374,7 @@ class SearchController extends Controller
             'rangeScore' => $rangeScore,
             'totalTime' => $totalTime,
             'summaryTable' => $summaryTable,
+            'filenameSummaryTable' => $filename,
             //'stringHtml' => $stringHtml,
         ));
     }
@@ -339,7 +383,7 @@ class SearchController extends Controller
         $message="inside getAliases";
         $finder = $this->container->get('fos_elastica.index.melanomamine.genesDictionary');
         $elasticaQuery = new \Elastica\Query();
-        $elasticaQuery->setSize(1000);
+        $elasticaQuery->setSize(500);
         $queryString = new \Elastica\Query\QueryString();
         $queryString->setParam('query', $ncbiGeneId);
         $queryString->setParam('fields', array('ncbiGeneId'));
@@ -424,7 +468,7 @@ class SearchController extends Controller
 
         /*
         $elasticaQuery = new \Elastica\Query();
-        $elasticaQuery->setSize(1000);
+        $elasticaQuery->setSize(500);
         //BoolQuery to load 2 queries.
         $queryBool = new \Elastica\Query\BoolQuery();
 
@@ -489,7 +533,7 @@ class SearchController extends Controller
         $message="inside performNestedSearch";
         $finder = $this->container->get('fos_elastica.index.melanomamine.'.$type);
         $elasticaQuery = new \Elastica\Query();
-        $elasticaQuery->setSize(1000);
+        $elasticaQuery->setSize(500);
         $elasticaQuery->setSort(array('melanoma_score_new' => array('order' => 'desc')));
 
         //BoolQuery to load 2 queries.
@@ -586,7 +630,7 @@ class SearchController extends Controller
             $finder = $this->container->get('fos_elastica.index.melanomamine.abstracts');
 
             $elasticaQuery = new \Elastica\Query();
-            $elasticaQuery->setSize(1000);
+            $elasticaQuery->setSize(500);
             $elasticaQuery->setSort(array('melanoma_score' => array('order' => 'desc')));
 
             //BoolQuery to load 2 queries.
@@ -641,7 +685,7 @@ class SearchController extends Controller
             $finder = $this->container->get('fos_elastica.index.melanomamine.abstracts');
 
             $elasticaQuery = new \Elastica\Query();
-            $elasticaQuery->setSize(1000);
+            $elasticaQuery->setSize(500);
             $elasticaQuery->setSort(array('melanoma_score' => array('order' => 'desc')));
 
             //BoolQuery to load 2 queries.
@@ -680,6 +724,10 @@ class SearchController extends Controller
             $arrayAbstracts=$data->getResults();
 
         }
+
+        $arrayResponse = $this->createSummaryTable($arrayAbstracts, $entityName); //this method returns an array with two contents: the filename where the summaryTable file is saved, and the string with the summaryTable
+        $filename = $arrayResponse["filename"];
+        $summaryTable = $arrayResponse["stringTable"];
 
         $paginator = $this->get('ideup.simple_paginator');
         $arrayResultsAbs = $paginator
@@ -721,6 +769,8 @@ class SearchController extends Controller
             'rangeScore' => $rangeScore,
             'specie' => $specie,
             'totalTime' => $totalTime,
+            'summaryTable' => $summaryTable,
+            'filenameSummaryTable' => $filename,
             //'stringHtml' => $stringHtml,
         ));
     }
@@ -739,7 +789,7 @@ class SearchController extends Controller
         $finder = $this->container->get('fos_elastica.index.melanomamine.abstracts');
 
         $elasticaQuery = new \Elastica\Query();
-        $elasticaQuery->setSize(1000);
+        $elasticaQuery->setSize(500);
         $elasticaQuery->setSort(array('melanoma_score' => array('order' => 'desc')));
 
         //BoolQuery to load 2 queries.
@@ -763,6 +813,11 @@ class SearchController extends Controller
         $totalHits = $data->getTotalHits();
         $totalTime = $data->getTotalTime();
         $arrayAbstracts=$data->getResults();
+
+        $arrayResponse = $this->createSummaryTable($arrayAbstracts, $entityName); //this method returns an array with two contents: the filename where the summaryTable file is saved, and the string with the summaryTable
+        $filename = $arrayResponse["filename"];
+        $summaryTable = $arrayResponse["stringTable"];
+
 
         $paginator = $this->get('ideup.simple_paginator');
         $arrayResultsAbs = $paginator
@@ -804,6 +859,8 @@ class SearchController extends Controller
             'specie' => $specie,
             'totalTime' => $totalTime,
             'arrayAliases' => $arrayAliases,
+            'summaryTable' => $summaryTable,
+            'filenameSummaryTable' => $filename,
         ));
     }
 
@@ -816,7 +873,7 @@ class SearchController extends Controller
         $finder = $this->container->get('fos_elastica.index.melanomamine.abstracts');
 
         $elasticaQuery = new \Elastica\Query();
-        $elasticaQuery->setSize(1000);
+        $elasticaQuery->setSize(500);
         $elasticaQuery->setSort(array('melanoma_score' => array('order' => 'desc')));
 
         //BoolQuery to load 2 queries.
@@ -889,6 +946,10 @@ class SearchController extends Controller
         $totalTime = $data->getTotalTime();
         $arrayAbstracts=$data->getResults();
 
+        $arrayResponse = $this->createSummaryTable($arrayAbstracts, $entityName); //this method returns an array with two contents: the filename where the summaryTable file is saved, and the string with the summaryTable
+        $filename = $arrayResponse["filename"];
+        $summaryTable = $arrayResponse["stringTable"];
+
         $paginator = $this->get('ideup.simple_paginator');
         $arrayResultsAbs = $paginator
             //->setMaxPagerItems($this->container->getParameter('etoxMicrome.number_of_pages'), 'abstracts')
@@ -931,6 +992,8 @@ class SearchController extends Controller
             'dna' => $dna,
             'protein' => $protein,
             'totalTime' => $totalTime,
+            'summaryTable' => $summaryTable,
+            'filenameSummaryTable' => $filename,
             //'stringHtml' => $stringHtml,
         ));
 
@@ -955,6 +1018,12 @@ class SearchController extends Controller
             $totalHits=count($arrayAbstracts);
             $totalTime=0;
 
+            //$arrayResponse=[];
+            //$filename="vemurafenib-2015-12-14_18:26:18.zip";
+            $arrayResponse = $this->createSummaryTable($arrayAbstracts, $entityName); //this method returns an array with two contents: the filename where the summaryTable file is saved, and the string with the summaryTable
+            $filename = $arrayResponse["filename"];
+
+            $summaryTable = $arrayResponse["stringTable"];
             $paginator = $this->get('ideup.simple_paginator');
             $arrayResultsAbs = $paginator
                 //->setMaxPagerItems($this->container->getParameter('etoxMicrome.number_of_pages'), 'abstracts')
@@ -995,6 +1064,8 @@ class SearchController extends Controller
                 'totalTime' => $totalTime,
                 'totalHits' => $totalHits,
                 'queryExpansion' => $queryExpansion,
+                'summaryTable' => $summaryTable,
+                'filenameSummaryTable' => $filename,
                 //'stringHtml' => $stringHtml,
             ));
 
@@ -1004,7 +1075,7 @@ class SearchController extends Controller
             $finder = $this->container->get('fos_elastica.index.melanomamine.abstracts');
 
             $elasticaQuery = new \Elastica\Query();
-            $elasticaQuery->setSize(1000);
+            $elasticaQuery->setSize(500);
             $elasticaQuery->setSort(array('melanoma_score_new' => array('order' => 'desc')));
             //BoolQuery to load 2 queries.
             $queryBool = new \Elastica\Query\BoolQuery();
@@ -1031,6 +1102,12 @@ class SearchController extends Controller
             $arrayAbstracts=$data->getResults();
         }
 
+        //$arrayResponse["stringTable"]="";
+        //$filename="vemurafenib-2015-12-14_18:26:18.zip";
+
+        $arrayResponse = $this->createSummaryTable($arrayAbstracts, $entityName); //this method returns an array with two contents: the filename where the summaryTable file is saved, and the string with the summaryTable
+        $filename = $arrayResponse["filename"];
+        $summaryTable = $arrayResponse["stringTable"];
 
         $paginator = $this->get('ideup.simple_paginator');
         $arrayResultsAbs = $paginator
@@ -1071,7 +1148,8 @@ class SearchController extends Controller
             'medianScore' => $medianScore,
             'rangeScore' => $rangeScore,
             'totalTime' => $totalTime,
-            //'stringHtml' => $stringHtml,
+            'summaryTable' => $summaryTable,
+            'filenameSummaryTable' => $filename,
         ));
 
     }
@@ -1083,7 +1161,7 @@ class SearchController extends Controller
         $finder = $this->container->get('fos_elastica.index.melanomamine.abstracts');
 
         $elasticaQuery = new \Elastica\Query();
-        $elasticaQuery->setSize(1000);
+        $elasticaQuery->setSize(500);
         $elasticaQuery->setSort(array('melanoma_score_new' => array('order' => 'desc')));
         //BoolQuery to load 2 queries.
         $queryBool = new \Elastica\Query\BoolQuery();
@@ -1136,6 +1214,10 @@ class SearchController extends Controller
         $totalTime = $data->getTotalTime();
         $arrayAbstracts=$data->getResults();
 
+        $arrayResponse = $this->createSummaryTable($arrayAbstracts, $entityName); //this method returns an array with two contents: the filename where the summaryTable file is saved, and the string with the summaryTable
+        $filename = $arrayResponse["filename"];
+        $summaryTable = $arrayResponse["stringTable"];
+
         $paginator = $this->get('ideup.simple_paginator');
         $arrayResultsAbs = $paginator
             //->setMaxPagerItems($this->container->getParameter('etoxMicrome.number_of_pages'), 'abstracts')
@@ -1175,7 +1257,8 @@ class SearchController extends Controller
             'medianScore' => $medianScore,
             'rangeScore' => $rangeScore,
             'totalTime' => $totalTime,
-            //'stringHtml' => $stringHtml,
+            'summaryTable' => $summaryTable,
+            'filenameSummaryTable' => $filename,
         ));
 
     }
@@ -1191,8 +1274,8 @@ class SearchController extends Controller
         $finder = $this->container->get('fos_elastica.index.melanomamine.abstracts');
 
         $elasticaQuery = new \Elastica\Query();
-        $elasticaQuery->setSize(1000);
-        $elasticaQuery->setSort(array('melanoma_score' => array('order' => 'desc')));
+        $elasticaQuery->setSize(500);
+        $elasticaQuery->setSort(array('melanoma_score_new' => array('order' => 'desc')));
 
         //BoolQuery to load 2 queries.
         $queryBool = new \Elastica\Query\BoolQuery();
@@ -1217,26 +1300,35 @@ class SearchController extends Controller
 
         $queryBool->addMust($nestedQuery);
 
+        if ($specie=="human"){
+            $specie="9606";
+        }
+
         //Second query to search inside nested genes.ontologyId to see if it's a human gene
         $searchNested2 = new \Elastica\Query\QueryString();
-        $searchNested2->setParam('query', $human);
+        $searchNested2->setParam('query', $specie);
         $searchNested2->setParam('fields', array('mutatedProteins3.ncbiTaxId'));
 
         $nestedQuery2 = new \Elastica\Query\Nested();
         $nestedQuery2->setQuery($searchNested2);
         $nestedQuery2->setPath('mutatedProteins3');
 
-        if ($human=="human"){
+        if ($specie=="human"){
             $queryBool->addMust($nestedQuery2);
         }
 
         $elasticaQuery->setQuery($queryBool);
 
-
         $data = $finder->search($elasticaQuery);
         $totalHits = $data->getTotalHits();
         $totalTime = $data->getTotalTime();
         $arrayAbstracts=$data->getResults();
+
+
+        $arrayResponse = $this->createSummaryTable($arrayAbstracts, $entityName); //this method returns an array with two contents: the filename where the summaryTable file is saved, and the string with the summaryTable
+        $filename = $arrayResponse["filename"];
+        $summaryTable = $arrayResponse["stringTable"];
+
         $paginator = $this->get('ideup.simple_paginator');
         $arrayResultsAbs = $paginator
             //->setMaxPagerItems($this->container->getParameter('etoxMicrome.number_of_pages'), 'abstracts')
@@ -1275,8 +1367,9 @@ class SearchController extends Controller
             'medianScore' => $medianScore,
             'rangeScore' => $rangeScore,
             'totalTime' => $totalTime,
-            'human' => $human,
-            //'stringHtml' => $stringHtml,
+            'specie' => $specie,
+            'summaryTable' => $summaryTable,
+            'filenameSummaryTable' => $filename,
         ));
 
     }

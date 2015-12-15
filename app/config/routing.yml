@@ -59,7 +59,9 @@ search_mutatedProteins:
     pattern: /search/mutatedProteins/{whatToSearch}/{entityName}/{specie}/
     defaults: { _controller: MelanomamineFrontendBundle:Search:searchMutatedProteins}
 
-
+download_summary_table:
+    pattern: /download/{filenameSummaryTable}/
+    defaults: { _controller: MelanomamineFrontendBundle:Download:downloadSummaryTable}
 
 
 

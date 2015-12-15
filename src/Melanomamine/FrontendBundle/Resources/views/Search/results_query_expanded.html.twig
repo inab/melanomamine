@@ -24,7 +24,7 @@
                     {% if totalHits > 1500 %}
                             <tr>
                                 {% set totalHits = resultSetAbstracts.getTotalHits %}
-                                <td colspan="5"><strong>Number of Abstracts:</strong> {{ totalHits }}. Only the first 1000 are shown. <br/><span class="grey">(Click here to display all results)</span></td>
+                                <td colspan="5"><strong>Number of Abstracts:</strong> {{ totalHits }}. Only the first 500 are shown. <br/><span class="grey">(Click here to display all results)</span></td>
                             </tr>
                         {% else %}
                             <tr>
@@ -47,6 +47,8 @@
                     {% endif %}
 
                 </table>
+                Summary Table:  (<a href="{{ path('download_summary_table', {'filenameSummaryTable': filenameSummaryTable}) }}" >Download table</a>)<br>
+                {{ summaryTable | raw }}
             </div>
                 <div class="clear-both"></div>
                 <table id="tableResults" class="tablesorter">
@@ -72,10 +74,18 @@
 
                                 <td><a href="{{ link }}" target="_blank"><img src="{{ asset(imageRoute) }}" class="outlinkLogo"/></a></td>
                                 <td class="center">{{ score }}</td>
-                                {% set title = title | retrieveHighlighted (source, entityName, startOffset = 0, filter="title") %}
-                                <td>{{ title | raw }}</td>
-                                {% set text = text | retrieveHighlighted (source, searchTerm, offset, filter="text") %}
-                                <td>{{ text | raw }}</td>
+                                    {% set arrayHighlightedTitle = title | retrieveHighlighted (source, entityName, startOffset = 0, filter="title") %}
+                                    {% set title = arrayHighlightedTitle[0] %}
+                                    {% set tooltip = arrayHighlightedTitle[1] %}
+                                    {% set stringStickyTooltip = stringStickyTooltip ~tooltip %}
+                                    {% set tooltipCounter = arrayHighlightedTitle[2] %}
+                                    <td>{{ title | raw }}</td>
+                                    {% set arrayHighlightedText = text | retrieveHighlighted (source, entityName, offset, filter="text") %}
+                                    {% set text = arrayHighlightedText[0] %}
+                                    {% set tooltip = arrayHighlightedText[1] %}
+                                    {% set stringStickyTooltip = stringStickyTooltip ~tooltip %}
+                                    {% set toolTipCounter = arrayHighlightedText[2] %}
+                                    <td>{{ text | raw }}</td>
                             </tr>
                         {% endfor %}
 

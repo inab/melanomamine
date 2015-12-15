@@ -30,6 +30,7 @@ class UtilityExtension extends \Twig_Extension
     public function filterTitleText($source, $filter){
         $message="Inside filterTitleText";
         //ld($filter);
+        $arrayIndexes=["chemicals2", "diseases2", "genes3", "mutatedProteins3", "snps", "species"];
 
         /*
             For highlighting we create an array of dictionaries:  [{"start":4, "end": 20, "typeOf": "genes"},{"start":23, "end": 50, "typeOf": "diseases2"},{"start":56, "end": 80, "typeOf": "genes"},{"start":93, "end": 120, "typeOf": "mutatedProteins3"}...]
@@ -43,7 +44,6 @@ class UtilityExtension extends \Twig_Extension
             $titleText=$source["title"];
             $titleLength=strlen($titleText);
             $arrayDictionaries=[];
-            $arrayIndexes=["chemicals", "diseases2", "genes", "mutatedProteins3", "snps", "species"];
             //ld($source);
             foreach($arrayIndexes as $index){
                 //ld($index);
@@ -56,16 +56,92 @@ class UtilityExtension extends \Twig_Extension
                         $dictionaryTmp=[];
                         $dictionaryTmp["typeOf"]=$typeOf;
                         if($typeOf == "mutatedProteins3"){
+                            $mutation=$data["mention"];
                             $start=$data["startMutation"];
                             $end=$data["endMutation"];
+                            $mutationClass=$data["mutationClass"];
+                            $sequenceType=$data["sequenceType"];
+                            $sequenceClass=$data["sequenceClass"];
+                            $wildType_aa=$data["wildType_aa"];
+                            $sequencePosition=$data["sequencePosition"];
+                            $mutant_aa=$data["mutant_aa"];
+                            $frameshiftPosition=$data["frameshiftPosition"];
+                            $mutationValidated=$data["mutationValidated"];
+                            $ncbiGenId=$data["ncbiGenId"];
+                            $uniprotAccession=$data["uniprotAccession"];
+                            $geneMention=$data["geneMention"];
+                            $ncbiTaxId=$data["ncbiTaxId"];
+                            $taxonomyScore=$data["taxonomyScore"];
+                            $pmidCheck=$data["pmidCheck"];
+                            $signalPeptideLength=$data["signalPeptideLength"];
+                            $proteinSequence=$data["proteinSequence"];
+                            $ncbiTaxId=$data["ncbiTaxId"];
                             $dictionaryTmp["start"]=$start;
                             $dictionaryTmp["end"]=$end;
+                            $dictionaryTmp["mutationClass"]=$mutationClass;
+                            $dictionaryTmp["sequenceType"]=$sequenceType;
+                            $dictionaryTmp["sequenceClass"]=$sequenceClass;
+                            $dictionaryTmp["wildType_aa"]=$wildType_aa;
+                            $dictionaryTmp["sequencePosition"]=$sequencePosition;
+                            $dictionaryTmp["mutant_aa"]=$mutant_aa;
+                            $dictionaryTmp["frameshiftPosition"]=$frameshiftPosition;
+                            $dictionaryTmp["mutationValidated"]=$mutationValidated;
+                            $dictionaryTmp["ncbiGenId"]=$ncbiGenId;
+                            $dictionaryTmp["uniprotAccession"]=$uniprotAccession;
+                            $dictionaryTmp["geneMention"]=$geneMention;
+                            $dictionaryTmp["ncbiTaxId"]=$ncbiTaxId;
+                            $dictionaryTmp["taxonomyScore"]=$taxonomyScore;
+                            $dictionaryTmp["pmidCheck"]=$pmidCheck;
+                            $dictionaryTmp["signalPeptideLength"]=$signalPeptideLength;
+                            $dictionaryTmp["proteinSequence"]=$proteinSequence;
+                            $dictionaryTmp["ncbiTaxId"]=$ncbiTaxId;
                         }elseif($typeOf=="diseases2"){
                             //Addded to correct offset error for starting position for diseases in database
                             $start=$data["startMention"];
                             $end=$data["endMention"];
+                            $ontology=$data["ontology"];
+                            $ontologyId=$data["ontologyId"];
                             $dictionaryTmp["start"]=$start-1;//Addded to correct offset error for starting position for diseases in database
                             $dictionaryTmp["end"]=$end;
+                            $dictionaryTmp["ontology"]=$ontology;
+                            $dictionaryTmp["ontologyId"]=$ontologyId;
+                        }elseif($typeOf=="genes3"){
+                            $start=$data["startMention"];
+                            $end=$data["endMention"];
+                            $ncbiGeneId=$data["ontology"];
+                            $ontologyId=$data["ontologyId"];
+                            $dictionaryTmp["start"]=$start;
+                            $dictionaryTmp["end"]=$end;
+                            $dictionaryTmp["ncbiGeneId"]=$ncbiGeneId;
+                            $dictionaryTmp["ontologyId"]=$ontologyId;
+                        }elseif($typeOf=="species"){
+                            $start=$data["startMention"];
+                            $end=$data["endMention"];
+                            $mention=$data["mention"];
+                            $ncbiTaxId=$data["ncbiTaxId"];
+                            $dictionaryTmp["start"]=$start;
+                            $dictionaryTmp["end"]=$end;
+                            $dictionaryTmp["mention"]=$mention;
+                            $dictionaryTmp["ncbiTaxId"]=$ncbiTaxId;
+                        }elseif($typeOf == "mutations"){
+                            $start=$data["startMention"];
+                            $end=$data["endMention"];
+                            $mutationClass=$data["mutationClass"];
+                            $position=$data["position"];
+                            $wildType=$data["wildType"];
+                            $sequenceClass=$data["sequenceClass"];
+                            $sequenceType=$data["sequenceType"];
+                            $mutant=$data["mutant"];
+                            $frameshiftPosition=$data["frameshiftPosition"];
+                            $dictionaryTmp["start"]=$start;
+                            $dictionaryTmp["end"]=$end;
+                            $dictionaryTmp["mutationClass"]=$mutationClass;
+                            $dictionaryTmp["position"]=$position;
+                            $dictionaryTmp["wildType"]=$wildType;
+                            $dictionaryTmp["sequenceClass"]=$sequenceClass;
+                            $dictionaryTmp["sequenceType"]=$sequenceType;
+                            $dictionaryTmp["mutant"]=$mutant;
+                            $dictionaryTmp["frameshiftPosition"]=$frameshiftPosition;
                         }else{
                             $start=$data["startMention"];
                             $end=$data["endMention"];
@@ -108,7 +184,6 @@ class UtilityExtension extends \Twig_Extension
             $offset=strlen($source["title"]);
             //ld($offset);
             $arrayDictionaries=[];
-            $arrayIndexes=["chemicals", "diseases2", "genes", "mutatedProteins3", "snps", "species"];
             //ld($source);
             foreach($arrayIndexes as $index){
                 //ld($index);
@@ -121,17 +196,94 @@ class UtilityExtension extends \Twig_Extension
                         $dictionaryTmp=[];
                         $dictionaryTmp["typeOf"]=$typeOf;
                         if($typeOf == "mutatedProteins3"){
+                            $mutation=$data["mention"];
                             $start=$data["startMutation"];
                             $end=$data["endMutation"];
+                            $mutationClass=$data["mutationClass"];
+                            $sequenceType=$data["sequenceType"];
+                            $sequenceClass=$data["sequenceClass"];
+                            $wildType_aa=$data["wildType_aa"];
+                            $sequencePosition=$data["sequencePosition"];
+                            $mutant_aa=$data["mutant_aa"];
+                            $frameshiftPosition=$data["frameshiftPosition"];
+                            $mutationValidated=$data["mutationValidated"];
+                            $ncbiGenId=$data["ncbiGenId"];
+                            $uniprotAccession=$data["uniprotAccession"];
+                            $geneMention=$data["geneMention"];
+                            $ncbiTaxId=$data["ncbiTaxId"];
+                            $taxonomyScore=$data["taxonomyScore"];
+                            $pmidCheck=$data["pmidCheck"];
+                            $signalPeptideLength=$data["signalPeptideLength"];
+                            $proteinSequence=$data["proteinSequence"];
+                            $ncbiTaxId=$data["ncbiTaxId"];
                             $dictionaryTmp["start"]=$start;
                             $dictionaryTmp["end"]=$end;
-                        }/*elseif($typeOf=="diseases2"){
-                            //Addded to correct offset error for starting position for diseases in database
+                            $dictionaryTmp["mutationClass"]=$mutationClass;
+                            $dictionaryTmp["sequenceType"]=$sequenceType;
+                            $dictionaryTmp["sequenceClass"]=$sequenceClass;
+                            $dictionaryTmp["wildType_aa"]=$wildType_aa;
+                            $dictionaryTmp["sequencePosition"]=$sequencePosition;
+                            $dictionaryTmp["mutant_aa"]=$mutant_aa;
+                            $dictionaryTmp["frameshiftPosition"]=$frameshiftPosition;
+                            $dictionaryTmp["mutationValidated"]=$mutationValidated;
+                            $dictionaryTmp["ncbiGenId"]=$ncbiGenId;
+                            $dictionaryTmp["uniprotAccession"]=$uniprotAccession;
+                            $dictionaryTmp["geneMention"]=$geneMention;
+                            $dictionaryTmp["ncbiTaxId"]=$ncbiTaxId;
+                            $dictionaryTmp["taxonomyScore"]=$taxonomyScore;
+                            $dictionaryTmp["pmidCheck"]=$pmidCheck;
+                            $dictionaryTmp["signalPeptideLength"]=$signalPeptideLength;
+                            $dictionaryTmp["proteinSequence"]=$proteinSequence;
+                            $dictionaryTmp["ncbiTaxId"]=$ncbiTaxId;
+                        }elseif($typeOf=="diseases2"){
                             $start=$data["startMention"];
                             $end=$data["endMention"];
-                            $dictionaryTmp["start"]=$start-1;//Addded to correct offset error for starting position for diseases in database
+                            $ontology=$data["ontology"];
+                            $ontologyId=$data["ontologyId"];
+                            $dictionaryTmp["start"]=$start;
                             $dictionaryTmp["end"]=$end;
-                        }*/else{
+                            $dictionaryTmp["ontology"]=$ontology;
+                            $dictionaryTmp["ontologyId"]=$ontologyId;
+                        }elseif($typeOf=="genes3"){
+                            $start=$data["startMention"];
+                            $end=$data["endMention"];
+                            $mention=$data["mention"];
+                            $ncbiGeneId=$data["ontology"];
+                            $ontologyId=$data["ontologyId"];
+                            $dictionaryTmp["start"]=$start;
+                            $dictionaryTmp["end"]=$end;
+                            $dictionaryTmp["mention"]=$mention;
+                            $dictionaryTmp["ncbiGeneId"]=$ncbiGeneId;
+                            $dictionaryTmp["ontologyId"]=$ontologyId;
+                        }elseif($typeOf=="species"){
+                            $start=$data["startMention"];
+                            $end=$data["endMention"];
+                            $mention=$data["mention"];
+                            $ncbiTaxId=$data["ncbiTaxId"];
+                            $dictionaryTmp["start"]=$start;
+                            $dictionaryTmp["end"]=$end;
+                            $dictionaryTmp["mention"]=$mention;
+                            $dictionaryTmp["ncbiTaxId"]=$ncbiTaxId;
+                        }elseif($typeOf == "mutations"){
+                            $start=$data["startMention"];
+                            $end=$data["endMention"];
+                            $mutationClass=$data["mutationClass"];
+                            $position=$data["position"];
+                            $wildType=$data["wildType"];
+                            $sequenceClass=$data["sequenceClass"];
+                            $sequenceType=$data["sequenceType"];
+                            $mutant=$data["mutant"];
+                            $frameshiftPosition=$data["frameshiftPosition"];
+                            $dictionaryTmp["start"]=$start;
+                            $dictionaryTmp["end"]=$end;
+                            $dictionaryTmp["mutationClass"]=$mutationClass;
+                            $dictionaryTmp["position"]=$position;
+                            $dictionaryTmp["wildType"]=$wildType;
+                            $dictionaryTmp["sequenceClass"]=$sequenceClass;
+                            $dictionaryTmp["sequenceType"]=$sequenceType;
+                            $dictionaryTmp["$mutant"]=$$mutant;
+                            $dictionaryTmp["frameshiftPosition"]=$frameshiftPosition;
+                        }else{
                             $start=$data["startMention"];
                             $end=$data["endMention"];
                             $dictionaryTmp["start"]=$start;
@@ -168,8 +320,9 @@ class UtilityExtension extends \Twig_Extension
         return ($arrayDictionaries);
     }
 
-    public function retrieveHighlighted($titleOrText, $source, $entityName, $startOffset, $filter){
+    public function retrieveHighlighted($titleOrText, $source, $entityName, $startOffset, $filter, $tooltipCounter){
         $message="Inside retrieveHighlighted service";
+        $mouseoverDivs="";
         $offset=0; //To handle the offset of the text's starting point
         //$startOffset needs to be substracted to compensate the title positions
         //ld($source);
@@ -190,36 +343,98 @@ class UtilityExtension extends \Twig_Extension
         //We have to iterate over the arrayDictionaries and mark $titleTextDefinitive
         $counter=1;
         foreach($arrayDictionaries as $dictionary){
+            $tooltipCounter=$tooltipCounter+1;
+            $tooltipCounterLength=strlen($tooltipCounter);//To add this to the addToOffset.
             $start=$dictionary["start"];
             //ld($start);
             $end=$dictionary["end"];
             $typeOf=$dictionary["typeOf"];
             //The string_to_insert will be different depending on the typeOf. Therefore:
             switch ($typeOf){
-                case "chemicals":
-                    $str_to_insert="<span class='chemicals_highlight'>";
-                    $addToOffset=34;
+                case "chemicals2":
+                    $str_to_insert="<span class='chemicals_highlight' data-tooltip='sticky$tooltipCounter'>";
+                    $addToOffset=34+22+$tooltipCounterLength;
+
                     break;
+
                 case "diseases2":
-                    $str_to_insert="<span class='diseases_highlight'>";
-                    $addToOffset=33;
+                    $str_to_insert="<span class='diseases_highlight' data-tooltip='sticky$tooltipCounter'>";
+                    $addToOffset=33+22+$tooltipCounterLength;
+
+                    $disease=$dictionary["mention"];
+                    $ontology=$dictionary["ontology"];
+                    $ontologyId=$dictionary["ontologyId"];
+                    $mouseoverSummary="<strong>Disease: </strong>$disease<br/><strong>Ontology: </strong>$ontology<br/><strong>Ontology Id: </strong>$ontologyId<br/>";
+                    $mouseoverDivs=$mouseoverDivs."<div id=\"sticky$tooltipCounter\"  class=\"atip\">$mouseoverSummary</div>";
                     break;
-                case "genes":
-                    $str_to_insert="<span class='genes_highlight'>";
-                    $addToOffset=30;
+
+                case "genes3":
+                    $str_to_insert="<span class='genes_highlight' data-tooltip='sticky$tooltipCounter'>";
+                    $addToOffset=30+22+$tooltipCounterLength;
+
+                    $geneName=$dictionary["mention"];
+                    $ncbiGeneId=$dictionary["ncbiGeneId"];
+                    $ncbiTaxId=$dictionary["ontologyId"];
+                    $mouseoverSummary="<strong>Gene Name: </strong>$geneName<br/><strong>NCBI Gene Id: </strong>$ncbiGeneId<br/><strong>NCBI Taxon Id: </strong>$ncbiTaxId<br/>";
+                    $mouseoverDivs=$mouseoverDivs."<div id=\"sticky$tooltipCounter\"  class=\"atip\">$mouseoverSummary</div>";
                     break;
+
                 case "mutatedProteins3":
-                    $str_to_insert="<span class='mutatedProteins_highlight'>";
-                    $addToOffset=40;
+                    $str_to_insert="<span class='mutatedProteins_highlight' data-tooltip='sticky$tooltipCounter'>";
+                    $addToOffset=40+22+$tooltipCounterLength;
+
+                    $mutation=$dictionary["mention"];
+                    $mutationClass=$dictionary["mutationClass"];
+                    $sequenceType=$dictionary["sequenceType"];
+                    $sequenceClass=$dictionary["sequenceClass"];
+                    $wildType_aa=$dictionary["wildType_aa"];
+                    $sequencePosition=$dictionary["sequencePosition"];
+                    $mutant_aa=$dictionary["mutant_aa"];
+                    $frameshiftPosition=$dictionary["frameshiftPosition"];
+                    $mutationValidated=$dictionary["mutationValidated"];
+                    $ncbiGenId=$dictionary["ncbiGenId"];
+                    $uniprotAccession=$dictionary["uniprotAccession"];
+                    $geneMention=$dictionary["geneMention"];
+                    $ncbiTaxId=$dictionary["ncbiTaxId"];
+                    $taxonomyScore=$dictionary["taxonomyScore"];
+                    $pmidCheck=$dictionary["pmidCheck"];
+                    $signalPeptideLength=$dictionary["signalPeptideLength"];
+                    $proteinSequence=$dictionary["proteinSequence"];
+
+                    $mouseoverSummary="<strong>Mutation: </strong>$mutation<br/><strong>Mutation Class: </strong>$mutationClass<br/><strong>Sequence Type: </strong>$sequenceType<br/><strong>Sequence Class: </strong>$sequenceClass<br/><strong>WildType_aa: </strong>$wildType_aa<br/><strong>Sequence Position: </strong>$sequencePosition<br/><strong>Mutant_aa: </strong>$mutant_aa<br/><strong>Frameshift Position: </strong>$frameshiftPosition<br/><strong>Mutation Validated: </strong>$mutationValidated<br/><strong>NCBI GeneId: </strong>$ncbiGenId<br/><strong>Uniprot Accession: </strong>$uniprotAccession<br/><strong>Gene Mention: </strong>$geneMention<br/><strong>NCBI TaxId: </strong>$ncbiTaxId<br/><strong>Taxonomy Score: </strong>$taxonomyScore<br/><strong>PMID Check: </strong>$pmidCheck<br/><strong>Signal Peptide Length: </strong>$signalPeptideLength<br/><strong>Protein Sequence: </strong>$proteinSequence<br/>
+                    ";
+                    $mouseoverDivs=$mouseoverDivs."<div id=\"sticky$tooltipCounter\"  class=\"atip\">$mouseoverSummary</div>";
                     break;
+
                 case "snps":
-                    $str_to_insert="<span class='snps_highlight'>";
-                    $addToOffset=29;
+                    $str_to_insert="<span class='snps_highlight' data-tooltip='sticky$tooltipCounter'>";
+                    $addToOffset=29+22+$tooltipCounterLength;
+
+                    $mutation=$dictionary["mention"];
+                    $position=$dictionary["position"];
+                    $mutationClass=$dictionary["mutationClass"];
+                    $sequenceType=$dictionary["sequenceType"];
+                    $sequenceClass=$dictionary["sequenceClass"];
+                    $wildType=$dictionary["wildType"];
+                    $mutant=$dictionary["mutant"];
+                    $frameshiftPosition=$dictionary["frameshiftPosition"];
+
+                    $mouseoverSummary="<strong>Mutation: </strong>$mutation<br/><strong>Position: </strong>$position<br/><strong>Mutation Class: </strong>$mutationClass<br/><strong>Sequence Type: </strong>$sequenceType<br/><strong>Sequence Class: </strong>$sequenceClass<br/><strong>WildType: </strong>$wildType<br/><strong>Mutant: </strong>$mutant<br/><strong>Frameshift Position: </strong>$frameshiftPosition<br/>
+                    ";
+                    $mouseoverDivs=$mouseoverDivs."<div id=\"sticky$tooltipCounter\"  class=\"atip\">$mouseoverSummary</div>";
                     break;
                 case "species":
-                    $str_to_insert="<span class='species_highlight'>";
-                    $addToOffset=32;
+                    $str_to_insert="<span class='species_highlight' data-tooltip='sticky$tooltipCounter'>";
+                    $addToOffset=32+22+$tooltipCounterLength;
+
+                    $specie=$dictionary["mention"];
+                    //$ncbiTaxId=$dictionary["ncbiTaxId"];
+                    $mouseoverSummary="<strong>Specie: </strong>$specie<br/>";//<strong>NCBI Tax Id: </strong>$ncbiTaxId<br/>
+                    $mouseoverDivs=$mouseoverDivs."<div id=\"sticky$tooltipCounter\"  class=\"atip\">$mouseoverSummary</div>";
                     break;
+
+
+
             }
             //ld($str_to_insert);
             if($filter=="title"){
@@ -250,7 +465,17 @@ class UtilityExtension extends \Twig_Extension
         //ld($titleOrText);
         //Underline entityName
         $titleOrText=str_ireplace($entityName, "<span class='underline'>".$entityName."</span>", $titleOrText);
-        return ($titleOrText);
+
+        $arrayReturn=array();
+        $arrayReturn[0]=$titleOrText;
+        //$arrayReturn[1]=$mouseoverDivs;
+        $arrayReturn[1]="";
+        $arrayReturn[2]=$tooltipCounter;
+
+        //return ($titleOrText);
+        return ($arrayReturn);
+
+
     }
 
 
