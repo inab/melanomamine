@@ -448,7 +448,7 @@
                     <fieldset>
                         <legend>Human</legend>
                             {% if specie is defined %}
-                                {% if specie == "human" %}
+                                {% if specie == "human" or specie=="9606" %}
                                     <span class="has-tip" title="Species"><label for="radioSpecies"><input name="mutatedProteinsHuman" type="radio" id="radioMutatedProteinsSpecies" style="display:none;" value="human" CHECKED><span class="custom radio"></span> Human</label>
                                     </span>
                                     <span class="has-tip" title="Species"><label for="radioSpecies"><input name="mutatedProteinsHuman" type="radio" id="radioMutatedProteinsSpecies" style="display:none;" value="all"><span class="custom radio"></span> All</label>

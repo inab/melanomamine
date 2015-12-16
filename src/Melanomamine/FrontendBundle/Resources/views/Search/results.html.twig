@@ -72,13 +72,12 @@
                                     {% set tooltip = arrayHighlightedTitle[1] %}
                                     {% set stringStickyTooltip = stringStickyTooltip ~tooltip %}
                                     {% set tooltipCounter = arrayHighlightedTitle[2] %}
-
                                     <td>{{ title | raw }}</td>
                                     {% set arrayHighlightedText = text | retrieveHighlighted (source, entityName, offset, "text", tooltipCounter) %}
                                     {% set text = arrayHighlightedText[0] %}
                                     {% set tooltip = arrayHighlightedText[1] %}
                                     {% set stringStickyTooltip = stringStickyTooltip ~tooltip %}
-                                    {% set toolTipCounter = arrayHighlightedText[2] %}
+                                    {% set tooltipCounter =  arrayHighlightedText[2] %}
                                     <td>{{ text | raw }}</td>
                                 </tr>
                             {% endfor %}

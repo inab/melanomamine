@@ -55,7 +55,9 @@ class UtilityExtension extends \Twig_Extension
                         //ld($data);
                         $dictionaryTmp=[];
                         $dictionaryTmp["typeOf"]=$typeOf;
+
                         if($typeOf == "mutatedProteins3"){
+
                             $mutation=$data["mention"];
                             $start=$data["startMutation"];
                             $end=$data["endMutation"];
@@ -95,7 +97,9 @@ class UtilityExtension extends \Twig_Extension
                             $dictionaryTmp["signalPeptideLength"]=$signalPeptideLength;
                             $dictionaryTmp["proteinSequence"]=$proteinSequence;
                             $dictionaryTmp["ncbiTaxId"]=$ncbiTaxId;
+
                         }elseif($typeOf=="diseases2"){
+
                             //Addded to correct offset error for starting position for diseases in database
                             $start=$data["startMention"];
                             $end=$data["endMention"];
@@ -105,7 +109,9 @@ class UtilityExtension extends \Twig_Extension
                             $dictionaryTmp["end"]=$end;
                             $dictionaryTmp["ontology"]=$ontology;
                             $dictionaryTmp["ontologyId"]=$ontologyId;
+
                         }elseif($typeOf=="genes3"){
+
                             $start=$data["startMention"];
                             $end=$data["endMention"];
                             $ncbiGeneId=$data["ontology"];
@@ -114,7 +120,9 @@ class UtilityExtension extends \Twig_Extension
                             $dictionaryTmp["end"]=$end;
                             $dictionaryTmp["ncbiGeneId"]=$ncbiGeneId;
                             $dictionaryTmp["ontologyId"]=$ontologyId;
+
                         }elseif($typeOf=="species"){
+
                             $start=$data["startMention"];
                             $end=$data["endMention"];
                             $mention=$data["mention"];
@@ -123,7 +131,9 @@ class UtilityExtension extends \Twig_Extension
                             $dictionaryTmp["end"]=$end;
                             $dictionaryTmp["mention"]=$mention;
                             $dictionaryTmp["ncbiTaxId"]=$ncbiTaxId;
+
                         }elseif($typeOf == "mutations"){
+
                             $start=$data["startMention"];
                             $end=$data["endMention"];
                             $mutationClass=$data["mutationClass"];
@@ -142,7 +152,18 @@ class UtilityExtension extends \Twig_Extension
                             $dictionaryTmp["sequenceType"]=$sequenceType;
                             $dictionaryTmp["mutant"]=$mutant;
                             $dictionaryTmp["frameshiftPosition"]=$frameshiftPosition;
+
+                        }elseif($typeOf == "chemicals2"){
+
+                            $start=$data["startMention"];
+                            $end=$data["endMention"];
+                            $mention=$data["mention"];
+                            $dictionaryTmp["start"]=$start;
+                            $dictionaryTmp["end"]=$end;
+                            $dictionaryTmp["mention"]=$mention;
+
                         }else{
+
                             $start=$data["startMention"];
                             $end=$data["endMention"];
                             $dictionaryTmp["start"]=$start;
@@ -283,6 +304,16 @@ class UtilityExtension extends \Twig_Extension
                             $dictionaryTmp["sequenceType"]=$sequenceType;
                             $dictionaryTmp["$mutant"]=$$mutant;
                             $dictionaryTmp["frameshiftPosition"]=$frameshiftPosition;
+
+                        }elseif($typeOf == "chemicals2"){
+
+                            $start=$data["startMention"];
+                            $end=$data["endMention"];
+                            $mention=$data["mention"];
+                            $dictionaryTmp["start"]=$start;
+                            $dictionaryTmp["end"]=$end;
+                            $dictionaryTmp["mention"]=$mention;
+
                         }else{
                             $start=$data["startMention"];
                             $end=$data["endMention"];
@@ -355,6 +386,9 @@ class UtilityExtension extends \Twig_Extension
                     $str_to_insert="<span class='chemicals_highlight' data-tooltip='sticky$tooltipCounter'>";
                     $addToOffset=34+22+$tooltipCounterLength;
 
+                    $chemical=$dictionary["mention"];
+                    $mouseoverSummary="<strong>Chemical: </strong>$chemical<br/>";
+                    $mouseoverDivs=$mouseoverDivs."<div id=\"sticky$tooltipCounter\"  class=\"atip\">$mouseoverSummary</div>";
                     break;
 
                 case "diseases2":
@@ -465,11 +499,9 @@ class UtilityExtension extends \Twig_Extension
         //ld($titleOrText);
         //Underline entityName
         $titleOrText=str_ireplace($entityName, "<span class='underline'>".$entityName."</span>", $titleOrText);
-
         $arrayReturn=array();
         $arrayReturn[0]=$titleOrText;
-        //$arrayReturn[1]=$mouseoverDivs;
-        $arrayReturn[1]="";
+        $arrayReturn[1]=$mouseoverDivs;
         $arrayReturn[2]=$tooltipCounter;
 
         //return ($titleOrText);
