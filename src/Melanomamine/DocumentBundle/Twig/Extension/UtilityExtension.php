@@ -30,10 +30,10 @@ class UtilityExtension extends \Twig_Extension
     public function filterTitleText($source, $filter){
         $message="Inside filterTitleText";
         //ld($filter);
-        $arrayIndexes=["chemicals2", "diseases2", "genes3", "mutatedProteins3", "snps", "species"];
+        $arrayIndexes=["chemicals2", "diseases3", "genes3", "mutatedProteins4", "snps", "species"];
 
         /*
-            For highlighting we create an array of dictionaries:  [{"start":4, "end": 20, "typeOf": "genes"},{"start":23, "end": 50, "typeOf": "diseases2"},{"start":56, "end": 80, "typeOf": "genes"},{"start":93, "end": 120, "typeOf": "mutatedProteins3"}...]
+            For highlighting we create an array of dictionaries:  [{"start":4, "end": 20, "typeOf": "genes"},{"start":23, "end": 50, "typeOf": "diseases3"},{"start":56, "end": 80, "typeOf": "genes"},{"start":93, "end": 120, "typeOf": "mutatedProteins4"}...]
             We short it taking into account the "start" field
             We cut the string in parts and add span tags with colors. Then we concatenate the resulting strings and split the Title
 
@@ -49,14 +49,14 @@ class UtilityExtension extends \Twig_Extension
                 //ld($index);
                 if (array_key_exists($index, $source)){
                     $typeOf=$index;
-                    $arrayData=$source[$index];//At $arrayData we have iteratively an array of chemicals, an array of diseases2... etc
+                    $arrayData=$source[$index];//At $arrayData we have iteratively an array of chemicals, an array of diseases3... etc
                     //ld($arrayData);
                     foreach($arrayData as $data){
                         //ld($data);
                         $dictionaryTmp=[];
                         $dictionaryTmp["typeOf"]=$typeOf;
 
-                        if($typeOf == "mutatedProteins3"){
+                        if($typeOf == "mutatedProteins4"){
 
                             $mutation=$data["mention"];
                             $start=$data["startMutation"];
@@ -98,7 +98,7 @@ class UtilityExtension extends \Twig_Extension
                             $dictionaryTmp["proteinSequence"]=$proteinSequence;
                             $dictionaryTmp["ncbiTaxId"]=$ncbiTaxId;
 
-                        }elseif($typeOf=="diseases2"){
+                        }elseif($typeOf=="diseases3"){
 
                             //Addded to correct offset error for starting position for diseases in database
                             $start=$data["startMention"];
@@ -132,7 +132,7 @@ class UtilityExtension extends \Twig_Extension
                             $dictionaryTmp["mention"]=$mention;
                             $dictionaryTmp["ncbiTaxId"]=$ncbiTaxId;
 
-                        }elseif($typeOf == "mutations"){
+                        }elseif($typeOf == "mutations2"){
 
                             $start=$data["startMention"];
                             $end=$data["endMention"];
@@ -210,13 +210,14 @@ class UtilityExtension extends \Twig_Extension
                 //ld($index);
                 if (array_key_exists($index, $source)){
                     $typeOf=$index;
-                    $arrayData=$source[$index];//At $arrayData we have iteratively an array of chemicals, an array of diseases2... etc
+                    $arrayData=$source[$index];//At $arrayData we have iteratively an array of chemicals, an array of diseases3... etc
                     //ld($arrayData);
                     foreach($arrayData as $data){
                         //ld($data);
                         $dictionaryTmp=[];
                         $dictionaryTmp["typeOf"]=$typeOf;
-                        if($typeOf == "mutatedProteins3"){
+                        if($typeOf == "mutatedProteins4"){
+
                             $mutation=$data["mention"];
                             $start=$data["startMutation"];
                             $end=$data["endMutation"];
@@ -256,7 +257,9 @@ class UtilityExtension extends \Twig_Extension
                             $dictionaryTmp["signalPeptideLength"]=$signalPeptideLength;
                             $dictionaryTmp["proteinSequence"]=$proteinSequence;
                             $dictionaryTmp["ncbiTaxId"]=$ncbiTaxId;
-                        }elseif($typeOf=="diseases2"){
+
+                        }elseif($typeOf=="diseases3"){
+
                             $start=$data["startMention"];
                             $end=$data["endMention"];
                             $ontology=$data["ontology"];
@@ -265,7 +268,9 @@ class UtilityExtension extends \Twig_Extension
                             $dictionaryTmp["end"]=$end;
                             $dictionaryTmp["ontology"]=$ontology;
                             $dictionaryTmp["ontologyId"]=$ontologyId;
+
                         }elseif($typeOf=="genes3"){
+
                             $start=$data["startMention"];
                             $end=$data["endMention"];
                             $mention=$data["mention"];
@@ -276,7 +281,9 @@ class UtilityExtension extends \Twig_Extension
                             $dictionaryTmp["mention"]=$mention;
                             $dictionaryTmp["ncbiGeneId"]=$ncbiGeneId;
                             $dictionaryTmp["ontologyId"]=$ontologyId;
+
                         }elseif($typeOf=="species"){
+
                             $start=$data["startMention"];
                             $end=$data["endMention"];
                             $mention=$data["mention"];
@@ -285,7 +292,9 @@ class UtilityExtension extends \Twig_Extension
                             $dictionaryTmp["end"]=$end;
                             $dictionaryTmp["mention"]=$mention;
                             $dictionaryTmp["ncbiTaxId"]=$ncbiTaxId;
-                        }elseif($typeOf == "mutations"){
+
+                        }elseif($typeOf == "mutations2"){
+
                             $start=$data["startMention"];
                             $end=$data["endMention"];
                             $mutationClass=$data["mutationClass"];
@@ -391,7 +400,7 @@ class UtilityExtension extends \Twig_Extension
                     $mouseoverDivs=$mouseoverDivs."<div id=\"sticky$tooltipCounter\"  class=\"atip\">$mouseoverSummary</div>";
                     break;
 
-                case "diseases2":
+                case "diseases3":
                     $str_to_insert="<span class='diseases_highlight' data-tooltip='sticky$tooltipCounter'>";
                     $addToOffset=33+22+$tooltipCounterLength;
 
@@ -413,7 +422,7 @@ class UtilityExtension extends \Twig_Extension
                     $mouseoverDivs=$mouseoverDivs."<div id=\"sticky$tooltipCounter\"  class=\"atip\">$mouseoverSummary</div>";
                     break;
 
-                case "mutatedProteins3":
+                case "mutatedProteins4":
                     $str_to_insert="<span class='mutatedProteins_highlight' data-tooltip='sticky$tooltipCounter'>";
                     $addToOffset=40+22+$tooltipCounterLength;
 

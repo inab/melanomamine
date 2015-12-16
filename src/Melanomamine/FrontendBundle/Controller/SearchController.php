@@ -112,18 +112,18 @@ class SearchController extends Controller
         $dictionarySummarySorted=[];
         foreach($arrayResults as $result){
             $source=$result->getSource();
-            if ( array_key_exists("genes2", $source) ){
-                $arrayGenes=$source["genes2"];
+            if ( array_key_exists("genes3", $source) ){
+                $arrayGenes=$source["genes3"];
                 foreach($arrayGenes as $gene){
                     $mention=$gene["mention"];
-                    $dictionarySummary=$this->insertMention($dictionarySummary,"genes2", $mention);
+                    $dictionarySummary=$this->insertMention($dictionarySummary,"genes3", $mention);
                 }
             }
-            if ( array_key_exists("mutations", $source) ){
-                $arrayMutations=$source["mutations"];
+            if ( array_key_exists("mutations2", $source) ){
+                $arrayMutations=$source["mutations2"];
                 foreach($arrayMutations as $mutation){
                     $mention=$mutation["mention"];
-                    $dictionarySummary=$this->insertMention($dictionarySummary,"mutations", $mention);
+                    $dictionarySummary=$this->insertMention($dictionarySummary,"mutations2", $mention);
                 }
             }
             if ( array_key_exists("chemicals2", $source) ){
@@ -133,19 +133,19 @@ class SearchController extends Controller
                     $dictionarySummary=$this->insertMention($dictionarySummary,"chemicals2", $mention);
                 }
             }
-            if ( array_key_exists("diseases2", $source) ){
-                $arrayDiseases=$source["diseases2"];
+            if ( array_key_exists("diseases3", $source) ){
+                $arrayDiseases=$source["diseases3"];
                 foreach($arrayDiseases as $disease){
                     $mention=$disease["mention"];
-                    $dictionarySummary=$this->insertMention($dictionarySummary,"diseases2", $mention);
+                    $dictionarySummary=$this->insertMention($dictionarySummary,"diseases3", $mention);
                 }
             }
 
-            if ( array_key_exists("mutatedProteins3", $source) ){
-                $mutatedProteins=$source["mutatedProteins3"];
+            if ( array_key_exists("mutatedProteins4", $source) ){
+                $mutatedProteins=$source["mutatedProteins4"];
                 foreach($mutatedProteins as $mutatedProtein){
                     $mention=$mutatedProtein["mention"];
-                    $dictionarySummary=$this->insertMention($dictionarySummary,"mutatedProteins3", $mention);
+                    $dictionarySummary=$this->insertMention($dictionarySummary,"mutatedProteins4", $mention);
                 }
             }
         }
@@ -153,8 +153,8 @@ class SearchController extends Controller
         if(count($dictionarySummary)!=0){
             $stringTable="<table class='summaryTable'>";
             $stringCSV="";  //in stringCSV we generate the content of the CSV file that will be downloaded upon user request
-            if ( array_key_exists("genes2", $dictionarySummary) ){
-                $arrayGenes=$dictionarySummary["genes2"];
+            if ( array_key_exists("genes3", $dictionarySummary) ){
+                $arrayGenes=$dictionarySummary["genes3"];
                 arsort($arrayGenes);
 
                 $stringTable.="<tr><th>Genes</th><td><span class='more'>";
@@ -166,8 +166,8 @@ class SearchController extends Controller
                 $stringTable.="</span></td></tr>";
                 $stringCSV.="\n";
             }
-            if ( array_key_exists("mutations", $dictionarySummary) ){
-                $arrayMutations=$dictionarySummary["mutations"];
+            if ( array_key_exists("mutations2", $dictionarySummary) ){
+                $arrayMutations=$dictionarySummary["mutations2"];
                 arsort($arrayMutations);
 
                 $stringTable.="<tr><th>Mutations</th><td><span class='more'>";
@@ -192,8 +192,8 @@ class SearchController extends Controller
                 $stringTable.="</span></td></tr>";
                 $stringCSV.="\n";
             }
-            if ( array_key_exists("diseases2", $dictionarySummary) ){
-                $arrayDiseases=$dictionarySummary["diseases2"];
+            if ( array_key_exists("diseases3", $dictionarySummary) ){
+                $arrayDiseases=$dictionarySummary["diseases3"];
                 arsort($arrayDiseases);
 
                 $stringTable.="<tr><th>Diseases</th><td><span class='more'>";
@@ -206,8 +206,8 @@ class SearchController extends Controller
                 $stringCSV.="\n";
             }
 
-            if ( array_key_exists("mutatedProteins3", $source) ){
-                $arrayMutatedProteins=$dictionarySummary["mutatedProteins3"];
+            if ( array_key_exists("mutatedProteins4", $source) ){
+                $arrayMutatedProteins=$dictionarySummary["mutatedProteins4"];
                 arsort($arrayMutatedProteins);
 
                 $stringTable.="<tr><th>Mutated Proteins</th><td><span class='more'>";
@@ -264,7 +264,7 @@ class SearchController extends Controller
 
         $elasticaQuery  = new \Elastica\Query();
         $elasticaQuery->setSize(500);
-        $elasticaQuery->setSort(array('melanoma_score' => array('order' => 'desc')));
+        $elasticaQuery->setSort(array('melanoma_score_new' => array('order' => 'desc')));
 
         $queryString  = new \Elastica\Query\QueryString();
         //'And' or 'Or' default : 'Or'
@@ -278,14 +278,14 @@ class SearchController extends Controller
 
         }elseif($whatToSearch=="withGenesProtein"){
 
-            $field = "genes";
+            $field = "genes3";
             $filter = new \Elastica\Filter\Exists($field);
             $filteredQuery = new \Elastica\Query\Filtered($queryString, $filter);
             $elasticaQuery->setQuery($filteredQuery);
 
         }elseif($whatToSearch=="withProteinMutations"){
 
-            $field = "mutatedProteins3";
+            $field = "mutatedProteins4";
             $filter = new \Elastica\Filter\Exists($field);
             $filteredQuery = new \Elastica\Query\Filtered($queryString, $filter);
             $elasticaQuery->setQuery($filteredQuery);
@@ -313,7 +313,7 @@ class SearchController extends Controller
 
         }elseif($whatToSearch=="withDiseases"){
 
-            $field = "diseases2";
+            $field = "diseases3";
             $filter = new \Elastica\Filter\Exists($field);
             $filteredQuery = new \Elastica\Query\Filtered($queryString, $filter);
             $elasticaQuery->setQuery($filteredQuery);
@@ -639,11 +639,11 @@ class SearchController extends Controller
             //First query to search inside nested genes.mention
             $searchNested = new \Elastica\Query\QueryString();
             $searchNested->setParam('query', $entityName);
-            $searchNested->setParam('fields', array('genes.mention'));
+            $searchNested->setParam('fields', array('genes3.mention'));
 
             $nestedQuery = new \Elastica\Query\Nested();
             $nestedQuery->setQuery($searchNested);
-            $nestedQuery->setPath('genes');
+            $nestedQuery->setPath('genes3');
 
             $queryBool->addMust($nestedQuery);
             $elasticaQuery->setQuery($queryBool);
@@ -664,11 +664,11 @@ class SearchController extends Controller
                 //Second query to search inside nested genes.ontologyId to see if it's a human gene
                 $searchNested2 = new \Elastica\Query\QueryString();
                 $searchNested2->setParam('query', $specie);
-                $searchNested2->setParam('fields', array('genes.ontologyId'));
+                $searchNested2->setParam('fields', array('genes3.ontologyId'));
 
                 $nestedQuery2 = new \Elastica\Query\Nested();
                 $nestedQuery2->setQuery($searchNested2);
-                $nestedQuery2->setPath('genes');
+                $nestedQuery2->setPath('genes3');
 
                 $queryBool->addMust($nestedQuery2);
 
@@ -694,22 +694,22 @@ class SearchController extends Controller
             //First query to search inside nested genes.mention
             $searchNested = new \Elastica\Query\QueryString();
             $searchNested->setParam('query', $entityName);
-            $searchNested->setParam('fields', array('mutatedProteins3.ncbiGenId'));
+            $searchNested->setParam('fields', array('mutatedProteins4.ncbiGenId'));
 
             $nestedQuery = new \Elastica\Query\Nested();
             $nestedQuery->setQuery($searchNested);
-            $nestedQuery->setPath('mutatedProteins3');
+            $nestedQuery->setPath('mutatedProteins4');
 
             $queryBool->addMust($nestedQuery);
 
             //Second query to search inside nested genes.ontologyId to see if it's a human gene
             $searchNested2 = new \Elastica\Query\QueryString();
             $searchNested2->setParam('query', 9606);
-            $searchNested2->setParam('fields', array('mutatedProteins3.ncbiTaxId'));
+            $searchNested2->setParam('fields', array('mutatedProteins4.ncbiTaxId'));
 
             $nestedQuery2 = new \Elastica\Query\Nested();
             $nestedQuery2->setQuery($searchNested2);
-            $nestedQuery2->setPath('mutatedProteins3');
+            $nestedQuery2->setPath('mutatedProteins4');
 
             if ($specie=="human"){
                 $queryBool->addMust($nestedQuery2);
@@ -798,11 +798,11 @@ class SearchController extends Controller
         //First query to search inside nested genes.mention
         $searchNested = new \Elastica\Query\QueryString();
         $searchNested->setParam('query', $entityName);
-        $searchNested->setParam('fields', array('genes2.ontology')); //shouldn't be ontology field!! Re-insert data into genes3. ncbiGeneId
+        $searchNested->setParam('fields', array('genes3.ontology')); //shouldn't be ontology field!! Re-insert data into genes3. ncbiGeneId
 
         $nestedQuery = new \Elastica\Query\Nested();
         $nestedQuery->setQuery($searchNested);
-        $nestedQuery->setPath('genes2');
+        $nestedQuery->setPath('genes3');
 
         $queryBool->addMust($nestedQuery);
 
@@ -886,7 +886,7 @@ class SearchController extends Controller
         if($whatToSearch=="snps"){
             $searchNested->setParam('fields', array('snps.mention'));
         }else{
-            $searchNested->setParam('fields', array('mutations.mention'));
+            $searchNested->setParam('fields', array('mutations2.mention'));
         }
 
         $nestedQuery = new \Elastica\Query\Nested();
@@ -894,7 +894,7 @@ class SearchController extends Controller
         if($whatToSearch=="snps"){
             $nestedQuery->setPath('snps');
         }else{
-            $nestedQuery->setPath('mutations');
+            $nestedQuery->setPath('mutations2');
         }
 
         $queryBool->addMust($nestedQuery);
@@ -902,7 +902,7 @@ class SearchController extends Controller
         if($whatToSearch!="snps"){
             //Second query to search for the type of mutation:
             $searchNested2 = new \Elastica\Query\QueryString();
-            $searchNested2->setParam('fields', array('mutations.mutationClass'));
+            $searchNested2->setParam('fields', array('mutations2.mutationClass'));
             if($whatToSearch=="substitutions"){
                 $searchNested2->setParam('query', "Substitution");
             }elseif($whatToSearch=="insertions"){
@@ -916,7 +916,7 @@ class SearchController extends Controller
             }
             $nestedQuery2 = new \Elastica\Query\Nested();
             $nestedQuery2->setQuery($searchNested2);
-            $nestedQuery2->setPath('mutations');
+            $nestedQuery2->setPath('mutations2');
 
             $queryBool->AddMust($nestedQuery2);
 
@@ -1085,11 +1085,11 @@ class SearchController extends Controller
             //We escape entityName but keep it into another variable "searchName" in order to not modify entityName. It will be passed later on to template.
             $searchName = $this->escapeElasticReservedChars($entityName);
             $searchNested->setParam('query', $searchName);
-            $searchNested->setParam('fields', array('chemicals.mention'));
+            $searchNested->setParam('fields', array('chemicals2.mention'));
 
             $nestedQuery = new \Elastica\Query\Nested();
             $nestedQuery->setQuery($searchNested);
-            $nestedQuery->setPath('chemicals');
+            $nestedQuery->setPath('chemicals2');
 
             $queryBool->addMust($nestedQuery);
 
@@ -1171,9 +1171,9 @@ class SearchController extends Controller
         $searchNested->setParam('query', $entityName);
 
         if($whatToSearch=="name"){
-            $searchNested->setParam('fields', array('diseases2.mention'));
+            $searchNested->setParam('fields', array('diseases3.mention'));
         }else{
-            $searchNested->setParam('fields', array('diseases2.ontologyId'));
+            $searchNested->setParam('fields', array('diseases3.ontologyId'));
         }
 
         //if whatToSearch is meshId or OMMIMid then we have to set another nested search for the ontology
@@ -1181,7 +1181,7 @@ class SearchController extends Controller
 
         $nestedQuery = new \Elastica\Query\Nested();
         $nestedQuery->setQuery($searchNested);
-        $nestedQuery->setPath('diseases2');
+        $nestedQuery->setPath('diseases3');
 
         $queryBool->addMust($nestedQuery);
 
@@ -1195,13 +1195,13 @@ class SearchController extends Controller
             $searchNested2 = new \Elastica\Query\QueryString();
             $searchNested2->setParam('query', $ontology);
 
-            $searchNested2->setParam('fields', array('diseases2.ontology'));
+            $searchNested2->setParam('fields', array('diseases3.ontology'));
 
             //if whatToSearch is meshId or OMMIMid then we have to set another nested search for the ontology
 
             $nestedQuery2 = new \Elastica\Query\Nested();
             $nestedQuery2->setQuery($searchNested2);
-            $nestedQuery2->setPath('diseases2');
+            $nestedQuery2->setPath('diseases3');
 
             $queryBool->addMust($nestedQuery2);
         }
@@ -1284,19 +1284,19 @@ class SearchController extends Controller
         $searchNested = new \Elastica\Query\QueryString();
         $searchNested->setParam('query', $entityName);
         if($whatToSearch=="proteinName"){
-            $searchNested->setParam('fields', array('mutatedProteins3.geneMention'));
+            $searchNested->setParam('fields', array('mutatedProteins4.geneMention'));
         }elseif($whatToSearch=="mutationName"){
-            $searchNested->setParam('fields', array('mutatedProteins3.mention'));
+            $searchNested->setParam('fields', array('mutatedProteins4.mention'));
         }elseif($whatToSearch=="uniprotAccession"){
-            $searchNested->setParam('fields', array('mutatedProteins3.uniprotAccession'));
+            $searchNested->setParam('fields', array('mutatedProteins4.uniprotAccession'));
         }elseif($whatToSearch=="geneId"){
-            $searchNested->setParam('fields', array('mutatedProteins3.ncbiGenId'));
+            $searchNested->setParam('fields', array('mutatedProteins4.ncbiGenId'));
         }
 
 
         $nestedQuery = new \Elastica\Query\Nested();
         $nestedQuery->setQuery($searchNested);
-        $nestedQuery->setPath('mutatedProteins3');
+        $nestedQuery->setPath('mutatedProteins4');
 
         $queryBool->addMust($nestedQuery);
 
@@ -1307,11 +1307,11 @@ class SearchController extends Controller
         //Second query to search inside nested genes.ontologyId to see if it's a human gene
         $searchNested2 = new \Elastica\Query\QueryString();
         $searchNested2->setParam('query', $specie);
-        $searchNested2->setParam('fields', array('mutatedProteins3.ncbiTaxId'));
+        $searchNested2->setParam('fields', array('mutatedProteins4.ncbiTaxId'));
 
         $nestedQuery2 = new \Elastica\Query\Nested();
         $nestedQuery2->setQuery($searchNested2);
-        $nestedQuery2->setPath('mutatedProteins3');
+        $nestedQuery2->setPath('mutatedProteins4');
 
         if ($specie=="human"){
             $queryBool->addMust($nestedQuery2);

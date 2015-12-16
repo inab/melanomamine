@@ -147,7 +147,7 @@ fos_elastica:
                         melanoma_score_new:
                             boost: 2
                             type: float
-                        genes2:
+                        genes3:
                             type: nested
                             include_in_parent: true
                             properties:
