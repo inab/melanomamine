@@ -30,7 +30,7 @@ class UtilityExtension extends \Twig_Extension
     public function filterTitleText($source, $filter){
         $message="Inside filterTitleText";
         //ld($filter);
-        $arrayIndexes=["chemicals2", "diseases3", "genes3", "mutatedProteins4", "snps", "species"];
+        $arrayIndexes=["chemicals2", "diseases3", "genes3", "mutatedProteins4", "snps", "species2"];
 
         /*
             For highlighting we create an array of dictionaries:  [{"start":4, "end": 20, "typeOf": "genes"},{"start":23, "end": 50, "typeOf": "diseases3"},{"start":56, "end": 80, "typeOf": "genes"},{"start":93, "end": 120, "typeOf": "mutatedProteins4"}...]
@@ -121,7 +121,7 @@ class UtilityExtension extends \Twig_Extension
                             $dictionaryTmp["ncbiGeneId"]=$ncbiGeneId;
                             $dictionaryTmp["ontologyId"]=$ontologyId;
 
-                        }elseif($typeOf=="species"){
+                        }elseif($typeOf=="species2"){
 
                             $start=$data["startMention"];
                             $end=$data["endMention"];
@@ -282,7 +282,7 @@ class UtilityExtension extends \Twig_Extension
                             $dictionaryTmp["ncbiGeneId"]=$ncbiGeneId;
                             $dictionaryTmp["ontologyId"]=$ontologyId;
 
-                        }elseif($typeOf=="species"){
+                        }elseif($typeOf=="species2"){
 
                             $start=$data["startMention"];
                             $end=$data["endMention"];
@@ -466,7 +466,7 @@ class UtilityExtension extends \Twig_Extension
                     ";
                     $mouseoverDivs=$mouseoverDivs."<div id=\"sticky$tooltipCounter\"  class=\"atip\">$mouseoverSummary</div>";
                     break;
-                case "species":
+                case "species2":
                     $str_to_insert="<span class='species_highlight' data-tooltip='sticky$tooltipCounter'>";
                     $addToOffset=32+22+$tooltipCounterLength;
 
