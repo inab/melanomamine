@@ -20,8 +20,10 @@ class UtilityExtension extends \Twig_Extension
 
     public function getFilters()
     {
+
         return array(
             'retrieveHighlighted' => new \Twig_Filter_Method($this, 'retrieveHighlighted'),
+            'generateSummaryTitleString' => new \Twig_Filter_Method($this, 'generateSummaryTitleString'),
         );
     }
 
@@ -519,6 +521,20 @@ class UtilityExtension extends \Twig_Extension
 
     }
 
+    public function generateSummaryTitleString($arraySummaryTitle)
+    {
+        $message = "Inside generateSummaryTitleString";
+        $stringSummaryTitle="<div class='summaryTitle'>Entity Summary Table: <table >";
+        foreach ($arraySummaryTitle as $typeMention=>$arrayMentions){
+
+            $stringSummaryTitle.= "<th colspan='2'>$typeMention</th><tr><td><strong>Mention</strong></td><td><strong>#</strong></td></tr>";
+            foreach($arrayMentions as $mention=>$totalMentions){
+                $stringSummaryTitle.="<tr><td>$mention</td><td>$totalMentions</td></tr>";
+            }
+        }
+        $stringSummaryTitle.="</table></small></div>";
+        return $stringSummaryTitle;
+    }
 
     public function colorCodingScoreFilter($score)
     {

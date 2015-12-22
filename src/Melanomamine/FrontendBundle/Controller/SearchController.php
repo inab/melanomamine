@@ -110,13 +110,18 @@ class SearchController extends Controller
         // and so on...
         $dictionarySummary=[];
         $dictionarySummarySorted=[];
+        $arraySummaryTitles=[];
+
         foreach($arrayResults as $result){
             $source=$result->getSource();
+            $pmid=$source["pmid"];
+            $dictionaryTmp=[];
             if ( array_key_exists("genes3", $source) ){
                 $arrayGenes=$source["genes3"];
                 foreach($arrayGenes as $gene){
                     $mention=$gene["mention"];
                     $dictionarySummary=$this->insertMention($dictionarySummary,"genes3", $mention);
+                    $dictionaryTmp=$this->insertMention($dictionaryTmp,"genes", $mention);
                 }
             }
             if ( array_key_exists("mutations2", $source) ){
@@ -124,6 +129,7 @@ class SearchController extends Controller
                 foreach($arrayMutations as $mutation){
                     $mention=$mutation["mention"];
                     $dictionarySummary=$this->insertMention($dictionarySummary,"mutations2", $mention);
+                    $dictionaryTmp=$this->insertMention($dictionaryTmp,"mutations", $mention);
                 }
             }
             if ( array_key_exists("chemicals2", $source) ){
@@ -131,6 +137,7 @@ class SearchController extends Controller
                 foreach($arrayChemicals as $chemical){
                     $mention=$chemical["mention"];
                     $dictionarySummary=$this->insertMention($dictionarySummary,"chemicals2", $mention);
+                    $dictionaryTmp=$this->insertMention($dictionaryTmp,"chemicals", $mention);
                 }
             }
             if ( array_key_exists("diseases3", $source) ){
@@ -138,18 +145,31 @@ class SearchController extends Controller
                 foreach($arrayDiseases as $disease){
                     $mention=$disease["mention"];
                     $dictionarySummary=$this->insertMention($dictionarySummary,"diseases3", $mention);
+                    $dictionaryTmp=$this->insertMention($dictionaryTmp,"diseases", $mention);
                 }
             }
-
             if ( array_key_exists("mutatedProteins4", $source) ){
                 $mutatedProteins=$source["mutatedProteins4"];
                 foreach($mutatedProteins as $mutatedProtein){
                     $mention=$mutatedProtein["mention"];
                     $dictionarySummary=$this->insertMention($dictionarySummary,"mutatedProteins4", $mention);
+                    $dictionaryTmp=$this->insertMention($dictionaryTmp,"mutatedProteins", $mention);
                 }
             }
+            if ( array_key_exists("species2", $source) ){
+                $species=$source["species2"];
+                foreach($species as $specie){
+                    $mention=$specie["mention"];
+                    $dictionarySummary=$this->insertMention($dictionarySummary,"species2", $mention);
+                    $dictionaryTmp=$this->insertMention($dictionaryTmp,"species", $mention);
+                }
+            }
+            $arraySummaryTitles[$pmid]=$dictionaryTmp;
         }
+
         //We have to short inner dictionaries and create the stringTable to return
+
+
         if(count($dictionarySummary)!=0){
             $stringTable="<table class='summaryTable'>";
             $stringCSV="";  //in stringCSV we generate the content of the CSV file that will be downloaded upon user request
@@ -205,7 +225,6 @@ class SearchController extends Controller
                 $stringTable.="</span></td></tr>";
                 $stringCSV.="\n";
             }
-
             if ( array_key_exists("mutatedProteins4", $source) ){
                 $arrayMutatedProteins=$dictionarySummary["mutatedProteins4"];
                 arsort($arrayMutatedProteins);
@@ -219,9 +238,21 @@ class SearchController extends Controller
                 $stringTable.="</span></td></tr>";
                 $stringCSV.="\n";
             }
+            if ( array_key_exists("species2", $source) ){
+                $arraySpecies=$dictionarySummary["species2"];
+                arsort($arraySpecies);
+
+                $stringTable.="<tr><th>Species</th><td><span class='more'>";
+                $stringCSV.="SPECIES\tAppearances\n";
+                foreach ($arraySpecies as $key => $value){
+                    $stringTable.="$key: $value, ";
+                    $stringCSV.="$key\t$value\n";
+                }
+                $stringTable.="</span></td></tr>";
+                $stringCSV.="\n";
+            }
             $stringTable.="</table>";
         }
-
 
         //ld($dictionarySummarySorted);
         //We create the file with the CSV content
@@ -246,13 +277,11 @@ class SearchController extends Controller
         //Delete filename keeping only .zip
 
 
-
         $arrayResponse=[];
         $arrayResponse["filename"]=$filename;
-        $arrayResponse["stringTable"]=$stringTable;
-
+        $arrayResponse["summaryTable"]=$stringTable;
+        $arrayResponse["summaryTitles"]=$arraySummaryTitles;
         return $arrayResponse;
-
     }
 
     public function getAliases($ncbiGeneId, $queryType){
@@ -566,7 +595,8 @@ class SearchController extends Controller
 
         $arrayResponse = $this->createSummaryTable($arrayAbstracts, $entityName); //this method returns an array with two contents: the filename where the summaryTable file is saved, and the string with the summaryTable
         $filename = $arrayResponse["filename"];
-        $summaryTable = $arrayResponse["stringTable"];
+        $summaryTable = $arrayResponse["summaryTable"];
+        $arraySummaryTitles = $arrayResponse["summaryTitles"];
 
         $paginator = $this->get('ideup.simple_paginator');
         $arrayResultsAbs = $paginator
@@ -609,7 +639,8 @@ class SearchController extends Controller
             'totalTime' => $totalTime,
             'summaryTable' => $summaryTable,
             'filenameSummaryTable' => $filename,
-            //'stringHtml' => $stringHtml,
+            'arraySummaryTitles' => $arraySummaryTitles,
+
         ));
     }
 
@@ -617,7 +648,6 @@ class SearchController extends Controller
     {
         $entityType="genes";
         $message="inside searchGenesAction";
-
 
         if ($whatToSearch=="geneProteinName"){
             #First of all we check for query expansion. But we only do this in geneProteinName searches and never for ncbiGeneId
@@ -694,23 +724,22 @@ class SearchController extends Controller
             //First query to search inside nested genes.mention
             $searchNested = new \Elastica\Query\QueryString();
             $searchNested->setParam('query', $entityName);
-            $searchNested->setParam('fields', array('mutatedProteins4.ncbiGenId'));
+            $searchNested->setParam('fields', array('genes3.ontology'));
 
             $nestedQuery = new \Elastica\Query\Nested();
             $nestedQuery->setQuery($searchNested);
-            $nestedQuery->setPath('mutatedProteins4');
+            $nestedQuery->setPath('genes3');
 
             $queryBool->addMust($nestedQuery);
 
             //Second query to search inside nested genes.ontologyId to see if it's a human gene
             $searchNested2 = new \Elastica\Query\QueryString();
             $searchNested2->setParam('query', 9606);
-            $searchNested2->setParam('fields', array('mutatedProteins4.ncbiTaxId'));
+            $searchNested2->setParam('fields', array('genes3.ontologyId'));
 
             $nestedQuery2 = new \Elastica\Query\Nested();
             $nestedQuery2->setQuery($searchNested2);
-            $nestedQuery2->setPath('mutatedProteins4');
-
+            $nestedQuery2->setPath('genes3');
             if ($specie=="human"){
                 $queryBool->addMust($nestedQuery2);
             }
@@ -727,7 +756,8 @@ class SearchController extends Controller
 
         $arrayResponse = $this->createSummaryTable($arrayAbstracts, $entityName); //this method returns an array with two contents: the filename where the summaryTable file is saved, and the string with the summaryTable
         $filename = $arrayResponse["filename"];
-        $summaryTable = $arrayResponse["stringTable"];
+        $summaryTable = $arrayResponse["summaryTable"];
+        $arraySummaryTitles = $arrayResponse["summaryTitles"];
 
         $paginator = $this->get('ideup.simple_paginator');
         $arrayResultsAbs = $paginator
@@ -752,7 +782,6 @@ class SearchController extends Controller
         $arrayResultsDoc = array();
 
         //$stringHtml = $this->getStringHtmlResults($arrayResultsAbs, $entityName);
-
         return $this->render('MelanomamineFrontendBundle:Search:results.html.twig', array(
             'entityType' => $entityType,
             'whatToSearch' => $whatToSearch,
@@ -771,7 +800,7 @@ class SearchController extends Controller
             'totalTime' => $totalTime,
             'summaryTable' => $summaryTable,
             'filenameSummaryTable' => $filename,
-            //'stringHtml' => $stringHtml,
+            'arraySummaryTitles' => $arraySummaryTitles,
         ));
     }
 
@@ -816,8 +845,8 @@ class SearchController extends Controller
 
         $arrayResponse = $this->createSummaryTable($arrayAbstracts, $entityName); //this method returns an array with two contents: the filename where the summaryTable file is saved, and the string with the summaryTable
         $filename = $arrayResponse["filename"];
-        $summaryTable = $arrayResponse["stringTable"];
-
+        $summaryTable = $arrayResponse["summaryTable"];
+        $arraySummaryTitles = $arrayResponse["summaryTitles"];
 
         $paginator = $this->get('ideup.simple_paginator');
         $arrayResultsAbs = $paginator
@@ -861,6 +890,7 @@ class SearchController extends Controller
             'arrayAliases' => $arrayAliases,
             'summaryTable' => $summaryTable,
             'filenameSummaryTable' => $filename,
+            'arraySummaryTitles' => $arraySummaryTitles,
         ));
     }
 
@@ -948,7 +978,8 @@ class SearchController extends Controller
 
         $arrayResponse = $this->createSummaryTable($arrayAbstracts, $entityName); //this method returns an array with two contents: the filename where the summaryTable file is saved, and the string with the summaryTable
         $filename = $arrayResponse["filename"];
-        $summaryTable = $arrayResponse["stringTable"];
+        $summaryTable = $arrayResponse["summaryTable"];
+        $arraySummaryTitles = $arrayResponse["summaryTitles"];
 
         $paginator = $this->get('ideup.simple_paginator');
         $arrayResultsAbs = $paginator
@@ -994,7 +1025,7 @@ class SearchController extends Controller
             'totalTime' => $totalTime,
             'summaryTable' => $summaryTable,
             'filenameSummaryTable' => $filename,
-            //'stringHtml' => $stringHtml,
+            'arraySummaryTitles' => $arraySummaryTitles,
         ));
 
     }
@@ -1022,8 +1053,9 @@ class SearchController extends Controller
             //$filename="vemurafenib-2015-12-14_18:26:18.zip";
             $arrayResponse = $this->createSummaryTable($arrayAbstracts, $entityName); //this method returns an array with two contents: the filename where the summaryTable file is saved, and the string with the summaryTable
             $filename = $arrayResponse["filename"];
+            $summaryTable = $arrayResponse["summaryTable"];
+            $arraySummaryTitles = $arrayResponse["summaryTitles"];
 
-            $summaryTable = $arrayResponse["stringTable"];
             $paginator = $this->get('ideup.simple_paginator');
             $arrayResultsAbs = $paginator
                 //->setMaxPagerItems($this->container->getParameter('etoxMicrome.number_of_pages'), 'abstracts')
@@ -1066,7 +1098,7 @@ class SearchController extends Controller
                 'queryExpansion' => $queryExpansion,
                 'summaryTable' => $summaryTable,
                 'filenameSummaryTable' => $filename,
-                //'stringHtml' => $stringHtml,
+                'arraySummaryTitles' => $arraySummaryTitles,
             ));
 
 
@@ -1107,7 +1139,8 @@ class SearchController extends Controller
 
         $arrayResponse = $this->createSummaryTable($arrayAbstracts, $entityName); //this method returns an array with two contents: the filename where the summaryTable file is saved, and the string with the summaryTable
         $filename = $arrayResponse["filename"];
-        $summaryTable = $arrayResponse["stringTable"];
+        $summaryTable = $arrayResponse["summaryTable"];
+        $arraySummaryTitles = $arrayResponse["summaryTitles"];
 
         $paginator = $this->get('ideup.simple_paginator');
         $arrayResultsAbs = $paginator
@@ -1150,6 +1183,7 @@ class SearchController extends Controller
             'totalTime' => $totalTime,
             'summaryTable' => $summaryTable,
             'filenameSummaryTable' => $filename,
+            'arraySummaryTitles' => $arraySummaryTitles,
         ));
 
     }
@@ -1216,7 +1250,8 @@ class SearchController extends Controller
 
         $arrayResponse = $this->createSummaryTable($arrayAbstracts, $entityName); //this method returns an array with two contents: the filename where the summaryTable file is saved, and the string with the summaryTable
         $filename = $arrayResponse["filename"];
-        $summaryTable = $arrayResponse["stringTable"];
+        $summaryTable = $arrayResponse["summaryTable"];
+        $arraySummaryTitles = $arrayResponse["summaryTitles"];
 
         $paginator = $this->get('ideup.simple_paginator');
         $arrayResultsAbs = $paginator
@@ -1259,6 +1294,7 @@ class SearchController extends Controller
             'totalTime' => $totalTime,
             'summaryTable' => $summaryTable,
             'filenameSummaryTable' => $filename,
+            'arraySummaryTitles' => $arraySummaryTitles,
         ));
 
     }
@@ -1327,7 +1363,8 @@ class SearchController extends Controller
 
         $arrayResponse = $this->createSummaryTable($arrayAbstracts, $entityName); //this method returns an array with two contents: the filename where the summaryTable file is saved, and the string with the summaryTable
         $filename = $arrayResponse["filename"];
-        $summaryTable = $arrayResponse["stringTable"];
+        $summaryTable = $arrayResponse["summaryTable"];
+        $arraySummaryTitles = $arrayResponse["summaryTitles"];
 
         $paginator = $this->get('ideup.simple_paginator');
         $arrayResultsAbs = $paginator
@@ -1370,6 +1407,7 @@ class SearchController extends Controller
             'specie' => $specie,
             'summaryTable' => $summaryTable,
             'filenameSummaryTable' => $filename,
+            'arraySummaryTitles' => $arraySummaryTitles,
         ));
 
     }

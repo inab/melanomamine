@@ -594,6 +594,25 @@ img.outlinkLogo{
 .atip{
     max-width: 500px;
 }
+
+div.summaryTitle{
+    margin-top: 1.1em;
+}
+div.summaryTitle th {
+    border: 1px solid grey;
+}
+div.summaryTitle td {
+    font-weight: 100;
+    font-size: smaller;
+    line-height:1.0em;
+    border: 1px dotted grey;
+}
+
+div.summaryTitle table {
+    width: 230px;
+    border: 1px solid grey;
+}
+
 /* -----------------------------------------
     Content
 ----------------------------------------- */
