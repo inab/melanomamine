@@ -20,10 +20,10 @@ class UtilityExtension extends \Twig_Extension
 
     public function getFilters()
     {
-
         return array(
             'retrieveHighlighted' => new \Twig_Filter_Method($this, 'retrieveHighlighted'),
             'generateSummaryTitleString' => new \Twig_Filter_Method($this, 'generateSummaryTitleString'),
+            'colorCodingScoreFilter' => new \Twig_Filter_Method($this, 'colorCodingScoreFilter'),
         );
     }
 

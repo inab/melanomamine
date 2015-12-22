@@ -54,7 +54,8 @@
                 <table id="tableResults" class="tablesorter">
                     <thead>
                         <th>Pubmed Link</th>
-                        <th>Score</th>
+                        <th>Melanoma</th>
+                        <th>NSCLC</th>
                         <th>Title</th>
                         <th>Abstract</th>
                     </thead>
@@ -68,18 +69,22 @@
                                 {% set title = source["title"]  %}
                                 {% set text = source["text"]  %}
                                 {% set score = source["melanoma_score_new"] %}
+                                {% set nsclc_score = source["nsclc_score"] %}
                                 {% set offset = title | length + 1%}
                                 {% set imageRoute = 'images/pubmed.png' %}
                                 {% set link="http://www.ncbi.nlm.nih.gov/pubmed/" ~ pmid %}
 
                                 <td><a href="{{ link }}" target="_blank"><img src="{{ asset(imageRoute) }}" class="outlinkLogo"/></a></td>
-                                <td class="center">{{ score }}</td>
+                                <td class="center">{{ score | number_format(2) | colorCodingScoreFilter | raw }}</td>
+                                <td class="center">{{ nsclc_score | number_format(2) | colorCodingScoreFilter | raw }}</td>
                                     {% set arrayHighlightedTitle = title | retrieveHighlighted (source, entityName, 0, "title", tooltipCounter) %}
                                     {% set title = arrayHighlightedTitle[0] %}
                                     {% set tooltip = arrayHighlightedTitle[1] %}
                                     {% set stringStickyTooltip = stringStickyTooltip ~tooltip %}
                                     {% set tooltipCounter = arrayHighlightedTitle[2] %}
-                                <td>{{ title | raw }}</td>
+                                    {% set stringSummaryTitle = arraySummaryTitles[pmid] | generateSummaryTitleString %}
+
+                                <td>{{ title | raw }} {{ stringSummaryTitle | raw }} </td>
                                     {% set arrayHighlightedText = text | retrieveHighlighted (source, entityName, offset, "text", tooltipCounter) %}
                                     {% set text = arrayHighlightedText[0] %}
                                     {% set tooltip = arrayHighlightedText[1] %}

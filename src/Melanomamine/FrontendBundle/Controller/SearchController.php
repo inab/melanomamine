@@ -164,6 +164,15 @@ class SearchController extends Controller
                     $dictionaryTmp=$this->insertMention($dictionaryTmp,"species", $mention);
                 }
             }
+            if ( array_key_exists("mutations2", $source) ){
+                $mutations=$source["mutations2"];
+                foreach($mutations as $mutation){
+                    $mention=$mutation["mention"];
+                    $dictionarySummary=$this->insertMention($dictionarySummary,"mutations2", $mention);
+                    $dictionaryTmp=$this->insertMention($dictionaryTmp,"mutations", $mention);
+                }
+            }
+            arsort($dictionaryTmp);
             $arraySummaryTitles[$pmid]=$dictionaryTmp;
         }
 
@@ -251,6 +260,20 @@ class SearchController extends Controller
                 $stringTable.="</span></td></tr>";
                 $stringCSV.="\n";
             }
+            if ( array_key_exists("mutations2", $source) ){
+                $arrayMutations=$dictionarySummary["mutations2"];
+                arsort($arrayMutations);
+
+                $stringTable.="<tr><th>Mutations</th><td><span class='more'>";
+                $stringCSV.="MUTATIONS\tAppearances\n";
+                foreach ($arrayMutations as $key => $value){
+                    $stringTable.="$key: $value, ";
+                    $stringCSV.="$key\t$value\n";
+                }
+                $stringTable.="</span></td></tr>";
+                $stringCSV.="\n";
+            }
+
             $stringTable.="</table>";
         }
 

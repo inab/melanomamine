@@ -613,6 +613,9 @@ div.summaryTitle table {
     border: 1px solid grey;
 }
 
+section.content h3 {
+    text-shadow: none;
+}
 /* -----------------------------------------
     Content
 ----------------------------------------- */
