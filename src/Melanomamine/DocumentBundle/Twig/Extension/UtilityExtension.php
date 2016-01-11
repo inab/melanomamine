@@ -528,6 +528,7 @@ class UtilityExtension extends \Twig_Extension
         foreach ($arraySummaryTitle as $typeMention=>$arrayMentions){
 
             $stringSummaryTitle.= "<th colspan='2'>$typeMention</th><tr><td><strong>Mention</strong></td><td><strong>#</strong></td></tr>";
+            arsort($arrayMentions);
             foreach($arrayMentions as $mention=>$totalMentions){
                 $stringSummaryTitle.="<tr><td>$mention</td><td>$totalMentions</td></tr>";
             }
