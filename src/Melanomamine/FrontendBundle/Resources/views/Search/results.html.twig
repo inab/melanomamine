@@ -44,17 +44,23 @@
                     {{ summaryTable | raw }}
                 </div>
                     <div class="clear-both"></div>
+                    {% set currentPath = path(app.request.attributes.get('_route'),
+                           app.request.attributes.get('_route_params')) %}
+
                     <table id="tableResults" class="tablesorter">
                         <thead>
                             <th>Pubmed Link</th>
-                            <th>Melanoma</th>
-                            <th>NSCLC</th>
+                            <th><a href="{{ currentPath | generatePath("melanome") }}">Melanome</a></th>
+                            <th><a href="{{ currentPath | generatePath("nsclc") }}">NSCLC</th>
+                            <th><a href="{{ currentPath | generatePath("pancreas") }}">Pancreas</a></th>
+                            <th><a href="{{ currentPath | generatePath("glioblastome") }}">Glioblastome</a></th>
                             <th>Title</th>
                             <th>Abstract</th>
                         </thead>
                         <tbody>
                             {% set contador = 1 %}
                             {% for result in arrayResultsAbs %}
+                                {{ result | ld }}
                                 <tr class="document {{ cycle(['odd', 'even'], contador) }}">
                                     {% set contador = contador + 1 %}
                                     {% set source = result.getSource %}
@@ -63,6 +69,8 @@
                                     {% set text = source["text"]  %}
                                     {% set score = source["melanoma_score_new"] %}
                                     {% set nsclc_score = source["nsclc_score"] %}
+                                    {% set pancreas_score = source["pancreas_score"] %}
+                                    {% set glioblastoma_score = source["glioblastoma_score"] %}
                                     {% set offset = title | length + 1%}
                                     {% set imageRoute = 'images/pubmed.png' %}
                                     {% set link="http://www.ncbi.nlm.nih.gov/pubmed/" ~ pmid %}
@@ -70,6 +78,9 @@
                                     <td><a href="{{ link }}" target="_blank"><img src="{{ asset(imageRoute) }}" class="outlinkLogo"/></a></td>
                                     <td class="center">{{ score | number_format(2) | colorCodingScoreFilter | raw }}</td>
                                     <td class="center">{{ nsclc_score | number_format(2) | colorCodingScoreFilter | raw }}</td>
+                                    <td class="center">{{ pancreas_score | number_format(2) | colorCodingScoreFilter | raw }}</td>
+                                    <td class="center">{{ glioblastoma_score | number_format(2) | colorCodingScoreFilter | raw }}</td>
+
                                     {% set arrayHighlightedTitle = title | retrieveHighlighted (source, entityName, 0, "title", tooltipCounter) %}
                                     {% set title = arrayHighlightedTitle[0] %}
                                     {% set tooltip = arrayHighlightedTitle[1] %}

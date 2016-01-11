@@ -12,7 +12,7 @@
                 case "keywords":
                     whatToSearch = $('input[name=keywordWhatToSearch]:checked').val();
                     var entityName = $('#tags-keywords').val();
-                    link='{{ path('search') }}'+entityType+'/'+whatToSearch+'/'+entityName+'/';
+                    link='{{ path('search') }}'+entityType+'/'+whatToSearch+'/'+entityName;
                     break;
                 case "genes":
                     whatToSearch = $('input[name=geneWhatToSearch]:checked').val();

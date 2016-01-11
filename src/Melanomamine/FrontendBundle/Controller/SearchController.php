@@ -541,16 +541,36 @@ class SearchController extends Controller
         return $arrayAliases;
     }
 
-    public function searchKeywordsAction($whatToSearch,$entityName)
+    public function setSortScore($orderBy){
+        switch ($orderBy){
+            case "melanome":
+                $orderBy = "melanoma_score_new";
+                break;
+            case  "nsclc":
+                $orderBy = "nsclc_score";
+                break;
+            case  "glioblastome":
+                $orderBy = "glioblastoma_score";
+                break;
+            case  "pancreas":
+                $orderBy = "pancreas_score";
+                break;
+        }
+
+        return $orderBy;
+    }
+
+    public function searchKeywordsAction($whatToSearch, $entityName, $orderBy)
     {
 
         $entityType="keywords";
         $message="inside searchKeywordAction";
-
+        $orderBy=$this->setSortScore($orderBy);
 
         $elasticaQuery  = new \Elastica\Query();
         $elasticaQuery->setSize(500);
-        $elasticaQuery->setSort(array('melanoma_score_new' => array('order' => 'desc')));
+
+        $elasticaQuery->setSort(array($orderBy => array('order' => 'desc')));
 
         $queryString  = new \Elastica\Query\QueryString();
         //'And' or 'Or' default : 'Or'
@@ -654,7 +674,7 @@ class SearchController extends Controller
             'resultSetAbstracts' => $data,
             'resultSetDocuments' => $resultSetDocuments,
             'entityName' => $entityName,
-            'orderBy' => "score",
+            'orderBy' => $orderBy,
             'hitsShowed' => $totalHits,
             'meanScore' => $meanScore,
             'medianScore' => $medianScore,

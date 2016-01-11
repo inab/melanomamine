@@ -30,9 +30,15 @@ search:
     pattern: /search/
     defaults: { _controller: MelanomamineFrontendBundle:Search:search}
 
-search_keywords:
+search_keyword_without_orderby:
     pattern: /search/keywords/{whatToSearch}/{entityName}/
-    defaults: { _controller: MelanomamineFrontendBundle:Search:searchKeywords}
+    defaults:
+        _controller: FrameworkBundle:Redirect:redirect
+        route: search_keywords
+        permanent: true
+search_keywords:
+    pattern: /search/keywords/{whatToSearch}/{entityName}/{orderBy}/
+    defaults: { _controller: MelanomamineFrontendBundle:Search:searchKeywords, orderBy: "melanome"}
 
 search_genes:
     pattern: /search/genes/{whatToSearch}/{entityName}/{specie}/

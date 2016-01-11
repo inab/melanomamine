@@ -51,11 +51,15 @@
                 {{ summaryTable | raw }}
             </div>
                 <div class="clear-both"></div>
+                {% set currentPath = path(app.request.attributes.get('_route'),
+                           app.request.attributes.get('_route_params')) %}
                 <table id="tableResults" class="tablesorter">
                     <thead>
                         <th>Pubmed Link</th>
-                        <th>Melanoma</th>
-                        <th>NSCLC</th>
+                        <th><a href="{{ currentPath ~ '/melanome' }}">Melanome</a></th>
+                        <th><a href="{{ currentPath ~ '/nsclc' }}">NSCLC</th>
+                        <th><a href="{{ currentPath ~ '/pancreas' }}">Pancreas</a></th>
+                        <th><a href="{{ currentPath ~ '/glioblastome' }}">Glioblastome</a></th>
                         <th>Title</th>
                         <th>Abstract</th>
                     </thead>

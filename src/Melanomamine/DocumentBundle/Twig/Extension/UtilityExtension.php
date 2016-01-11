@@ -24,6 +24,7 @@ class UtilityExtension extends \Twig_Extension
             'retrieveHighlighted' => new \Twig_Filter_Method($this, 'retrieveHighlighted'),
             'generateSummaryTitleString' => new \Twig_Filter_Method($this, 'generateSummaryTitleString'),
             'colorCodingScoreFilter' => new \Twig_Filter_Method($this, 'colorCodingScoreFilter'),
+            'generatePath' => new \Twig_Filter_Method($this, 'generatePath'),
         );
     }
 
@@ -589,6 +590,16 @@ class UtilityExtension extends \Twig_Extension
         }
         return ($score);
     }
+
+    public function generatePath($currentPath,$orderBy)
+    {
+        $message = "Inside generatePath";
+        $arrayCurrentPath=explode("/", $currentPath);
+        $arrayCurrentPath[6]=$orderBy;
+        $path=implode("/", $arrayCurrentPath);
+        return $path;
+    }
+
 
     public function getName()
     {
