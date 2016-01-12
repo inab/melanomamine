@@ -60,7 +60,6 @@
                         <tbody>
                             {% set contador = 1 %}
                             {% for result in arrayResultsAbs %}
-                                {{ result | ld }}
                                 <tr class="document {{ cycle(['odd', 'even'], contador) }}">
                                     {% set contador = contador + 1 %}
                                     {% set source = result.getSource %}
