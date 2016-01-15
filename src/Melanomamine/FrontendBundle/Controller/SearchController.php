@@ -462,7 +462,7 @@ class SearchController extends Controller
         $finder = $this->container->get('fos_elastica.index.melanomamine.'.$type);
         $elasticaQuery = new \Elastica\Query();
         $elasticaQuery->setSize(500);
-        $elasticaQuery->setSort(array('melanoma_score_new' => array('order' => 'desc')));
+        $elasticaQuery->setSort(array('melanoma_score_2' => array('order' => 'desc')));
 
         //BoolQuery to load 2 queries.
         $queryBool = new \Elastica\Query\BoolQuery();
@@ -544,7 +544,7 @@ class SearchController extends Controller
     public function setSortScore($orderBy){
         switch ($orderBy){
             case "melanome":
-                $orderBy = "melanoma_score_new";
+                $orderBy = "melanoma_score_2";
                 break;
             case  "nsclc":
                 $orderBy = "nsclc_score";
@@ -704,7 +704,7 @@ class SearchController extends Controller
 
             $elasticaQuery = new \Elastica\Query();
             $elasticaQuery->setSize(500);
-            $elasticaQuery->setSort(array('melanoma_score' => array('order' => 'desc')));
+            $elasticaQuery->setSort(array('melanoma_score_2' => array('order' => 'desc')));
 
             //BoolQuery to load 2 queries.
             $queryBool = new \Elastica\Query\BoolQuery();
@@ -759,7 +759,7 @@ class SearchController extends Controller
 
             $elasticaQuery = new \Elastica\Query();
             $elasticaQuery->setSize(500);
-            $elasticaQuery->setSort(array('melanoma_score' => array('order' => 'desc')));
+            $elasticaQuery->setSort(array('melanoma_score_2' => array('order' => 'desc')));
 
             //BoolQuery to load 2 queries.
             $queryBool = new \Elastica\Query\BoolQuery();
@@ -862,7 +862,7 @@ class SearchController extends Controller
 
         $elasticaQuery = new \Elastica\Query();
         $elasticaQuery->setSize(500);
-        $elasticaQuery->setSort(array('melanoma_score' => array('order' => 'desc')));
+        $elasticaQuery->setSort(array('melanoma_score_2' => array('order' => 'desc')));
 
         //BoolQuery to load 2 queries.
         $queryBool = new \Elastica\Query\BoolQuery();
@@ -947,7 +947,7 @@ class SearchController extends Controller
 
         $elasticaQuery = new \Elastica\Query();
         $elasticaQuery->setSize(500);
-        $elasticaQuery->setSort(array('melanoma_score' => array('order' => 'desc')));
+        $elasticaQuery->setSort(array('melanoma_score_2' => array('order' => 'desc')));
 
         //BoolQuery to load 2 queries.
         $queryBool = new \Elastica\Query\BoolQuery();
@@ -1151,7 +1151,7 @@ class SearchController extends Controller
 
             $elasticaQuery = new \Elastica\Query();
             $elasticaQuery->setSize(500);
-            $elasticaQuery->setSort(array('melanoma_score_new' => array('order' => 'desc')));
+            $elasticaQuery->setSort(array('melanoma_score_2' => array('order' => 'desc')));
             //BoolQuery to load 2 queries.
             $queryBool = new \Elastica\Query\BoolQuery();
 
@@ -1239,7 +1239,7 @@ class SearchController extends Controller
 
         $elasticaQuery = new \Elastica\Query();
         $elasticaQuery->setSize(500);
-        $elasticaQuery->setSort(array('melanoma_score_new' => array('order' => 'desc')));
+        $elasticaQuery->setSort(array('melanoma_score_2' => array('order' => 'desc')));
         //BoolQuery to load 2 queries.
         $queryBool = new \Elastica\Query\BoolQuery();
 
@@ -1354,7 +1354,7 @@ class SearchController extends Controller
 
         $elasticaQuery = new \Elastica\Query();
         $elasticaQuery->setSize(500);
-        $elasticaQuery->setSort(array('melanoma_score_new' => array('order' => 'desc')));
+        $elasticaQuery->setSort(array('melanoma_score_2' => array('order' => 'desc')));
 
         //BoolQuery to load 2 queries.
         $queryBool = new \Elastica\Query\BoolQuery();

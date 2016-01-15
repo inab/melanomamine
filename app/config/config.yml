@@ -141,10 +141,7 @@ fos_elastica:
                         text:
                             boost: 5
                             type: string
-                        melanoma_score:
-                            boost: 2
-                            type: float
-                        melanoma_score_new:
+                        melanoma_score_2:
                             boost: 2
                             type: float
                         genes3:
