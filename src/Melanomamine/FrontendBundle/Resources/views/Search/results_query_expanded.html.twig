@@ -73,7 +73,7 @@
                                 {% set title = source["title"]  %}
                                 {% set text = source["text"]  %}
                                 {% set score = source["melanoma_score_2"] %}
-                                {% set nsclc_score = source["nsclc_score"] %}
+                                {% set nsclc_score = source["nsclc_score_2"] %}
                                 {% set offset = title | length + 1%}
                                 {% set imageRoute = 'images/pubmed.png' %}
                                 {% set link="http://www.ncbi.nlm.nih.gov/pubmed/" ~ pmid %}

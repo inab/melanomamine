@@ -51,7 +51,7 @@
                         <thead>
                             <th>Pubmed Link</th>
                             <th><a href="{{ currentPath | generatePath("melanome") }}">Melanome</a></th>
-                            <!-- <th><a href="{# currentPath | generatePath("nsclc") #}">NSCLC</th>  -->
+                            <th><a href="{{ currentPath | generatePath("nsclc") }}">NSCLC</th>
                             <th><a href="{{ currentPath | generatePath("pancreas") }}">Pancreas</a></th>
                             <th><a href="{{ currentPath | generatePath("glioblastome") }}">Glioblastome</a></th>
                             <th>Title</th>
@@ -67,7 +67,7 @@
                                     {% set title = source["title"]  %}
                                     {% set text = source["text"]  %}
                                     {% set score = source["melanoma_score_2"] %}
-                                    {# set nsclc_score = source["nsclc_score"] #}
+                                    {% set nsclc_score = source["nsclc_score_2"] %}
                                     {% set pancreas_score = source["pancreas_score"] %}
                                     {% set glioblastoma_score = source["glioblastoma_score"] %}
                                     {% set offset = title | length + 1%}
@@ -76,7 +76,7 @@
 
                                     <td><a href="{{ link }}" target="_blank"><img src="{{ asset(imageRoute) }}" class="outlinkLogo"/></a></td>
                                     <td class="center">{{ score | number_format(2) | colorCodingScoreFilter | raw }}</td>
-                                    <!-- <td class="center">{# nsclc_score | number_format(2) | colorCodingScoreFilter | raw #}</td> -->
+                                    <td class="center">{{ nsclc_score | number_format(2) | colorCodingScoreFilter | raw }}</td>
                                     <td class="center">{{ pancreas_score | number_format(2) | colorCodingScoreFilter | raw }}</td>
                                     <td class="center">{{ glioblastoma_score | number_format(2) | colorCodingScoreFilter | raw }}</td>
 
