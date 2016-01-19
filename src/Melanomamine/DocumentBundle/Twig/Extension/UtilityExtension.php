@@ -410,7 +410,13 @@ class UtilityExtension extends \Twig_Extension
                     $disease=$dictionary["mention"];
                     $ontology=$dictionary["ontology"];
                     $ontologyId=$dictionary["ontologyId"];
-                    $mouseoverSummary="<strong>Disease: </strong>$disease<br/><strong>Ontology: </strong>$ontology<br/><strong>Ontology Id: </strong>$ontologyId<br/>";
+                    $mouseoverSummary="<strong>Disease: </strong>$disease<br/><strong>Ontology: </strong>$ontology<br/><strong>Ontology Id: </strong>";
+
+                    if($ontology=="MESH"){
+                        $mouseoverSummary.="<a href='http://www.nlm.nih.gov/cgi/mesh/2014/MB_cgi?field=uid&term=$ontologyId' target='_blank'>$ontologyId</a><br/>";
+                    }else{
+                        $mouseoverSummary.="$ontologyId</a><br/>";
+                    }
                     $mouseoverDivs=$mouseoverDivs."<div id=\"sticky$tooltipCounter\"  class=\"atip\">$mouseoverSummary</div>";
                     break;
 
@@ -421,7 +427,7 @@ class UtilityExtension extends \Twig_Extension
                     $geneName=$dictionary["mention"];
                     $ncbiGeneId=$dictionary["ncbiGeneId"];
                     $ncbiTaxId=$dictionary["ontologyId"];
-                    $mouseoverSummary="<strong>Gene Name: </strong>$geneName<br/><strong>NCBI Gene Id: </strong>$ncbiGeneId<br/><strong>NCBI Taxon Id: </strong>$ncbiTaxId<br/>";
+                    $mouseoverSummary="<strong>Gene Name: </strong><a href='http://www.ncbi.nlm.nih.gov/gene?term=$ncbiGeneId'  target='_blank'>$geneName</a><br/><strong>NCBI Gene Id: </strong><a href='http://www.ncbi.nlm.nih.gov/gene/$ncbiGeneId'  target='_blank'>$ncbiGeneId</a><br/><strong>NCBI Taxon Id: </strong><a href='https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=$ncbiTaxId' target='_blank'>$ncbiTaxId</a><br/>";
                     $mouseoverDivs=$mouseoverDivs."<div id=\"sticky$tooltipCounter\"  class=\"atip\">$mouseoverSummary</div>";
                     break;
 
