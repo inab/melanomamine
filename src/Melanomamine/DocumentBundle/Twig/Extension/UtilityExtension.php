@@ -414,8 +414,8 @@ class UtilityExtension extends \Twig_Extension
 
                     if($ontology=="MESH"){
                         $mouseoverSummary.="<a href='http://www.nlm.nih.gov/cgi/mesh/2014/MB_cgi?field=uid&term=$ontologyId' target='_blank'>$ontologyId</a><br/>";
-                    }else{
-                        $mouseoverSummary.="$ontologyId</a><br/>";
+                    }elseif($ontology=="OMIM"){
+                        $mouseoverSummary.="<a href='http://www.omim.org/entry/$ontologyId' target='_blank'>$ontologyId</a><br/>";
                     }
                     $mouseoverDivs=$mouseoverDivs."<div id=\"sticky$tooltipCounter\"  class=\"atip\">$mouseoverSummary</div>";
                     break;
