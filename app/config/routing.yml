@@ -23,54 +23,54 @@ fos_user_change_password:
     prefix: /profile
 
 homepage:
-    pattern: /
+    path: /
     defaults: { _controller: MelanomamineFrontendBundle:Default:home}
 
 search:
-    pattern: /search/
+    path: /search/
     defaults: { _controller: MelanomamineFrontendBundle:Search:search}
 
 search_keyword_without_orderby:
-    pattern: /search/keywords/{whatToSearch}/{entityName}/
+    path: /search/keywords/{whatToSearch}/{entityName}/
     defaults:
         _controller: FrameworkBundle:Redirect:redirect
         route: search_keywords
         permanent: true
 search_keywords:
-    pattern: /search/keywords/{whatToSearch}/{entityName}/{orderBy}/
+    path: /search/keywords/{whatToSearch}/{entityName}/{orderBy}/
     defaults: { _controller: MelanomamineFrontendBundle:Search:searchKeywords, orderBy: "melanome"}
 
 search_genes:
-    pattern: /search/genes/{whatToSearch}/{entityName}/{specie}/
+    path: /search/genes/{whatToSearch}/{entityName}/{specie}/
     defaults: { _controller: MelanomamineFrontendBundle:Search:searchGenes, specie: "human"}
 
 search_genes_expanded:
-    pattern: /search/genes_expanded/{whatToSearch}/{entityName}/{specie}/{searchTerm}/
+    path: /search/genes_expanded/{whatToSearch}/{entityName}/{specie}/{searchTerm}/
     defaults: { _controller: MelanomamineFrontendBundle:Search:searchGenesExpanded}
 
 search_mutations:
-    pattern: /search/mutations/{whatToSearch}/{entityName}/{dna}/{protein}/
+    path: /search/mutations/{whatToSearch}/{entityName}/{dna}/{protein}/
     defaults: { _controller: MelanomamineFrontendBundle:Search:searchMutations, dna: "false", protein: "false"}
 
 
 search_chemicals:
-    pattern: /search/chemicals/{whatToSearch}/{entityName}/{queryExpansion}/
+    path: /search/chemicals/{whatToSearch}/{entityName}/{queryExpansion}/
     defaults: { _controller: MelanomamineFrontendBundle:Search:searchChemicals, queryExpansion: "false"}
 
 search_diseases:
-    pattern: /search/diseases/{whatToSearch}/{entityName}/
+    path: /search/diseases/{whatToSearch}/{entityName}/
     defaults: { _controller: MelanomamineFrontendBundle:Search:searchDiseases}
 
 search_mutatedProteins:
-    pattern: /search/mutatedProteins/{whatToSearch}/{entityName}/{specie}/
+    path: /search/mutatedProteins/{whatToSearch}/{entityName}/{specie}/
     defaults: { _controller: MelanomamineFrontendBundle:Search:searchMutatedProteins}
 
 download_summary_table:
-    pattern: /download/{filenameSummaryTable}/
+    path: /download/{filenameSummaryTable}/
     defaults: { _controller: MelanomamineFrontendBundle:Download:downloadSummaryTable}
 
 
 
 #elasticSearch_search_entityType:
-#    pattern: /search/{entityType}/{entityName}/
+#    path: /search/{entityType}/{entityName}/
 #    defaults: { _controller: MelanomamineFrontendBundle:Search:searchEntityType}
