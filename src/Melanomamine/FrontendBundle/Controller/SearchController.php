@@ -591,7 +591,7 @@ class SearchController extends Controller
 
         }elseif($whatToSearch=="withProteinMutations"){
 
-            $field = "mutatedProteins3";//We search in type with snowball analyzer to perform typical keyword search
+            $field = "mutatedProteins4";//We search in type with snowball analyzer to perform typical keyword search
             $filter = new \Elastica\Filter\Exists($field);
             $filteredQuery = new \Elastica\Query\Filtered($queryString, $filter);
             $elasticaQuery->setQuery($filteredQuery);
@@ -1452,6 +1452,10 @@ class SearchController extends Controller
             'filenameSummaryTable' => $filename,
             'arraySummaryTitles' => $arraySummaryTitles,
         ));
+
+    }
+
+    public function searchChemspider($compoundName){
 
     }
 }

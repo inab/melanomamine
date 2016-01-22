@@ -69,7 +69,9 @@ download_summary_table:
     path: /download/{filenameSummaryTable}/
     defaults: { _controller: MelanomamineFrontendBundle:Download:downloadSummaryTable}
 
-
+search_chemspider:
+    pattern: /search_chemspider/compoundName/
+    defaults: { _controller: MelanomamineFrontendBundle:Search:searchChemspider}
 
 #elasticSearch_search_entityType:
 #    path: /search/{entityType}/{entityName}/

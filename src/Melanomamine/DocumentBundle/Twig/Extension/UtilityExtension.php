@@ -399,7 +399,7 @@ class UtilityExtension extends \Twig_Extension
                     $addToOffset=34+22+$tooltipCounterLength;
 
                     $chemical=$dictionary["mention"];
-                    $mouseoverSummary="<strong>Chemical: </strong>$chemical<br/>";
+                    $mouseoverSummary="<strong>Chemical: </strong><a href='http://www.chemspider.com/Search.aspx?q=$chemical'>$chemical</a><br/>";
                     $mouseoverDivs=$mouseoverDivs."<div id=\"sticky$tooltipCounter\"  class=\"atip\">$mouseoverSummary</div>";
                     break;
 
