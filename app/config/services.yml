@@ -16,5 +16,11 @@ services:
         arguments:
             doctrine: "@doctrine"
             router: "@router"
+            container: "@service_container"
+        tags:
+            - { name: twig.extension }
+    Melanomamine.twig.extension.chemspider:
+        class: Melanomamine\FrontendBundle\Twig\Extension\ChemspiderExtension
+        arguments: ["@service_container"]
         tags:
             - { name: twig.extension }

@@ -6,16 +6,22 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
 use Twig_Extension;
 use Twig_Filter_Method;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+
 
 class UtilityExtension extends \Twig_Extension
 {
     protected $doctrine;
     protected $generator;
+    protected $container;
+    protected $searchChemSpider;
 
-    public function __construct(RegistryInterface $doctrine, UrlGeneratorInterface $generator)
+    public function __construct(RegistryInterface $doctrine, UrlGeneratorInterface $generator, ContainerInterface $container = null)
     {
         $this->doctrine = $doctrine;
         $this->generator = $generator;
+        $this->container = $container;
     }
 
     public function getFilters()
@@ -399,7 +405,11 @@ class UtilityExtension extends \Twig_Extension
                     $addToOffset=34+22+$tooltipCounterLength;
 
                     $chemical=$dictionary["mention"];
+                    //$chemSpider=$this->container->get('melanomamine.searchChemSpider');
+                    //$chemSpiderId=$chemSpider->searchChemspider($chemical);
+                    //$mouseoverSummary="<strong>Chemical: </strong><a href='http://www.chemspider.com/Chemical-Structure.$chemSpiderId.html' target='_blank'>$chemical</a><br/>";
                     $mouseoverSummary="<strong>Chemical: </strong><a href='http://www.chemspider.com/Search.aspx?q=$chemical'>$chemical</a><br/>";
+
                     $mouseoverDivs=$mouseoverDivs."<div id=\"sticky$tooltipCounter\"  class=\"atip\">$mouseoverSummary</div>";
                     break;
 

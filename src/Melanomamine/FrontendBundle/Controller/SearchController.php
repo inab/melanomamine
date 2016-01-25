@@ -565,6 +565,7 @@ class SearchController extends Controller
 
         $entityType="keywords";
         $message="inside searchKeywordAction";
+
         $orderBy=$this->setSortScore($orderBy);
 
         $elasticaQuery  = new \Elastica\Query();
@@ -1452,10 +1453,6 @@ class SearchController extends Controller
             'filenameSummaryTable' => $filename,
             'arraySummaryTitles' => $arraySummaryTitles,
         ));
-
-    }
-
-    public function searchChemspider($compoundName){
 
     }
 }
