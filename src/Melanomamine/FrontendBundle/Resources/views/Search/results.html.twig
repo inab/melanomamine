@@ -50,10 +50,6 @@
                             {% set environment = app.environment %}
 
                             <th>Pubmed Link</th>
-                            <th><a href="{{ currentPath | generatePath("melanome", environment) }}">Melanome</a></th>
-                            <th><a href="{{ currentPath | generatePath("nsclc", environment) }}">NSCLC</th>
-                            <th><a href="{{ currentPath | generatePath("pancreas", environment) }}">Pancreas</a></th>
-                            <th><a href="{{ currentPath | generatePath("glioblastome", environment) }}">Glioblastome</a></th>
                             <th>Title</th>
                             <th>Abstract</th>
                         </thead>
@@ -67,19 +63,13 @@
                                     {% set title = source["title"]  %}
                                     {% set text = source["text"]  %}
                                     {% set score = source["melanoma_score_2"] %}
-                                    {% set nsclc_score = source["nsclc_score_2"] %}
-                                    {% set pancreas_score = source["pancreas_score"] %}
-                                    {% set glioblastoma_score = source["glioblastoma_score"] %}
                                     {% set offset = title | length + 1%}
                                     {% set imageRoute = 'images/pubmed.png' %}
                                     {% set link="http://www.ncbi.nlm.nih.gov/pubmed/" ~ pmid %}
 
-                                    <td><a href="{{ link }}" target="_blank"><img src="{{ asset(imageRoute) }}" class="outlinkLogo"/></a></td>
-                                    <td class="center">{{ score | number_format(2) | colorCodingScoreFilter | raw }}</td>
-                                    <td class="center">{{ nsclc_score | number_format(2) | colorCodingScoreFilter | raw }}</td>
-                                    <td class="center">{{ pancreas_score | number_format(2) | colorCodingScoreFilter | raw }}</td>
-                                    <td class="center">{{ glioblastoma_score | number_format(2) | colorCodingScoreFilter | raw }}</td>
-
+                                    <td><a href="{{ link }}" target="_blank"><img src="{{ asset(imageRoute) }}" class="outlinkLogo"/></a>
+                                        <div class="center">{{ score | number_format(2) | colorCodingScoreFilter | raw }}</div>
+                                    </td>
                                     {% set arrayHighlightedTitle = title | retrieveHighlighted (source, entityName, 0, "title", tooltipCounter) %}
                                     {% set title = arrayHighlightedTitle[0] %}
                                     {% set tooltip = arrayHighlightedTitle[1] %}

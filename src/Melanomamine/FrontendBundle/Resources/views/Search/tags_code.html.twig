@@ -29,6 +29,11 @@
     {% else %}
         <dd><a href="#mutatedProteins" name="mutatedProteins" class="tab">Mutated Proteins</a></dd>
     {% endif %}
+    {% if entityType=="otherCancer" %}
+        <dd class="active"><a href="#otherCancer" name="otherCancer" class="tab">Other Cancer</a></dd>
+    {% else %}
+        <dd><a href="#otherCancer" name="otherCancer" class="tab">Other Cancer</a></dd>
+    {% endif %}
 
 
 </dl>

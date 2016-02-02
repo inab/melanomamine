@@ -552,6 +552,9 @@ td.horizontal-header{
     text-align: center;
     vertical-align: top;
 }
+#tableResults .center{
+    text-align: center;
+}
 #tableDisambiguation th{
     text-align: center;
 }
@@ -566,6 +569,7 @@ table#tableDisambiguation td.center{
     text-align: center;
     vertical-align: top;
 }
+
 .abstract {
     border-bottom: 1px dotted #E0DFDF;
     margin-bottom: 10px;
