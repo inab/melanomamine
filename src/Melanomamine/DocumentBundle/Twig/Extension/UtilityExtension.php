@@ -607,11 +607,16 @@ class UtilityExtension extends \Twig_Extension
         return ($score);
     }
 
-    public function generatePath($currentPath,$orderBy)
+    public function generatePath($currentPath,$orderBy, $environment)
     {
         $message = "Inside generatePath";
         $arrayCurrentPath=explode("/", $currentPath);
-        $arrayCurrentPath[6]=$orderBy;
+        if($environment=="dev"){
+            $arrayCurrentPath[6]=$orderBy;
+        }elseif($environment=="prod"){
+            $arrayCurrentPath[5]=$orderBy;
+        }
+
         $path=implode("/", $arrayCurrentPath);
         return $path;
     }

@@ -45,14 +45,15 @@
                     <div class="clear-both"></div>
                     {% set currentPath = path(app.request.attributes.get('_route'),
                            app.request.attributes.get('_route_params')) %}
-
                     <table id="tableResults" class="tablesorter">
                         <thead>
+                            {% set environment = app.environment %}
+
                             <th>Pubmed Link</th>
-                            <th><a href="{{ currentPath | generatePath("melanome") }}">Melanome</a></th>
-                            <th><a href="{{ currentPath | generatePath("nsclc") }}">NSCLC</th>
-                            <th><a href="{{ currentPath | generatePath("pancreas") }}">Pancreas</a></th>
-                            <th><a href="{{ currentPath | generatePath("glioblastome") }}">Glioblastome</a></th>
+                            <th><a href="{{ currentPath | generatePath("melanome", environment) }}">Melanome</a></th>
+                            <th><a href="{{ currentPath | generatePath("nsclc", environment) }}">NSCLC</th>
+                            <th><a href="{{ currentPath | generatePath("pancreas", environment) }}">Pancreas</a></th>
+                            <th><a href="{{ currentPath | generatePath("glioblastome", environment) }}">Glioblastome</a></th>
                             <th>Title</th>
                             <th>Abstract</th>
                         </thead>
