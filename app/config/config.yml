@@ -45,6 +45,7 @@ twig:
         default_chemicalSearch: "vemurafenib"
         default_diseaseSearch: "Parkinson"
         default_mutatedProteinSearch: "BRAF"
+        default_otherCancerSearch: "metastasis"
         default_mutatedProteinMeshIdSearch: "{default_mutatedProtein_MeshId_search_value}"
         default_whatToSearch_keyword:  "any"
         default_source:   "all"

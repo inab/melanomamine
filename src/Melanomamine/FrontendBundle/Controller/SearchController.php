@@ -543,17 +543,29 @@ class SearchController extends Controller
 
     public function setSortScore($orderBy){
         switch ($orderBy){
-            case "melanome":
-                $orderBy = "melanoma_score_2";
+            case "bladder":
+                $orderBy = "bladder_score";
+                break;
+            case "breast":
+                $orderBy = "breast_score";
+                break;
+            case "glioblastome":
+                $orderBy = "glioblastoma_score";
+                break;
+            case "hcc":
+                $orderBy = "hcc_score";
                 break;
             case  "nsclc":
                 $orderBy = "nsclc_score";
                 break;
-            case  "glioblastome":
-                $orderBy = "glioblastoma_score";
+            case "melanome":
+                $orderBy = "melanoma_score_2";
                 break;
             case  "pancreas":
                 $orderBy = "pancreas_score";
+                break;
+            case  "prostate":
+                $orderBy = "prostate_score";
                 break;
         }
 
@@ -1454,5 +1466,132 @@ class SearchController extends Controller
             'arraySummaryTitles' => $arraySummaryTitles,
         ));
 
+    }
+
+    public function searchOtherCancerAction($whatToSearch, $entityName, $orderBy)
+    {
+
+        $entityType="otherCancer";
+        $message="inside searchOtherCancerAction";
+        $orderBy=$this->setSortScore($orderBy);
+
+        $elasticaQuery  = new \Elastica\Query();
+        $elasticaQuery->setSize(500);
+
+        $elasticaQuery->setSort(array($orderBy => array('order' => 'desc')));
+
+        $queryString  = new \Elastica\Query\QueryString();
+        //'And' or 'Or' default : 'Or'
+        $queryString->setDefaultOperator('AND');
+        $queryString->setQuery($entityName);
+
+        if($whatToSearch=="freeText"){
+
+
+            $elasticaQuery->setQuery($queryString);
+
+        }elseif($whatToSearch=="withGenesProtein"){
+
+            $field = "genes2";//We search in type with snowball analyzer to perform typical keyword search
+            $filter = new \Elastica\Filter\Exists($field);
+            $filteredQuery = new \Elastica\Query\Filtered($queryString, $filter);
+            $elasticaQuery->setQuery($filteredQuery);
+
+        }elseif($whatToSearch=="withProteinMutations"){
+
+            $field = "mutatedProteins4";//We search in type with snowball analyzer to perform typical keyword search
+            $filter = new \Elastica\Filter\Exists($field);
+            $filteredQuery = new \Elastica\Query\Filtered($queryString, $filter);
+            $elasticaQuery->setQuery($filteredQuery);
+
+        }elseif($whatToSearch=="withSNPs"){
+
+            $field = "snps";//We search in type with snowball analyzer to perform typical keyword search
+            $filter = new \Elastica\Filter\Exists($field);
+            $filteredQuery = new \Elastica\Query\Filtered($queryString, $filter);
+            $elasticaQuery->setQuery($filteredQuery);
+
+        }elseif($whatToSearch=="withDNAmutations"){
+
+            $field = "mutations";//We search in type with snowball analyzer to perform typical keyword search
+            $filter = new \Elastica\Filter\Exists($field);
+            $filteredQuery = new \Elastica\Query\Filtered($queryString, $filter);
+            $elasticaQuery->setQuery($filteredQuery);
+
+        }elseif($whatToSearch=="withChemicals"){
+
+            $field = "chemicals";//We search in type with snowball analyzer to perform typical keyword search
+            $filter = new \Elastica\Filter\Exists($field);
+            $filteredQuery = new \Elastica\Query\Filtered($queryString, $filter);
+            $elasticaQuery->setQuery($filteredQuery);
+
+        }elseif($whatToSearch=="withDiseases"){
+
+            $field = "diseases2";//We search in type with snowball analyzer to perform typical keyword search
+            $filter = new \Elastica\Filter\Exists($field);
+            $filteredQuery = new \Elastica\Query\Filtered($queryString, $filter);
+            $elasticaQuery->setQuery($filteredQuery);
+
+        }
+
+
+
+        $finder = $this->container->get('fos_elastica.index.melanomamine.abstracts');
+
+        $data = $finder->search($elasticaQuery);
+        $totalHits = $data->getTotalHits();
+        $totalTime = $data->getTotalTime();
+        $arrayAbstracts=$data->getResults();
+
+
+        $arrayResponse = $this->createSummaryTable($arrayAbstracts, $entityName); //this method returns an array with two contents: the filename where the summaryTable file is saved, and the string with the summaryTable
+        $filename = $arrayResponse["filename"];
+        $summaryTable = $arrayResponse["summaryTable"];
+        $arraySummaryTitles = $arrayResponse["summaryTitles"];
+
+        $paginator = $this->get('ideup.simple_paginator');
+        $arrayResultsAbs = $paginator
+            //->setMaxPagerItems($this->container->getParameter('etoxMicrome.number_of_pages'), 'abstracts')
+            ->setMaxPagerItems(15, 'abstracts')
+            //->setItemsPerPage($this->container->getParameter('etoxMicrome.evidences_per_page'), 'abstracts')
+            ->setItemsPerPage(10, 'abstracts')
+            ->paginate($arrayAbstracts,'abstracts')
+            ->getResult()
+        ;
+    ############### Uncomment when a SCORE has been added to the elasticsearch entries
+        //$meanScore=$this->getMmmrScore($data, 'score', 'mean');
+        //$medianScore=$this->getMmmrScore($data, $orderBy, 'median');
+        //$rangeScore=$this->getMmmrScore($data, $orderBy, 'range');
+        //$finderDoc=false;
+        ############### Comment when a SCORE has been added to the elasticsearch entries
+        $meanScore=0;
+        $medianScore=0;
+        $rangeScore=0;
+
+        $resultSetDocuments = array();
+        $arrayResultsDoc = array();
+
+        //$stringHtml = $this->getStringHtmlResults($arrayResultsAbs, $entityName);
+
+        return $this->render('MelanomamineFrontendBundle:Search:resultsOtherCancer.html.twig', array(
+            'entityType' => $entityType,
+            'whatToSearch' => $whatToSearch,
+            'entityName' => $entityName,
+            'arrayResultsAbs' => $arrayResultsAbs,
+            'arrayResultsDoc' => $arrayResultsDoc,
+            'resultSetAbstracts' => $data,
+            'resultSetDocuments' => $resultSetDocuments,
+            'entityName' => $entityName,
+            'orderBy' => $orderBy,
+            'hitsShowed' => $totalHits,
+            'meanScore' => $meanScore,
+            'medianScore' => $medianScore,
+            'rangeScore' => $rangeScore,
+            'totalTime' => $totalTime,
+            'summaryTable' => $summaryTable,
+            'filenameSummaryTable' => $filename,
+            'arraySummaryTitles' => $arraySummaryTitles,
+
+        ));
     }
 }

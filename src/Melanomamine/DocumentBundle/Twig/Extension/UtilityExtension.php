@@ -541,16 +541,20 @@ class UtilityExtension extends \Twig_Extension
     public function generateSummaryTitleString($arraySummaryTitle)
     {
         $message = "Inside generateSummaryTitleString";
-        $stringSummaryTitle="<div class='summaryTitle'>Entity Summary Table: <table >";
+        //$stringSummaryTitle="<div class='summaryTitle'>Entity Summary Table: <table >";
+        $stringSummaryTitle="<div class='summaryTitle'>Entity Mentions:";
         foreach ($arraySummaryTitle as $typeMention=>$arrayMentions){
 
-            $stringSummaryTitle.= "<th colspan='2'>$typeMention</th><tr><td><strong>Mention</strong></td><td><strong>#</strong></td></tr>";
+            //$stringSummaryTitle.= "<th colspan='2'>$typeMention</th><tr><td><strong>Mention</strong></td><td><strong>#</strong></td></tr>";
+            $stringSummaryTitle.= "<br/><span class='typeMention'>$typeMention</span>: ";
             arsort($arrayMentions);
             foreach($arrayMentions as $mention=>$totalMentions){
-                $stringSummaryTitle.="<tr><td>$mention</td><td>$totalMentions</td></tr>";
+                $stringSummaryTitle.="$mention [$totalMentions], ";
             }
         }
-        $stringSummaryTitle.="</table></small></div>";
+        //Get rid of last ,&nbsp;
+        $stringSummaryTitle = substr($stringSummaryTitle, 0, -2);
+        $stringSummaryTitle.="</div>";
         return $stringSummaryTitle;
     }
 

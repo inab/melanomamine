@@ -65,6 +65,16 @@ search_mutatedProteins:
     path: /search/mutatedProteins/{whatToSearch}/{entityName}/{specie}/
     defaults: { _controller: MelanomamineFrontendBundle:Search:searchMutatedProteins}
 
+search_otherCancer_without_orderby:
+    path: /search/otherCancer/{whatToSearch}/{entityName}/
+    defaults:
+        _controller: FrameworkBundle:Redirect:redirect
+        route: search_otherCancer
+        permanent: true
+search_otherCancer:
+    path: /search/otherCancer/{whatToSearch}/{entityName}/{orderBy}/
+    defaults: { _controller: MelanomamineFrontendBundle:Search:searchOtherCancer, orderBy: "nsclc"}
+
 download_summary_table:
     path: /download/{filenameSummaryTable}/
     defaults: { _controller: MelanomamineFrontendBundle:Download:downloadSummaryTable}

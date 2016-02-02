@@ -547,6 +547,7 @@ td.horizontal-header{
 }
 #tableResults td{
     vertical-align: top;
+    padding: 5px;
 }
 #tableResults td.center{
     text-align: center;
@@ -601,6 +602,8 @@ img.outlinkLogo{
 
 div.summaryTitle{
     margin-top: 1.1em;
+    margin-bottom: 0.55em;
+    font-weight: normal;
 }
 div.summaryTitle th {
     border: 1px solid grey;
@@ -615,6 +618,11 @@ div.summaryTitle td {
 div.summaryTitle table {
     width: 230px;
     border: 1px solid grey;
+}
+
+div.summaryTitle span.typeMention{
+    font-weight: bold;
+    text-transform: capitalize;
 }
 
 section.content h3 {

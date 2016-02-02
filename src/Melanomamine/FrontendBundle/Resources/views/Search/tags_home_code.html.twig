@@ -241,5 +241,38 @@
             </form>
         </div>
     </li>
+
+    <li id="otherCancerTab">
+        <div class="ui-widget">
+            <div class="vis-break cntrtxt">
+                {% if entityType == "otherCancer" %}
+                    <input id="tags-otherCancer" class="ui-autocomplete-input text tags" onclick="this.value=''" placeholder="e.g. {{ default_otherCancerSearch }}" aria-haspopup="true" aria-autocomplete="list" role="textbox" autocomplete="off" value="{{ entityName }}">
+                {% else %}
+                    <input id="otherCancer-keywords" class="ui-autocomplete-input text tags" onclick="this.value=''" placeholder="e.g. {{ default_otherCancerSearch }}" aria-haspopup="true" aria-autocomplete="list" role="textbox" autocomplete="off" value="{{ default_otherCancerSearch }}">
+                {% endif %}
+                <a class="button orange bigSearch" >Search</a>
+            </div>
+
+        </div>
+        <div class="advanceSearch">
+            <div class="large-4 columns">
+                <form class="custom">
+                    <fieldset>
+                        <legend>What are you searching?</legend>
+
+                                <span class="has-tip" title="Free-text search"><label for="radioWhatToSearch"><input name="otherCancerWhatToSearch" type="radio" id="radioOtherCancerWhatToSearch" style="display:none;" value="freeText" CHECKED><span class="custom radio"></span> Free-text Search</label></span>
+                                <span  class="has-tip" title="Search in documents with Genes/Proteins"><label for="radioWhatToSearch"><input name="otherCancerWhatToSearch" type="radio" id="radioOtherCancerWhatToSearch" style="display:none;" value="withGenesProtein"><span class="custom radio"></span> With Genes/Protein</label></span>
+                                <span  class="has-tip" title="Search in text with protein mutations"><label for="radioWhatToSearch"><input name="otherCancerWhatToSearch" type="radio" id="radioOtherCancerWhatToSearch" style="display:none;" value="withProteinMutations"><span class="custom radio"></span> With Protein Mutations</label></span>
+                                <span  class="has-tip" title="Search in documents with SNPs"><label for="radioWhatToSearch"><input name="otherCancerWhatToSearch" type="radio" id="radioOtherCancerWhatToSearch" style="display:none;" value="withSNPs"><span class="custom radio"></span> With SNPs</label></span>
+                                <span  class="has-tip" title="Search in documents with DNA mutations"><label for="radioWhatToSearch"><input name="otherCancerWhatToSearch" type="radio" id="radioOtherCancerWhatToSearch" style="display:none;" value="withDNAmutations" ><span class="custom radio"></span> With DNA Mutations</label></span>
+                                <span  class="has-tip" title="Search in documents with Chemicals"><label for="radioWhatToSearch"><input name="otherCancerWhatToSearch" type="radio" id="radioOtherCancerWhatToSearch" style="display:none;" value="withChemicals"><span class="custom radio"></span> With Chemicals</label></span>
+                                <span  class="has-tip" title="Search in documents with Drugs"><label for="radioWhatToSearch"><input name="otherCancerWhatToSearch" type="radio" id="radioOtherCancerWhatToSearch" style="display:none;" value="withDrugs"><span class="custom radio"></span> With Drugs</label></span>
+                                <span  class="has-tip" title="Search in documents with Diseases"><label for="radioWhatToSearch"><input name="otherCancerWhatToSearch" type="radio" id="radioOtherCancerWhatToSearch" style="display:none;" value="withDiseases" ><span class="custom radio"></span> With Diseases</label></span>
+                                <span  class="has-tip" title="Search in documents with mutated proteins"><label for="radioWhatToSearch"><input name="otherCancerWhatToSearch" type="radio" id="radioOtherCancerWhatToSearch" style="display:none;" value="withMutatedProteins" ><span class="custom radio"></span> With Mutated Proteins</label></span>
+                    </fieldset>
+                </form>
+            </div>
+        </div>
+    </li>
 </ul>
 <div class="clear-both"></div>
