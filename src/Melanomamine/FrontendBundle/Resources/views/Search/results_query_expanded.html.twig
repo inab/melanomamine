@@ -55,13 +55,15 @@
                            app.request.attributes.get('_route_params')) %}
                 <table id="tableResults" class="tablesorter">
                     <thead>
-                        <th>Pubmed Link</th>
-                        <th><a href="{{ currentPath ~ '/melanome' }}">Melanome</a></th>
-                        <th><a href="{{ currentPath ~ '/nsclc' }}">NSCLC</th>
-                        <th><a href="{{ currentPath ~ '/pancreas' }}">Pancreas</a></th>
-                        <th><a href="{{ currentPath ~ '/glioblastome' }}">Glioblastome</a></th>
-                        <th>Title</th>
-                        <th>Abstract</th>
+                        {% set environment = app.environment %}
+
+                            <th>Pubmed Link</th>
+                            <th><a href="{{ currentPath | generatePath("melanome", environment) }}">Melanome</a></th>
+                            <th><a href="{{ currentPath | generatePath("nsclc", environment) }}">NSCLC</th>
+                            <th><a href="{{ currentPath | generatePath("pancreas", environment) }}">Pancreas</a></th>
+                            <th><a href="{{ currentPath | generatePath("glioblastome", environment) }}">Glioblastome</a></th>
+                            <th>Title</th>
+                            <th>Abstract</th>
                     </thead>
                     <tbody>
                         {% set contador = 1 %}
