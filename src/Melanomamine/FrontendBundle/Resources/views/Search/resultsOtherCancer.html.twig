@@ -4,6 +4,7 @@
     {% include 'MelanomamineFrontendBundle:Search:tags_code.html.twig' %}
     {% set tooltipCounter=0 %}
     {% set stringStickyTooltip = "" %}
+    {% set orderBy = orderBy | getOrderBy %}
     <div id="evidences">
         {% if resultSetAbstracts | length != 0 %}
             {% if resultSetAbstracts.getTotalHits != 0 %}
@@ -83,35 +84,35 @@
                                                 </thead>
                                                 <tbody>
                                                     <tr>
-                                                        <td><span class="has-tip" title="Click to resort by Melanome score"><a href="{{ currentPath | generatePath("melanome", environment) }}">Melanome</a></span></td>
+                                                        <td><span class="has-tip {% if orderBy == "melanome" %}active{% endif %}" title="Click to resort by Melanome score"><a href="{{ currentPath | generatePath("melanome", environment) }}">Melanome</a></span></td>
                                                         <td>{{ score | number_format(2) | colorCodingScoreFilter | raw }}</td>
                                                     </tr>
                                                     <tr>
-                                                        <td><span class="has-tip" title="Click to resort by Bladder Cancer score"><a href="{{ currentPath | generatePath("bladder", environment) }}">Bladder</a></span></td>
+                                                        <td><span class="has-tip {% if orderBy == "bladder" %}active{% endif %}" title="Click to resort by Bladder Cancer score"><a href="{{ currentPath | generatePath("bladder", environment) }}">Bladder</a></span></td>
                                                         <td>{{ breast_score | number_format(2) | colorCodingScoreFilter | raw }}</td>
                                                     </tr>
                                                     <tr>
-                                                        <td><span class="has-tip" title="Click to resort by Breast Cancer score"><a href="{{ currentPath | generatePath("breast", environment) }}">Breast</a></span></td>
+                                                        <td><span class="has-tip {% if orderBy == "breast" %}active{% endif %}" title="Click to resort by Breast Cancer score"><a href="{{ currentPath | generatePath("breast", environment) }}">Breast</a></span></td>
                                                         <td>{{ breast_score | number_format(2) | colorCodingScoreFilter | raw }}</td>
                                                     </tr>
                                                     <tr>
-                                                        <td><span class="has-tip" title="Click to resort by Glioblastome score"><a href="{{ currentPath | generatePath("glioblastome", environment) }}">Glioblastome</a></span></td>
+                                                        <td><span class="has-tip {% if orderBy == "glioblastome" %}active{% endif %}" title="Click to resort by Glioblastome score"><a href="{{ currentPath | generatePath("glioblastome", environment) }}">Glioblastome</a></span></td>
                                                         <td>{{ glioblastoma_score | number_format(2) | colorCodingScoreFilter | raw }}</td>
                                                     </tr>
                                                     <tr>
-                                                        <td><span class="has-tip" title="Click to resort by Hepatocellular Carcinoma score"><a href="{{ currentPath | generatePath("hcc", environment) }}">HCC</a></span></td>
+                                                        <td><span class="has-tip {% if orderBy == "hcc" %}active{% endif %}" title="Click to resort by Hepatocellular Carcinoma score"><a href="{{ currentPath | generatePath("hcc", environment) }}">HCC</a></span></td>
                                                         <td>{{ hcc_score | number_format(2) | colorCodingScoreFilter | raw }}</td>
                                                     </tr>
                                                     <tr>
-                                                        <td><span class="has-tip" title="Click to resort by Non Small Cell Lung Cancer score"><a href="{{ currentPath | generatePath("nsclc", environment) }}">NSCLC</a></span></td>
+                                                        <td><span class="has-tip {% if orderBy == "nsclc" %}active{% endif %}" title="Click to resort by Non Small Cell Lung Cancer score"><a href="{{ currentPath | generatePath("nsclc", environment) }}">NSCLC</a></span></td>
                                                         <td>{{ nsclc_score | number_format(2) | colorCodingScoreFilter | raw }}</td>
                                                     </tr>
                                                     <tr>
-                                                        <td><span class="has-tip" title="Click to resort by Pancreas Cancer score"><a href="{{ currentPath | generatePath("pancreas", environment) }}">Pancreas</a></span></td>
+                                                        <td><span class="has-tip {% if orderBy == "pancreas" %}active{% endif %}" title="Click to resort by Pancreas Cancer score"><a href="{{ currentPath | generatePath("pancreas", environment) }}">Pancreas</a></span></td>
                                                         <td>{{ pancreas_score | number_format(2) | colorCodingScoreFilter | raw }}</td>
                                                     </tr>
                                                     <tr>
-                                                        <td><span class="has-tip" title="Click to resort by Prostate Cancer score"><a href="{{ currentPath | generatePath("prostate", environment) }}">Prostate</a></span></td>
+                                                        <td><span class="has-tip {% if orderBy == "prostate" %}active{% endif %}" title="Click to resort by Prostate Cancer score"><a href="{{ currentPath | generatePath("prostate", environment) }}">Prostate</a></span></td>
                                                         <td>{{ prostate_score | number_format(2) | colorCodingScoreFilter | raw }}</td>
                                                     </tr>
                                                 </tbody>

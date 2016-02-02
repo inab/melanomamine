@@ -31,6 +31,7 @@ class UtilityExtension extends \Twig_Extension
             'generateSummaryTitleString' => new \Twig_Filter_Method($this, 'generateSummaryTitleString'),
             'colorCodingScoreFilter' => new \Twig_Filter_Method($this, 'colorCodingScoreFilter'),
             'generatePath' => new \Twig_Filter_Method($this, 'generatePath'),
+            'getOrderBy' => new \Twig_Filter_Method($this, 'getOrderBy'),
         );
     }
 
@@ -623,6 +624,39 @@ class UtilityExtension extends \Twig_Extension
 
         $path=implode("/", $arrayCurrentPath);
         return $path;
+    }
+
+    public function getOrderBy($orderBy)
+    {
+
+        switch ($orderBy){
+            case "bladder_score":
+                $orderBy = "bladder";
+                break;
+            case "breast_score":
+                $orderBy = "breast";
+                break;
+            case "glioblastoma_score":
+                $orderBy = "glioblastome";
+                break;
+            case "hcc_score":
+                $orderBy = "hcc";
+                break;
+            case  "nsclc_score":
+                $orderBy = "nsclc";
+                break;
+            case "melanoma_score_2":
+                $orderBy = "melanome";
+                break;
+            case  "pancreas_score":
+                $orderBy = "pancreas";
+                break;
+            case  "prostate_score":
+                $orderBy = "prostate";
+                break;
+        }
+
+        return $orderBy;
     }
 
 
