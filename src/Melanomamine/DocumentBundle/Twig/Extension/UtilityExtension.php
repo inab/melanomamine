@@ -472,17 +472,10 @@ class UtilityExtension extends \Twig_Extension
                 case "snps":
                     $str_to_insert="<span class='snps_highlight' data-tooltip='sticky$tooltipCounter'>";
                     $addToOffset=29+22+$tooltipCounterLength;
-
                     $mutation=$dictionary["mention"];
-                    $position=$dictionary["position"];
-                    $mutationClass=$dictionary["mutationClass"];
-                    $sequenceType=$dictionary["sequenceType"];
-                    $sequenceClass=$dictionary["sequenceClass"];
-                    $wildType=$dictionary["wildType"];
-                    $mutant=$dictionary["mutant"];
-                    $frameshiftPosition=$dictionary["frameshiftPosition"];
+                    $typeOf=$dictionary["typeOf"];
 
-                    $mouseoverSummary="<strong>Mutation: </strong>$mutation<br/><strong>Position: </strong>$position<br/><strong>Mutation Class: </strong>$mutationClass<br/><strong>Sequence Type: </strong>$sequenceType<br/><strong>Sequence Class: </strong>$sequenceClass<br/><strong>WildType: </strong>$wildType<br/><strong>Mutant: </strong>$mutant<br/><strong>Frameshift Position: </strong>$frameshiftPosition<br/>
+                    $mouseoverSummary="<strong>Mutation: </strong>$mutation<br/><strong>TypeOf: </strong>$typeOf<br/>
                     ";
                     $mouseoverDivs=$mouseoverDivs."<div id=\"sticky$tooltipCounter\"  class=\"atip\">$mouseoverSummary</div>";
                     break;
@@ -543,11 +536,31 @@ class UtilityExtension extends \Twig_Extension
     {
         $message = "Inside generateSummaryTitleString";
         //$stringSummaryTitle="<div class='summaryTitle'>Entity Summary Table: <table >";
-        $stringSummaryTitle="<div class='summaryTitle'>Entity Mentions:";
+        $stringSummaryTitle="<hr/><div class='summaryTitle'><small>";
         foreach ($arraySummaryTitle as $typeMention=>$arrayMentions){
 
             //$stringSummaryTitle.= "<th colspan='2'>$typeMention</th><tr><td><strong>Mention</strong></td><td><strong>#</strong></td></tr>";
-            $stringSummaryTitle.= "<br/><span class='typeMention'>$typeMention</span>: ";
+            switch ($typeMention){
+                case "genes":
+                    $stringSummaryTitle.= "<br/><span class='typeMention genes_highlight'>$typeMention</span>: ";
+                    break;
+                case "mutations":
+                    $stringSummaryTitle.= "<br/><span class='typeMention mutations_highlight'>$typeMention</span>: ";
+                    break;
+                case "chemicals":
+                    $stringSummaryTitle.= "<br/><span class='typeMention chemicals_highlight'>$typeMention</span>: ";
+                    break;
+                case "diseases":
+                    $stringSummaryTitle.= "<br/><span class='typeMention diseases_highlight'>$typeMention</span>: ";
+                    break;
+                case "mutatedProteins":
+                    $stringSummaryTitle.= "<br/><span class='typeMention mutatedProteins_highlight'>$typeMention</span>: ";
+                    break;
+                case "species":
+                    $stringSummaryTitle.= "<br/><span class='typeMention species_highlight'>$typeMention</span>: ";
+                    break;
+            }
+
             arsort($arrayMentions);
             foreach($arrayMentions as $mention=>$totalMentions){
                 $stringSummaryTitle.="$mention [$totalMentions], ";
@@ -555,7 +568,7 @@ class UtilityExtension extends \Twig_Extension
         }
         //Get rid of last ,&nbsp;
         $stringSummaryTitle = substr($stringSummaryTitle, 0, -2);
-        $stringSummaryTitle.="</div>";
+        $stringSummaryTitle.="</small></div>";
         return $stringSummaryTitle;
     }
 

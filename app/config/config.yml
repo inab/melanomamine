@@ -42,6 +42,9 @@ twig:
         default_keywordSearch:  "metastasis"
         default_geneSearch: "BRAF"
         default_mutationSearch: "V599E"
+        default_wildTypeMutationInput: "A"
+        default_positionMutationInput: 158
+        default_mutantMutationInput: "Whatever"
         default_chemicalSearch: "vemurafenib"
         default_diseaseSearch: "Parkinson"
         default_mutatedProteinSearch: "BRAF"

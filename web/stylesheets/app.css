@@ -287,6 +287,22 @@ a:focus{
     background: #a97354 none repeat scroll 0 0 ;
 
 }
+
+table.normalizedProteinMutations .button{
+    background: #f1f1f1 none repeat scroll 0 0 ;
+    border: 1px solid #a97354;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) inset;
+    text-align: right;
+    font-size: 0.9em;
+}
+table.normalizedProteinMutations .button:hover {
+    background: #c1c1c1 none repeat scroll 0 0 ;
+}
+
+table.normalizedProteinMutations .mutations {
+    text-transform: uppercase;
+}
+
 .right-column ul {
     margin: 0;
     padding: 0;
@@ -372,6 +388,11 @@ mark.compound a{
 
 .results-summary li{
     font-size: 85%;
+}
+
+table.summaryTable th, table.summaryTable td{
+    padding: 10px;
+    vertical-align: unset;
 }
 
 #mouseoverSummary{
@@ -547,7 +568,7 @@ td.horizontal-header{
 }
 #tableResults td{
     vertical-align: top;
-    padding: 5px;
+    padding: 10px;
 }
 #tableResults td.center{
     text-align: center;
@@ -556,6 +577,12 @@ td.horizontal-header{
 #tableResults .center{
     text-align: center;
 }
+
+#tableResults hr {
+    margin-bottom: -0.8em;
+    margin-top: 0.8em;
+}
+
 #tableDisambiguation th{
     text-align: center;
 }
@@ -601,7 +628,6 @@ img.outlinkLogo{
 }
 
 div.summaryTitle{
-    margin-top: 1.1em;
     margin-bottom: 0.55em;
     font-weight: normal;
 }
@@ -621,7 +647,6 @@ div.summaryTitle table {
 }
 
 div.summaryTitle span.typeMention{
-    font-weight: bold;
     text-transform: capitalize;
 }
 

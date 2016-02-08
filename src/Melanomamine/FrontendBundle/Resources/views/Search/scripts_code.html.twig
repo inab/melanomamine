@@ -56,6 +56,29 @@
             }
             $('.bigSearch').attr('href',link);
         })
+
+        $(".searchNormalized").click(function(e) {
+            //First we get mention:
+            var entityName = $('#tags-mutations').val();
+            if(entityName==""){
+                alert("Please type mention to search");
+            }else{
+                //Then we check that not all of the parameters for normalized mutations search are null
+                var normalizedWildType = $('#normalizedWildType').val();
+                if(normalizedWildType==""){normalizedWildType="None"}
+                var normalizedPosition = $('#normalizedPosition').val();
+                if(normalizedPosition==""){normalizedPosition="None"}
+                var normalizedMutant = $('#normalizedMutant').val();
+                if(normalizedMutant==""){normalizedMutant="None"}
+                if ((normalizedWildType=="None")&&(normalizedPosition=="None")&&(normalizedMutant=="None")){
+                    alert("In order to search protein mutations you have to type at least one of these three: Wild-type, Position or Mutant");
+                }else{
+                    //There's at least one of the three parameters, we can generate a path already:
+                    link='{{ path('search_normalized') }}'+normalizedWildType+'/'+normalizedPosition+'/'+normalizedMutant+'/';
+                    $('.searchNormalized').attr('href',link);
+                }
+            }
+        })
     </script>
     <script type="application/javascript">
         $(document).ready(function() {

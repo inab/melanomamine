@@ -37,6 +37,7 @@
 
 
 </dl>
+
 <ul class="tabs-content">
     {% if entityType == "keywords" %}
         <li class="active" id="keywordsTab">
@@ -215,6 +216,29 @@
             <form class="custom">
                 <div class="large-3 columns">
                     <fieldset>
+                        <legend>DNA/Protein mutations</legend>
+                            {% if dna is defined %}
+                                {% if dna == "true" %}
+                                    <input type="checkbox" id="mutationDNACheckbox" name="mutationDNA" value="dna" checked> DNA<br>
+                                {% else %}
+                                    <input type="checkbox" id="mutationDNACheckbox" name="mutationDNA" value="dna"> DNA<br>
+                                {% endif %}
+                            {% else %}
+                                <input type="checkbox" id="mutationDNACheckbox" name="mutationDNA" value="dna"> DNA<br>
+                            {% endif %}
+                            {% if protein is defined %}
+                                {% if protein == "true" %}
+                                    <input type="checkbox" id="mutationProteinCheckbox" name="mutationProtein" value="protein" checked> Protein<br>
+                                {% else %}
+                                    <input type="checkbox" id="mutationProteinCheckbox" name="mutationProtein" value="protein"> Protein<br>
+                                {% endif %}
+                            {% else %}
+                                    <input type="checkbox" id="mutationProteinCheckbox" name="mutationProtein" value="protein" checked> Protein<br>
+                            {% endif %}
+                    </fieldset>
+                </div>
+                <div class="large-3 columns end">
+                    <fieldset>
                         <legend>What are you searching?</legend>
                             {% if whatToSearch == "substitutions" or entityType != "mutations" %}
                                 <span class="has-tip" title="Search for substitutions"><label for="radioWhatToSearch"><input name="mutationWhatToSearch" type="radio" id="radioMutationWhatToSearch" style="display:none;" value="substitutions" CHECKED><span class="custom radio"></span> Substitutions</label></span>
@@ -261,25 +285,37 @@
                 </div>
                 <div class="large-3 columns end">
                     <fieldset>
-                        <legend>DNA/Protein mutations</legend>
-                            {% if dna is defined %}
-                                {% if dna == "true" %}
-                                    <input type="checkbox" id="mutationDNACheckbox" name="mutationDNA" value="dna" checked> DNA<br>
-                                {% else %}
-                                    <input type="checkbox" id="mutationDNACheckbox" name="mutationDNA" value="dna"> DNA<br>
-                                {% endif %}
-                            {% else %}
-                                <input type="checkbox" id="mutationDNACheckbox" name="mutationDNA" value="dna" checked> DNA<br>
-                            {% endif %}
-                            {% if protein is defined %}
-                                {% if protein == "true" %}
-                                    <input type="checkbox" id="mutationProteinCheckbox" name="mutationProtein" value="protein" checked> Protein<br>
-                                {% else %}
-                                    <input type="checkbox" id="mutationProteinCheckbox" name="mutationProtein" value="protein"> Protein<br>
-                                {% endif %}
-                            {% else %}
-                                    <input type="checkbox" id="mutationProteinCheckbox" name="mutationProtein" value="protein"> Protein<br>
-                            {% endif %}
+                        <legend>Search Normalized Protein Mutations</legend>
+                            <table class="normalizedProteinMutations">
+                                <tr>
+                                    <td>Wild-Type:</td>
+                                    {% if normalizedWildType is defined and normalizedWildType !="NONE" %}
+                                        <td><span class="has-tip" title="Insert Wild-Type mutant. e.g: D"><input id="normalizedWildType" class="mutations" maxlength="1" value="{{ normalizedWildType }}"></span></td>
+                                    {% else %}
+                                        <td><span class="has-tip" title="Insert Wild-Type mutant. e.g: D"><input id="normalizedWildType" class="mutations" maxlength="1"></span></td>
+                                    {% endif %}
+                                </tr>
+                                <tr>
+                                    <td>Position:</td>
+                                    {% if normalizedPosition is defined and normalizedPosition !="NONE" %}
+                                        <td><span class="has-tip" title="Insert Position of the mutation e.g: 593"><input id="normalizedPosition" class="mutations" value="{{ normalizedPosition }}"></span></td>
+                                    {% else %}
+                                        <td><span class="has-tip" title="Insert Position of the mutation e.g: 593"><input id="normalizedPosition" class="mutations"></span></td>
+                                    {% endif %}
+                                </tr>
+                                <tr>
+                                    <td>Mutant:</td>
+                                    {% if normalizedMutant is defined and normalizedMutant !="NONE" %}
+                                        <td><span class="has-tip" title="Insert Mutant. e.g: K"><input id="normalizedMutant" class="mutations" maxlength="1" value="{{normalizedMutant}}"></span></td>
+                                    {% else %}
+                                        <td><span class="has-tip" title="Insert Mutant. e.g: K"><input id="normalizedMutant" class="mutations" maxlength="1"></span></td>
+                                    {% endif %}
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td class="right"><span class="has-tip" title="Search Normalized Protein Mutations"><a class="button searchNormalized">Search</a></span></td>
+                                </tr>
+                            </table>
                     </fieldset>
                 </div>
             </form>

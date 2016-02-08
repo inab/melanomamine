@@ -186,7 +186,7 @@ class SearchController extends Controller
                 $arrayGenes=$dictionarySummary["genes3"];
                 arsort($arrayGenes);
 
-                $stringTable.="<tr><th>Genes</th><td><span class='more'>";
+                $stringTable.="<tr><th><span class='genes_highlight'>Genes</span></th><td><span class='more'>";
                 $stringCSV.="GENES\tAppearances\n";
                 foreach ($arrayGenes as $key => $value){
                     $stringTable.="$key: $value, ";
@@ -199,7 +199,7 @@ class SearchController extends Controller
                 $arrayMutations=$dictionarySummary["mutations2"];
                 arsort($arrayMutations);
 
-                $stringTable.="<tr><th>Mutations</th><td><span class='more'>";
+                $stringTable.="<tr><th><span class='mutations_highlight'>Mutations</span></th><td><span class='more'>";
                 $stringCSV.="MUTATIONS\tAppearances\n";
                 foreach ($arrayMutations as $key => $value){
                     $stringTable.="$key: $value, ";
@@ -212,7 +212,7 @@ class SearchController extends Controller
                 $arrayChemicals=$dictionarySummary["chemicals2"];
                 arsort($arrayChemicals);
 
-                $stringTable.="<tr><th>Chemicals</th><td><span class='more'>";
+                $stringTable.="<tr><th><span class='chemicals_highlight'>Chemicals</span></th><td><span class='more'>";
                 $stringCSV.="CHEMICALS\tAppearances\n";
                 foreach ($arrayChemicals as $key => $value){
                     $stringTable.="$key: $value, ";
@@ -225,7 +225,7 @@ class SearchController extends Controller
                 $arrayDiseases=$dictionarySummary["diseases3"];
                 arsort($arrayDiseases);
 
-                $stringTable.="<tr><th>Diseases</th><td><span class='more'>";
+                $stringTable.="<tr><th><span class='diseases_highlight'>Diseases</span></th><td><span class='more'>";
                 $stringCSV.="DISEASES\tAppearances\n";
                 foreach ($arrayDiseases as $key => $value){
                     $stringTable.="$key: $value, ";
@@ -238,7 +238,7 @@ class SearchController extends Controller
                 $arrayMutatedProteins=$dictionarySummary["mutatedProteins4"];
                 arsort($arrayMutatedProteins);
 
-                $stringTable.="<tr><th>Mutated Proteins</th><td><span class='more'>";
+                $stringTable.="<tr><th><span class='mutatedProteins_highlight'>Mutated Proteins</span></th><td><span class='more'>";
                 $stringCSV.="MUTATED PROTEINS\tAppearances\n";
                 foreach ($arrayMutatedProteins as $key => $value){
                     $stringTable.="$key: $value, ";
@@ -251,22 +251,9 @@ class SearchController extends Controller
                 $arraySpecies=$dictionarySummary["species2"];
                 arsort($arraySpecies);
 
-                $stringTable.="<tr><th>Species</th><td><span class='more'>";
+                $stringTable.="<tr><th><span class='species_highlight'>Species</span></th><td><span class='more'>";
                 $stringCSV.="SPECIES\tAppearances\n";
                 foreach ($arraySpecies as $key => $value){
-                    $stringTable.="$key: $value, ";
-                    $stringCSV.="$key\t$value\n";
-                }
-                $stringTable.="</span></td></tr>";
-                $stringCSV.="\n";
-            }
-            if ( array_key_exists("mutations2", $source) ){
-                $arrayMutations=$dictionarySummary["mutations2"];
-                arsort($arrayMutations);
-
-                $stringTable.="<tr><th>Mutations</th><td><span class='more'>";
-                $stringCSV.="MUTATIONS\tAppearances\n";
-                foreach ($arrayMutations as $key => $value){
                     $stringTable.="$key: $value, ";
                     $stringCSV.="$key\t$value\n";
                 }
@@ -1078,6 +1065,118 @@ class SearchController extends Controller
             'rangeScore' => $rangeScore,
             'dna' => $dna,
             'protein' => $protein,
+            'totalTime' => $totalTime,
+            'summaryTable' => $summaryTable,
+            'filenameSummaryTable' => $filename,
+            'arraySummaryTitles' => $arraySummaryTitles,
+        ));
+
+    }
+
+    public function searchNormalizedProteinMutationsAction( $normalizedWildType, $normalizedPosition, $normalizedMutant)
+    {
+        $message="inside searchNormalizedMutationsAction";
+        $entityType="mutations";
+        $whatToSearch="whatToSearch";
+        $dna="false";
+        $protein="true";
+        $normalizedWildType=strtoupper($normalizedWildType);
+        $normalizedPosition=strtoupper($normalizedPosition);
+        $normalizedMutant=strtoupper($normalizedMutant);
+        $finder = $this->container->get('fos_elastica.index.melanomamine.abstracts');
+
+        $elasticaQuery = new \Elastica\Query();
+        $elasticaQuery->setSize(500);
+        $elasticaQuery->setSort(array('melanoma_score_2' => array('order' => 'desc')));
+
+        //BoolQuery to load 2 queries.
+        $queryBool = new \Elastica\Query\BoolQuery();
+
+        if($normalizedWildType!="NONE"){
+            $searchNested = new \Elastica\Query\QueryString();
+            $searchNested->setParam('query', $normalizedWildType);
+            $searchNested->setParam('fields', array('mutations2.wildType'));
+            $nestedQuery = new \Elastica\Query\Nested();
+            $nestedQuery->setQuery($searchNested);
+            $nestedQuery->setPath('mutations2');
+            $queryBool->addMust($nestedQuery);
+        }
+        if($normalizedPosition!="NONE"){
+            $searchNested2 = new \Elastica\Query\QueryString();
+            $searchNested2->setParam('query', $normalizedPosition);
+            $searchNested2->setParam('fields', array('mutations2.position'));
+            $nestedQuery2 = new \Elastica\Query\Nested();
+            $nestedQuery2->setQuery($searchNested2);
+            $nestedQuery2->setPath('mutations2');
+            $queryBool->AddMust($nestedQuery2);
+        }
+        if($normalizedMutant!="NONE"){
+            $searchNested3 = new \Elastica\Query\QueryString();
+            $searchNested3->setParam('query', $normalizedMutant);
+            $searchNested3->setParam('fields', array('mutations2.mutant'));
+            $nestedQuery3 = new \Elastica\Query\Nested();
+            $nestedQuery3->setQuery($searchNested3);
+            $nestedQuery3->setPath('mutations2');
+            $queryBool->AddMust($nestedQuery3);
+        }
+
+        $elasticaQuery->setQuery($queryBool);
+
+        $data = $finder->search($elasticaQuery);
+        $totalHits = $data->getTotalHits();
+        $totalTime = $data->getTotalTime();
+        $arrayAbstracts=$data->getResults();
+        //$entityName for createSummaryTable is only needed for filename creation. Here we set a nonsense value as entityName but works for filename creation.
+        $entityName="Normalized Protein Mutations Search";
+        $arrayResponse = $this->createSummaryTable($arrayAbstracts, $entityName); //this method returns an array with two contents: the filename where the summaryTable file is saved, and the string with the summaryTable
+        $filename = $arrayResponse["filename"];
+        $summaryTable = $arrayResponse["summaryTable"];
+        $arraySummaryTitles = $arrayResponse["summaryTitles"];
+
+        $paginator = $this->get('ideup.simple_paginator');
+        $arrayResultsAbs = $paginator
+            //->setMaxPagerItems($this->container->getParameter('etoxMicrome.number_of_pages'), 'abstracts')
+            ->setMaxPagerItems(15, 'abstracts')
+            //->setItemsPerPage($this->container->getParameter('etoxMicrome.evidences_per_page'), 'abstracts')
+            ->setItemsPerPage(10, 'abstracts')
+            ->paginate($arrayAbstracts,'abstracts')
+            ->getResult()
+        ;
+        ############### Uncomment when a SCORE has been added to the elasticsearch entries
+        //$meanScore=$this->getMmmrScore($data, 'score', 'mean');
+        //$medianScore=$this->getMmmrScore($data, $orderBy, 'median');
+        //$rangeScore=$this->getMmmrScore($data, $orderBy, 'range');
+        //$finderDoc=false;
+        ############### Comment when a SCORE has been added to the elasticsearch entries
+        $meanScore=0;
+        $medianScore=0;
+        $rangeScore=0;
+
+        $resultSetDocuments = array();
+        $arrayResultsDoc = array();
+
+        //$stringHtml = $this->getStringHtmlResults($arrayResultsAbs, $entityName);
+
+
+        return $this->render('MelanomamineFrontendBundle:Search:results.html.twig', array(
+            'entityType' => $entityType,
+            'whatToSearch' => $whatToSearch,
+            'entityName' => $entityName,
+            'arrayResultsAbs' => $arrayResultsAbs,
+            'arrayResultsDoc' => $arrayResultsDoc,
+            'resultSetAbstracts' => $data,
+            'resultSetDocuments' => $resultSetDocuments,
+            'entityName' => $entityName,
+            'orderBy' => "score",
+            'hitsShowed' => $totalHits,
+            'meanScore' => $meanScore,
+            'medianScore' => $medianScore,
+            'rangeScore' => $rangeScore,
+            'dna' => $dna,
+            'protein' => $protein,
+            'normalizedWildType' => $normalizedWildType,
+            'normalizedPosition' => $normalizedPosition,
+            'normalizedMutant' => $normalizedMutant,
             'totalTime' => $totalTime,
             'summaryTable' => $summaryTable,
             'filenameSummaryTable' => $filename,

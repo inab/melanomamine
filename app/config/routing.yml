@@ -30,6 +30,15 @@ search:
     path: /search/
     defaults: { _controller: MelanomamineFrontendBundle:Search:search}
 
+search_normalized:
+    path: /search_normalized_mutations/
+    defaults: { _controller: MelanomamineFrontendBundle:Search:search}
+
+search_normalized_protein_mutations:
+    path: /search_normalized_mutations/{normalizedWildType}/{normalizedPosition}/{normalizedMutant}/
+    defaults: { _controller: MelanomamineFrontendBundle:Search:searchNormalizedProteinMutations}
+
+
 search_keyword_without_orderby:
     path: /search/keywords/{whatToSearch}/{entityName}/
     defaults:
@@ -52,6 +61,9 @@ search_mutations:
     path: /search/mutations/{whatToSearch}/{entityName}/{dna}/{protein}/
     defaults: { _controller: MelanomamineFrontendBundle:Search:searchMutations, dna: "false", protein: "false"}
 
+search_normalized_mutations:
+    path: /search/normalized_mutations/{entityName}/{normalizedWildType}/{normalizedPosition}/{normalizedMutant}/
+    defaults: { _controller: MelanomamineFrontendBundle:Search:searchMutations, dna: "false", protein: "false"}
 
 search_chemicals:
     path: /search/chemicals/{whatToSearch}/{entityName}/{queryExpansion}/
