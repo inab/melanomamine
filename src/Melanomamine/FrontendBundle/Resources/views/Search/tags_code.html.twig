@@ -458,6 +458,50 @@
             <form class="custom">
                 <div class="large-3 columns">
                     <fieldset>
+                        <legend>Human</legend>
+                        {% if specie is defined %}
+                            {% if specie == "human" or specie=="9606" %}
+                                <span class="has-tip" title="Species"><label for="radioSpecies"><input name="mutatedProteinsHuman" type="radio" id="radioMutatedProteinsSpecies" style="display:none;" value="human" CHECKED><span class="custom radio"></span> Human</label>
+                                </span>
+                                <span class="has-tip" title="Species"><label for="radioSpecies"><input name="mutatedProteinsHuman" type="radio" id="radioMutatedProteinsSpecies" style="display:none;" value="all"><span class="custom radio"></span> All</label>
+                                </span>
+                                <span class="has-tip" title="Species"><label for="radioSpecies"><input name="mutatedProteinsHuman" type="radio" id="radioMutatedProteinsSpecies" style="display:none;" value="queryExpansion"><span class="custom radio"></span> Query Expansion</label>
+                                </span>
+                            {% elseif specie == "all" %}
+                                <span class="has-tip" title="Species"><label for="radioSpecies"><input name="mutatedProteinsHuman" type="radio" id="radioMutatedProteinsSpecies" style="display:none;" value="human"><span class="custom radio"></span> Human</label>
+                                </span>
+                                <span class="has-tip" title="Species"><label for="radioSpecies"><input name="mutatedProteinsHuman" type="radio" id="radioMutatedProteinsSpecies" style="display:none;" value="all" CHECKED><span class="custom radio"></span> All</label>
+                                </span>
+                                <span class="has-tip" title="Species"><label for="radioSpecies"><input name="mutatedProteinsHuman" type="radio" id="radioMutatedProteinsSpecies" style="display:none;" value="queryExpansion"><span class="custom radio"></span> Query Expansion</label>
+                                </span>
+                            {% elseif specie == "queryExpansion" %}
+                                <span class="has-tip" title="Species"><label for="radioSpecies"><input name="mutatedProteinsHuman" type="radio" id="radioMutatedProteinsSpecies" style="display:none;" value="human"><span class="custom radio"></span> Human</label>
+                                </span>
+                                <span class="has-tip" title="Species"><label for="radioSpecies"><input name="mutatedProteinsHuman" type="radio" id="radioMutatedProteinsSpecies" style="display:none;" value="all"><span class="custom radio"></span> All</label>
+                                </span>
+                                <span class="has-tip" title="Species"><label for="radioSpecies"><input name="mutatedProteinsHuman" type="radio" id="radioMutatedProteinsSpecies" style="display:none;" value="queryExpansion" CHECKED><span class="custom radio"></span> Query Expansion</label>
+                                </span>
+                            {% else %}
+                                <span class="has-tip" title="Species"><label for="radioSpecies"><input name="mutatedProteinsHuman" type="radio" id="radioMutatedProteinsSpecies" style="display:none;" value="human"><span class="custom radio"></span> Human</label>
+                                </span>
+                                <span class="has-tip" title="Species"><label for="radioSpecies"><input name="mutatedProteinsHuman" type="radio" id="radioMutatedProteinsSpecies" style="display:none;" value="all"><span class="custom radio"></span> All</label>
+                                </span>
+                                <span class="has-tip" title="Species"><label for="radioSpecies"><input name="mutatedProteinsHuman" type="radio" id="radioMutatedProteinsSpecies" style="display:none;" value="queryExpansion"><span class="custom radio"></span> Query Expansion</label>
+                                </span>
+                            {% endif %}
+
+                        {% else %}
+                            <span class="has-tip" title="Species"><label for="radioSpecies"><input name="mutatedProteinsHuman" type="radio" id="radioMutatedProteinsSpecies" style="display:none;" value="human" CHECKED><span class="custom radio"></span> Human</label>
+                            </span>
+                            <span class="has-tip" title="Species"><label for="radioSpecies"><input name="mutatedProteinsHuman" type="radio" id="radioMutatedProteinsSpecies" style="display:none;" value="all"><span class="custom radio"></span> All</label>
+                            </span>
+                            <span class="has-tip" title="Species"><label for="radioSpecies"><input name="mutatedProteinsHuman" type="radio" id="radioMutatedProteinsSpecies" style="display:none;" value="queryExpansion"><span class="custom radio"></span> Query Expansion</label>
+                            </span>
+                        {% endif %}
+                    </fieldset>
+                </div>
+                <div class="large-3 columns">
+                    <fieldset>
                         <legend>What are you searching?</legend>
                             {% if whatToSearch == "proteinName" or entityType != "mutatedProteins" %}
                                 <span class="has-tip" title="Search for Protein Names"><label for="radioWhatToSearch"><input name="mutatedProteinWhatToSearch" type="radio" id="radioMutatedProteinWhatToSearch" style="display:none;" value="proteinName" CHECKED><span class="custom radio"></span> Protein name</label></span>
@@ -485,48 +529,39 @@
 
                     </fieldset>
                 </div>
-                 <div class="large-3 end columns">
+                <div class="large-3 columns end">
                     <fieldset>
-                        <legend>Human</legend>
-                            {% if specie is defined %}
-                                {% if specie == "human" or specie=="9606" %}
-                                    <span class="has-tip" title="Species"><label for="radioSpecies"><input name="mutatedProteinsHuman" type="radio" id="radioMutatedProteinsSpecies" style="display:none;" value="human" CHECKED><span class="custom radio"></span> Human</label>
-                                    </span>
-                                    <span class="has-tip" title="Species"><label for="radioSpecies"><input name="mutatedProteinsHuman" type="radio" id="radioMutatedProteinsSpecies" style="display:none;" value="all"><span class="custom radio"></span> All</label>
-                                    </span>
-                                    <span class="has-tip" title="Species"><label for="radioSpecies"><input name="mutatedProteinsHuman" type="radio" id="radioMutatedProteinsSpecies" style="display:none;" value="queryExpansion"><span class="custom radio"></span> Query Expansion</label>
-                                    </span>
-                                {% elseif specie == "all" %}
-                                    <span class="has-tip" title="Species"><label for="radioSpecies"><input name="mutatedProteinsHuman" type="radio" id="radioMutatedProteinsSpecies" style="display:none;" value="human"><span class="custom radio"></span> Human</label>
-                                    </span>
-                                    <span class="has-tip" title="Species"><label for="radioSpecies"><input name="mutatedProteinsHuman" type="radio" id="radioMutatedProteinsSpecies" style="display:none;" value="all" CHECKED><span class="custom radio"></span> All</label>
-                                    </span>
-                                    <span class="has-tip" title="Species"><label for="radioSpecies"><input name="mutatedProteinsHuman" type="radio" id="radioMutatedProteinsSpecies" style="display:none;" value="queryExpansion"><span class="custom radio"></span> Query Expansion</label>
-                                    </span>
-                                {% elseif specie == "queryExpansion" %}
-                                    <span class="has-tip" title="Species"><label for="radioSpecies"><input name="mutatedProteinsHuman" type="radio" id="radioMutatedProteinsSpecies" style="display:none;" value="human"><span class="custom radio"></span> Human</label>
-                                    </span>
-                                    <span class="has-tip" title="Species"><label for="radioSpecies"><input name="mutatedProteinsHuman" type="radio" id="radioMutatedProteinsSpecies" style="display:none;" value="all"><span class="custom radio"></span> All</label>
-                                    </span>
-                                    <span class="has-tip" title="Species"><label for="radioSpecies"><input name="mutatedProteinsHuman" type="radio" id="radioMutatedProteinsSpecies" style="display:none;" value="queryExpansion" CHECKED><span class="custom radio"></span> Query Expansion</label>
-                                    </span>
+                        <legend>Search Normalized Mutated Proteins</legend>
+                        <table class="normalizedProteinMutations">
+                            <tr>
+                                <td>Wild-Type:</td>
+                                {% if normalizedWildType is defined and normalizedWildType !="NONE" %}
+                                    <td><span class="has-tip" title="Insert Wild-Type mutant. e.g: D"><input id="normalizedMutatedProteinsWildType" class="mutations" maxlength="1" value="{{ normalizedWildType }}"></span></td>
                                 {% else %}
-                                    <span class="has-tip" title="Species"><label for="radioSpecies"><input name="mutatedProteinsHuman" type="radio" id="radioMutatedProteinsSpecies" style="display:none;" value="human"><span class="custom radio"></span> Human</label>
-                                    </span>
-                                    <span class="has-tip" title="Species"><label for="radioSpecies"><input name="mutatedProteinsHuman" type="radio" id="radioMutatedProteinsSpecies" style="display:none;" value="all"><span class="custom radio"></span> All</label>
-                                    </span>
-                                    <span class="has-tip" title="Species"><label for="radioSpecies"><input name="mutatedProteinsHuman" type="radio" id="radioMutatedProteinsSpecies" style="display:none;" value="queryExpansion"><span class="custom radio"></span> Query Expansion</label>
-                                    </span>
+                                    <td><span class="has-tip" title="Insert Wild-Type mutant. e.g: D"><input id="normalizedMutatedProteinsWildType" class="mutations" maxlength="1"></span></td>
                                 {% endif %}
-
-                            {% else %}
-                                <span class="has-tip" title="Species"><label for="radioSpecies"><input name="mutatedProteinsHuman" type="radio" id="radioMutatedProteinsSpecies" style="display:none;" value="human" CHECKED><span class="custom radio"></span> Human</label>
-                                </span>
-                                <span class="has-tip" title="Species"><label for="radioSpecies"><input name="mutatedProteinsHuman" type="radio" id="radioMutatedProteinsSpecies" style="display:none;" value="all"><span class="custom radio"></span> All</label>
-                                </span>
-                                <span class="has-tip" title="Species"><label for="radioSpecies"><input name="mutatedProteinsHuman" type="radio" id="radioMutatedProteinsSpecies" style="display:none;" value="queryExpansion"><span class="custom radio"></span> Query Expansion</label>
-                                </span>
-                            {% endif %}
+                            </tr>
+                            <tr>
+                                <td>Position:</td>
+                                {% if normalizedPosition is defined and normalizedPosition !="NONE" %}
+                                    <td><span class="has-tip" title="Insert Position of the mutation e.g: 593"><input id="normalizedMutatedProteinsPosition" class="mutations" value="{{ normalizedPosition }}"></span></td>
+                                {% else %}
+                                    <td><span class="has-tip" title="Insert Position of the mutation e.g: 593"><input id="normalizedMutatedProteinsPosition" class="mutations"></span></td>
+                                {% endif %}
+                            </tr>
+                            <tr>
+                                <td>Mutant:</td>
+                                {% if normalizedMutant is defined and normalizedMutant !="NONE" %}
+                                    <td><span class="has-tip" title="Insert Mutant. e.g: K"><input id="normalizedMutatedProteinsMutant" class="mutations" maxlength="1" value="{{normalizedMutant}}"></span></td>
+                                {% else %}
+                                    <td><span class="has-tip" title="Insert Mutant. e.g: K"><input id="normalizedMutatedProteinsMutant" class="mutations" maxlength="1"></span></td>
+                                {% endif %}
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td class="right"><span class="has-tip" title="Search Normalized Protein Mutations"><a class="button searchNormalizedMutatedProteins">Search</a></span></td>
+                            </tr>
+                        </table>
                     </fieldset>
                 </div>
             </form>

@@ -111,7 +111,8 @@ class SearchController extends Controller
         $dictionarySummary=[];
         $dictionarySummarySorted=[];
         $arraySummaryTitles=[];
-
+        $stringCSV="";  //in stringCSV we generate the content of the CSV file that will be downloaded upon user request
+        $stringTable="";
         foreach($arrayResults as $result){
             $source=$result->getSource();
             $pmid=$source["pmid"];
@@ -178,10 +179,8 @@ class SearchController extends Controller
 
         //We have to short inner dictionaries and create the stringTable to return
 
-
         if(count($dictionarySummary)!=0){
             $stringTable="<table class='summaryTable'>";
-            $stringCSV="";  //in stringCSV we generate the content of the CSV file that will be downloaded upon user request
             if ( array_key_exists("genes3", $dictionarySummary) ){
                 $arrayGenes=$dictionarySummary["genes3"];
                 arsort($arrayGenes);
@@ -543,7 +542,7 @@ class SearchController extends Controller
                 $orderBy = "hcc_score";
                 break;
             case  "nsclc":
-                $orderBy = "nsclc_score";
+                $orderBy = "nsclc_score_2";
                 break;
             case "melanome":
                 $orderBy = "melanoma_score_2";
@@ -1174,6 +1173,114 @@ class SearchController extends Controller
             'rangeScore' => $rangeScore,
             'dna' => $dna,
             'protein' => $protein,
+            'normalizedWildType' => $normalizedWildType,
+            'normalizedPosition' => $normalizedPosition,
+            'normalizedMutant' => $normalizedMutant,
+            'totalTime' => $totalTime,
+            'summaryTable' => $summaryTable,
+            'filenameSummaryTable' => $filename,
+            'arraySummaryTitles' => $arraySummaryTitles,
+        ));
+
+    }
+
+    public function searchNormalizedMutatedProteinsAction( $normalizedWildType, $normalizedPosition, $normalizedMutant)
+    {
+        $message="inside searchNormalizedMutatedProteinsAction";
+        $entityType="mutatedProteins";
+        $whatToSearch="whatToSearch";
+        $normalizedWildType=strtoupper($normalizedWildType);
+        $normalizedPosition=strtoupper($normalizedPosition);
+        $normalizedMutant=strtoupper($normalizedMutant);
+        $finder = $this->container->get('fos_elastica.index.melanomamine.abstracts');
+
+        $elasticaQuery = new \Elastica\Query();
+        $elasticaQuery->setSize(500);
+        $elasticaQuery->setSort(array('melanoma_score_2' => array('order' => 'desc')));
+
+        //BoolQuery to load 2 queries.
+        $queryBool = new \Elastica\Query\BoolQuery();
+
+        if($normalizedWildType!="NONE"){
+            $searchNested = new \Elastica\Query\QueryString();
+            $searchNested->setParam('query', $normalizedWildType);
+            $searchNested->setParam('fields', array('mutatedProteins4.wildType_aa'));
+            $nestedQuery = new \Elastica\Query\Nested();
+            $nestedQuery->setQuery($searchNested);
+            $nestedQuery->setPath('mutatedProteins4');
+            $queryBool->addMust($nestedQuery);
+        }
+        if($normalizedPosition!="NONE"){
+            $searchNested2 = new \Elastica\Query\QueryString();
+            $searchNested2->setParam('query', $normalizedPosition);
+            $searchNested2->setParam('fields', array('mutatedProteins4.startMutation'));
+            $nestedQuery2 = new \Elastica\Query\Nested();
+            $nestedQuery2->setQuery($searchNested2);
+            $nestedQuery2->setPath('mutatedProteins4');
+            $queryBool->AddMust($nestedQuery2);
+        }
+        if($normalizedMutant!="NONE"){
+            $searchNested3 = new \Elastica\Query\QueryString();
+            $searchNested3->setParam('query', $normalizedMutant);
+            $searchNested3->setParam('fields', array('mutatedProteins4.mutant_aa'));
+            $nestedQuery3 = new \Elastica\Query\Nested();
+            $nestedQuery3->setQuery($searchNested3);
+            $nestedQuery3->setPath('mutatedProteins4');
+            $queryBool->AddMust($nestedQuery3);
+        }
+
+        $elasticaQuery->setQuery($queryBool);
+
+        $data = $finder->search($elasticaQuery);
+        $totalHits = $data->getTotalHits();
+        $totalTime = $data->getTotalTime();
+        $arrayAbstracts=$data->getResults();
+        //$entityName for createSummaryTable is only needed for filename creation. Here we set a nonsense value as entityName but works for filename creation.
+        $entityName="Normalized Mutated Proteins Search";
+        $arrayResponse = $this->createSummaryTable($arrayAbstracts, $entityName); //this method returns an array with two contents: the filename where the summaryTable file is saved, and the string with the summaryTable
+        $filename = $arrayResponse["filename"];
+        $summaryTable = $arrayResponse["summaryTable"];
+        $arraySummaryTitles = $arrayResponse["summaryTitles"];
+
+        $paginator = $this->get('ideup.simple_paginator');
+        $arrayResultsAbs = $paginator
+            //->setMaxPagerItems($this->container->getParameter('etoxMicrome.number_of_pages'), 'abstracts')
+            ->setMaxPagerItems(15, 'abstracts')
+            //->setItemsPerPage($this->container->getParameter('etoxMicrome.evidences_per_page'), 'abstracts')
+            ->setItemsPerPage(10, 'abstracts')
+            ->paginate($arrayAbstracts,'abstracts')
+            ->getResult()
+        ;
+        ############### Uncomment when a SCORE has been added to the elasticsearch entries
+        //$meanScore=$this->getMmmrScore($data, 'score', 'mean');
+        //$medianScore=$this->getMmmrScore($data, $orderBy, 'median');
+        //$rangeScore=$this->getMmmrScore($data, $orderBy, 'range');
+        //$finderDoc=false;
+        ############### Comment when a SCORE has been added to the elasticsearch entries
+        $meanScore=0;
+        $medianScore=0;
+        $rangeScore=0;
+
+        $resultSetDocuments = array();
+        $arrayResultsDoc = array();
+
+        //$stringHtml = $this->getStringHtmlResults($arrayResultsAbs, $entityName);
+
+
+        return $this->render('MelanomamineFrontendBundle:Search:results.html.twig', array(
+            'entityType' => $entityType,
+            'whatToSearch' => $whatToSearch,
+            'entityName' => $entityName,
+            'arrayResultsAbs' => $arrayResultsAbs,
+            'arrayResultsDoc' => $arrayResultsDoc,
+            'resultSetAbstracts' => $data,
+            'resultSetDocuments' => $resultSetDocuments,
+            'entityName' => $entityName,
+            'orderBy' => "score",
+            'hitsShowed' => $totalHits,
+            'meanScore' => $meanScore,
+            'medianScore' => $medianScore,
+            'rangeScore' => $rangeScore,
             'normalizedWildType' => $normalizedWildType,
             'normalizedPosition' => $normalizedPosition,
             'normalizedMutant' => $normalizedMutant,

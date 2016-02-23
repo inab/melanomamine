@@ -38,6 +38,13 @@ search_normalized_protein_mutations:
     path: /search_normalized_mutations/{normalizedWildType}/{normalizedPosition}/{normalizedMutant}/
     defaults: { _controller: MelanomamineFrontendBundle:Search:searchNormalizedProteinMutations}
 
+search_normalized_mutated:
+    path: /search_normalized_mutated_proteins/
+    defaults: { _controller: MelanomamineFrontendBundle:Search:search}
+
+search_normalized_mutated_proteins:
+    path: /search_normalized_mutated_proteins/{normalizedWildType}/{normalizedPosition}/{normalizedMutant}/
+    defaults: { _controller: MelanomamineFrontendBundle:Search:searchNormalizedMutatedProteins}
 
 search_keyword_without_orderby:
     path: /search/keywords/{whatToSearch}/{entityName}/

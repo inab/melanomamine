@@ -376,7 +376,7 @@ class UtilityExtension extends \Twig_Extension
         $offset=0; //To handle the offset of the text's starting point
         //$startOffset needs to be substracted to compensate the title positions
         //ld($source);
-        //ld($titleOrText);
+
         if($filter=="title"){
             $source=$this->filterTitleText($source, "title");
             //ld($startOffset);
