@@ -102,6 +102,10 @@ search_chemspider:
     pattern: /search_chemspider/compoundName/
     defaults: { _controller: MelanomamineFrontendBundle:Search:searchChemspider}
 
+gene_set_enrichment:
+    pattern: /gene_set_enrichment/{whatToSearch}/{entityName}/
+    defaults: { _controller: MelanomamineFrontendBundle:GeneSetEnrichment:geneSetEnrichment}
+
 #elasticSearch_search_entityType:
 #    path: /search/{entityType}/{entityName}/
 #    defaults: { _controller: MelanomamineFrontendBundle:Search:searchEntityType}

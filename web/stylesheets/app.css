@@ -646,6 +646,10 @@ div.summaryTitle table {
     border: 1px solid grey;
 }
 
+div.summaryTitle small {
+    line-height: 1.2em !important;
+}
+
 div.summaryTitle span.typeMention{
     text-transform: capitalize;
 }

@@ -12,7 +12,6 @@ use \Elastica9205\Request;
 
 class SearchController extends Controller
 {
-
     public function escapeElasticReservedChars($string) {
         $regex = "/[\\+\\-\\=\\&\\|\\!\\(\\)\\{\\}\\[\\]\\^\\\"\\~\\*\\<\\>\\?\\:\\\\\\/]/";
         return preg_replace($regex, addslashes('\\$0'), $string);
@@ -100,19 +99,61 @@ class SearchController extends Controller
         return $dictionarySummary;
     }
 
-    public function createSummaryTable($arrayResults, $entityName){
+    public function getGeneId($geneName, $ncbiTaxId){
+        $finder = $this->container->get('fos_elastica.index.melanomamine.genesDictionary');
+        $elasticaQuery = new \Elastica\Query();
+        $elasticaQuery->setSize(10);
+
+        //BoolQuery to load 2 queries.
+        $queryBool = new \Elastica\Query\BoolQuery();
+        //First query to search inside geneProteinName
+        $queryString = new \Elastica\Query\QueryString();
+        $queryString->setParam('query', $geneName);
+        $queryString->setParam('fields', array('geneProteinName'));
+
+        $queryBool->addMust($queryString);
+
+        //Second query to search inside ncbiTaxId
+        $queryString2 = new \Elastica\Query\QueryString();
+        $queryString2->setParam('query', $ncbiTaxId);
+        $queryString2->setParam('fields', array('ncbiTaxId'));
+
+        $queryBool->addMust($queryString2);
+
+        $elasticaQuery->setQuery($queryBool);
+
+        $data = $finder->search($elasticaQuery);
+        $totalHits = $data->getTotalHits();
+        if($totalHits == 1){
+            $ncbiGeneId=$data->getResults()[0]->getSource()["ncbiGeneId"];
+        }elseif($totalHits == 0){
+            $errorMessage="There are no geneId for this gene name: $geneName";
+            ldd($errorMessage);
+        }else{
+            $errorMessage="There are more than one geneId for this gene name: $geneName (ncbiTaxId: $ncbiTaxId)";
+            ld($data->getResults());
+            ldd($errorMessage);
+        }
+        return($ncbiGeneId);
+    }
+
+    public function createSummaryTable($arrayResults, $entityName, $whatToSearch){
         $message="inside createSummaryTable";
+        //ld($arrayResults[0]);
         //We have to iterate over results in $arrayResults and generate an structure to handle this information
         //dictionarySummary["genes"]=dictionaryGenes
         //dictionarySummary["mutations"]=dictionaryMutations   ...and so on
 
         //dictionaryGenes should have :  dictionaryGenes[gene1]=counter1, dictionaryGenes[gene2]=counter2....    .... dictionaryGenes[genen]=countern
         // and so on...
-        $dictionarySummary=[];
-        $dictionarySummarySorted=[];
-        $arraySummaryTitles=[];
+        $dictionarySummary=array();
+        $arraySummaryTitles=array();
+        $geneList=array();
+        $arrayEntrezMention=array();
         $stringCSV="";  //in stringCSV we generate the content of the CSV file that will be downloaded upon user request
         $stringTable="";
+        //We take advantage of this loop to also get a list of unique genes to use it for GSE link
+        $uniqueGenesList=array();
         foreach($arrayResults as $result){
             $source=$result->getSource();
             $pmid=$source["pmid"];
@@ -123,6 +164,25 @@ class SearchController extends Controller
                     $mention=$gene["mention"];
                     $dictionarySummary=$this->insertMention($dictionarySummary,"genes3", $mention);
                     $dictionaryTmp=$this->insertMention($dictionaryTmp,"genes", $mention);
+                    $ontologyId=$gene["ontologyId"];
+                    $geneIdString=$gene["ontology"];//ncbiGeneId
+                    $arrayGeneId=explode(",", $geneIdString);
+                    foreach($arrayGeneId as $geneId){
+                        array_push($uniqueGenesList, $geneId);
+                        if (array_key_exists($geneId, $arrayEntrezMention)){
+                            //We update $arrayEntrezMention with another geneId
+                            $arrayTmp=$arrayEntrezMention[$geneId];
+                            if(!in_array($mention, $arrayTmp)){
+                                array_push($arrayTmp, $mention);//We just keep the mention if it has not been added before
+                                $arrayEntrezMention[$geneId]=$arrayTmp;
+                            }
+                        }else{
+                            //We create a new entry for this geneId
+                            $arrayTmp=array();
+                            array_push($arrayTmp, $mention);
+                            $arrayEntrezMention[$geneId]=$arrayTmp;
+                        }
+                    }
                 }
             }
             if ( array_key_exists("mutations2", $source) ){
@@ -165,17 +225,30 @@ class SearchController extends Controller
                     $dictionaryTmp=$this->insertMention($dictionaryTmp,"species", $mention);
                 }
             }
-            if ( array_key_exists("mutations2", $source) ){
-                $mutations=$source["mutations2"];
-                foreach($mutations as $mutation){
-                    $mention=$mutation["mention"];
-                    $dictionarySummary=$this->insertMention($dictionarySummary,"mutations2", $mention);
-                    $dictionaryTmp=$this->insertMention($dictionaryTmp,"mutations", $mention);
-                }
-            }
+
             arsort($dictionaryTmp);
             $arraySummaryTitles[$pmid]=$dictionaryTmp;
         }
+        //if(array_key_exists("genes3", $dictionarySummary)){
+        //    $geneList=$dictionarySummary["genes3"];
+        //}
+        $uniqueGenesList=array_unique($uniqueGenesList);
+        //We kepp $uniqueGenesList in the session so we can access later at the GSE process.
+        $session = $this->getRequest()->getSession();
+        // store an attribute for reuse during a later user request
+        $session->set('uniqueGenesList', $uniqueGenesList);
+        //ldd($session);
+        $session->set('arrayEntrezMention', $arrayEntrezMention);
+
+
+
+        /*$urlToGSE= $this->generateUrl( //we generate the link for the Gene Set Enrichment workflow
+            'gene_set_enrichment',
+            array('entityName' => $entityName, 'geneList' => $uniqueGenesList)
+        );*/
+        $url= $this->generateUrl( //we generate the link for the Gene Set Enrichment workflow
+                'gene_set_enrichment', array('whatToSearch' => $whatToSearch,'entityName' => $entityName)
+            );
 
         //We have to short inner dictionaries and create the stringTable to return
 
@@ -184,12 +257,20 @@ class SearchController extends Controller
             if ( array_key_exists("genes3", $dictionarySummary) ){
                 $arrayGenes=$dictionarySummary["genes3"];
                 arsort($arrayGenes);
-
-                $stringTable.="<tr><th><span class='genes_highlight'>Genes</span></th><td><span class='more'>";
+                $stringTable.="<tr><th>
+                                        <span class='genes_highlight'>Genes</span>
+                                        <br/>
+                                        <a href='$url' target='_blank'>GSE</a>
+                                </th><td><span class='more'>";
                 $stringCSV.="GENES\tAppearances\n";
                 foreach ($arrayGenes as $key => $value){
                     $stringTable.="$key: $value, ";
                     $stringCSV.="$key\t$value\n";
+                    //We take advantage of this loop to also get a list of unique genes to use it for GSE link ($uniqueGenesList)
+                    //if(!array_key_exists($key, $uniqueGenesList)){
+                    //    $messageEntra="No entra, la key no existe!";
+                    //    array_push($uniqueGenesList, $key);
+                    //}  //Not needed since it can be retrieved from dictionarySummery['genes3']
                 }
                 $stringTable.="</span></td></tr>";
                 $stringCSV.="\n";
@@ -263,7 +344,6 @@ class SearchController extends Controller
             $stringTable.="</table>";
         }
 
-        //ld($dictionarySummarySorted);
         //We create the file with the CSV content
         $zip = new \ZipArchive();
         $path = $this->get('kernel')->getRootDir(). "/../web/files/summaryTables";
@@ -290,6 +370,8 @@ class SearchController extends Controller
         $arrayResponse["filename"]=$filename;
         $arrayResponse["summaryTable"]=$stringTable;
         $arrayResponse["summaryTitles"]=$arraySummaryTitles;
+        $arrayResponse["dictionarySummary"]=$dictionarySummary;
+
         return $arrayResponse;
     }
 
@@ -635,10 +717,11 @@ class SearchController extends Controller
         $arrayAbstracts=$data->getResults();
 
 
-        $arrayResponse = $this->createSummaryTable($arrayAbstracts, $entityName); //this method returns an array with two contents: the filename where the summaryTable file is saved, and the string with the summaryTable
+        $arrayResponse = $this->createSummaryTable($arrayAbstracts, $entityName, $whatToSearch); //this method returns an array with two contents: the filename where the summaryTable file is saved, and the string with the summaryTable
         $filename = $arrayResponse["filename"];
         $summaryTable = $arrayResponse["summaryTable"];
         $arraySummaryTitles = $arrayResponse["summaryTitles"];
+        $dictionarySummary = $arrayResponse["dictionarySummary"]; //In $geneList we have an associative array with the keys = genes comentioned and the  value = the number of comentions of each one
 
         $paginator = $this->get('ideup.simple_paginator');
         $arrayResultsAbs = $paginator
@@ -690,7 +773,6 @@ class SearchController extends Controller
     {
         $entityType="genes";
         $message="inside searchGenesAction";
-
         if ($whatToSearch=="geneProteinName"){
             #First of all we check for query expansion. But we only do this in geneProteinName searches and never for ncbiGeneId
             if ($specie=="queryExpansion"){
@@ -796,10 +878,11 @@ class SearchController extends Controller
 
         }
 
-        $arrayResponse = $this->createSummaryTable($arrayAbstracts, $entityName); //this method returns an array with two contents: the filename where the summaryTable file is saved, and the string with the summaryTable
+        $arrayResponse = $this->createSummaryTable($arrayAbstracts, $entityName, $whatToSearch); //this method returns an array with two contents: the filename where the summaryTable file is saved, and the string with the summaryTable
         $filename = $arrayResponse["filename"];
         $summaryTable = $arrayResponse["summaryTable"];
         $arraySummaryTitles = $arrayResponse["summaryTitles"];
+        $dictionarySummary = $arrayResponse["dictionarySummary"]; //In $geneList we have an associative array with the keys = genes comentioned and the  value = the number of comentions of each one
 
         $paginator = $this->get('ideup.simple_paginator');
         $arrayResultsAbs = $paginator
@@ -885,10 +968,11 @@ class SearchController extends Controller
         $totalTime = $data->getTotalTime();
         $arrayAbstracts=$data->getResults();
 
-        $arrayResponse = $this->createSummaryTable($arrayAbstracts, $entityName); //this method returns an array with two contents: the filename where the summaryTable file is saved, and the string with the summaryTable
+        $arrayResponse = $this->createSummaryTable($arrayAbstracts, $entityName, $whatToSearch); //this method returns an array with two contents: the filename where the summaryTable file is saved, and the string with the summaryTable
         $filename = $arrayResponse["filename"];
         $summaryTable = $arrayResponse["summaryTable"];
         $arraySummaryTitles = $arrayResponse["summaryTitles"];
+        $dictionarySummary = $arrayResponse["dictionarySummary"]; //In $geneList we have an associative array with the keys = genes comentioned and the  value = the number of comentions of each one
 
         $paginator = $this->get('ideup.simple_paginator');
         $arrayResultsAbs = $paginator
@@ -1018,10 +1102,11 @@ class SearchController extends Controller
         $totalTime = $data->getTotalTime();
         $arrayAbstracts=$data->getResults();
 
-        $arrayResponse = $this->createSummaryTable($arrayAbstracts, $entityName); //this method returns an array with two contents: the filename where the summaryTable file is saved, and the string with the summaryTable
+        $arrayResponse = $this->createSummaryTable($arrayAbstracts, $entityName, $whatToSearch); //this method returns an array with two contents: the filename where the summaryTable file is saved, and the string with the summaryTable
         $filename = $arrayResponse["filename"];
         $summaryTable = $arrayResponse["summaryTable"];
         $arraySummaryTitles = $arrayResponse["summaryTitles"];
+        $dictionarySummary = $arrayResponse["dictionarySummary"]; //In $geneList we have an associative array with the keys = genes comentioned and the  value = the number of comentions of each one
 
         $paginator = $this->get('ideup.simple_paginator');
         $arrayResultsAbs = $paginator
@@ -1074,7 +1159,7 @@ class SearchController extends Controller
 
     public function searchNormalizedProteinMutationsAction( $normalizedWildType, $normalizedPosition, $normalizedMutant)
     {
-        $message="inside searchNormalizedMutationsAction";
+        $message="inside searchNormalizedProteinsMutationsAction";
         $entityType="mutations";
         $whatToSearch="whatToSearch";
         $dna="false";
@@ -1127,10 +1212,11 @@ class SearchController extends Controller
         $arrayAbstracts=$data->getResults();
         //$entityName for createSummaryTable is only needed for filename creation. Here we set a nonsense value as entityName but works for filename creation.
         $entityName="Normalized Protein Mutations Search";
-        $arrayResponse = $this->createSummaryTable($arrayAbstracts, $entityName); //this method returns an array with two contents: the filename where the summaryTable file is saved, and the string with the summaryTable
+        $arrayResponse = $this->createSummaryTable($arrayAbstracts, $entityName, $whatToSearch); //this method returns an array with two contents: the filename where the summaryTable file is saved, and the string with the summaryTable
         $filename = $arrayResponse["filename"];
         $summaryTable = $arrayResponse["summaryTable"];
         $arraySummaryTitles = $arrayResponse["summaryTitles"];
+        $dictionarySummary = $arrayResponse["dictionarySummary"]; //In $geneList we have an associative array with the keys = genes comentioned and the  value = the number of comentions of each one
 
         $paginator = $this->get('ideup.simple_paginator');
         $arrayResultsAbs = $paginator
@@ -1237,10 +1323,11 @@ class SearchController extends Controller
         $arrayAbstracts=$data->getResults();
         //$entityName for createSummaryTable is only needed for filename creation. Here we set a nonsense value as entityName but works for filename creation.
         $entityName="Normalized Mutated Proteins Search";
-        $arrayResponse = $this->createSummaryTable($arrayAbstracts, $entityName); //this method returns an array with two contents: the filename where the summaryTable file is saved, and the string with the summaryTable
+        $arrayResponse = $this->createSummaryTable($arrayAbstracts, $entityName, $whatToSearch); //this method returns an array with two contents: the filename where the summaryTable file is saved, and the string with the summaryTable
         $filename = $arrayResponse["filename"];
         $summaryTable = $arrayResponse["summaryTable"];
         $arraySummaryTitles = $arrayResponse["summaryTitles"];
+        $dictionarySummary = $arrayResponse["dictionarySummary"]; //In $geneList we have an associative array with the keys = genes comentioned and the  value = the number of comentions of each one
 
         $paginator = $this->get('ideup.simple_paginator');
         $arrayResultsAbs = $paginator
@@ -1313,10 +1400,11 @@ class SearchController extends Controller
 
             //$arrayResponse=[];
             //$filename="vemurafenib-2015-12-14_18:26:18.zip";
-            $arrayResponse = $this->createSummaryTable($arrayAbstracts, $entityName); //this method returns an array with two contents: the filename where the summaryTable file is saved, and the string with the summaryTable
+            $arrayResponse = $this->createSummaryTable($arrayAbstracts, $entityName, $whatToSearch); //this method returns an array with two contents: the filename where the summaryTable file is saved, and the string with the summaryTable
             $filename = $arrayResponse["filename"];
             $summaryTable = $arrayResponse["summaryTable"];
             $arraySummaryTitles = $arrayResponse["summaryTitles"];
+            $dictionarySummary = $arrayResponse["dictionarySummary"]; //In $geneList we have an associative array with the keys = genes comentioned and the  value = the number of comentions of each one
 
             $paginator = $this->get('ideup.simple_paginator');
             $arrayResultsAbs = $paginator
@@ -1399,10 +1487,11 @@ class SearchController extends Controller
         //$arrayResponse["stringTable"]="";
         //$filename="vemurafenib-2015-12-14_18:26:18.zip";
 
-        $arrayResponse = $this->createSummaryTable($arrayAbstracts, $entityName); //this method returns an array with two contents: the filename where the summaryTable file is saved, and the string with the summaryTable
+        $arrayResponse = $this->createSummaryTable($arrayAbstracts, $entityName, $whatToSearch); //this method returns an array with two contents: the filename where the summaryTable file is saved, and the string with the summaryTable
         $filename = $arrayResponse["filename"];
         $summaryTable = $arrayResponse["summaryTable"];
         $arraySummaryTitles = $arrayResponse["summaryTitles"];
+        $dictionarySummary = $arrayResponse["dictionarySummary"]; //In $geneList we have an associative array with the keys = genes comentioned and the  value = the number of comentions of each one
 
         $paginator = $this->get('ideup.simple_paginator');
         $arrayResultsAbs = $paginator
@@ -1510,10 +1599,11 @@ class SearchController extends Controller
         $totalTime = $data->getTotalTime();
         $arrayAbstracts=$data->getResults();
 
-        $arrayResponse = $this->createSummaryTable($arrayAbstracts, $entityName); //this method returns an array with two contents: the filename where the summaryTable file is saved, and the string with the summaryTable
+        $arrayResponse = $this->createSummaryTable($arrayAbstracts, $entityName, $whatToSearch); //this method returns an array with two contents: the filename where the summaryTable file is saved, and the string with the summaryTable
         $filename = $arrayResponse["filename"];
         $summaryTable = $arrayResponse["summaryTable"];
         $arraySummaryTitles = $arrayResponse["summaryTitles"];
+        $dictionarySummary = $arrayResponse["dictionarySummary"]; //In $geneList we have an associative array with the keys = genes comentioned and the  value = the number of comentions of each one
 
         $paginator = $this->get('ideup.simple_paginator');
         $arrayResultsAbs = $paginator
@@ -1623,10 +1713,11 @@ class SearchController extends Controller
         $arrayAbstracts=$data->getResults();
 
 
-        $arrayResponse = $this->createSummaryTable($arrayAbstracts, $entityName); //this method returns an array with two contents: the filename where the summaryTable file is saved, and the string with the summaryTable
+        $arrayResponse = $this->createSummaryTable($arrayAbstracts, $entityName, $whatToSearch); //this method returns an array with two contents: the filename where the summaryTable file is saved, and the string with the summaryTable
         $filename = $arrayResponse["filename"];
         $summaryTable = $arrayResponse["summaryTable"];
         $arraySummaryTitles = $arrayResponse["summaryTitles"];
+        $dictionarySummary = $arrayResponse["dictionarySummary"]; //In $geneList we have an associative array with the keys = genes comentioned and the  value = the number of comentions of each one
 
         $paginator = $this->get('ideup.simple_paginator');
         $arrayResultsAbs = $paginator
@@ -1750,10 +1841,11 @@ class SearchController extends Controller
         $arrayAbstracts=$data->getResults();
 
 
-        $arrayResponse = $this->createSummaryTable($arrayAbstracts, $entityName); //this method returns an array with two contents: the filename where the summaryTable file is saved, and the string with the summaryTable
+        $arrayResponse = $this->createSummaryTable($arrayAbstracts, $entityName, $whatToSearch); //this method returns an array with two contents: the filename where the summaryTable file is saved, and the string with the summaryTable
         $filename = $arrayResponse["filename"];
         $summaryTable = $arrayResponse["summaryTable"];
         $arraySummaryTitles = $arrayResponse["summaryTitles"];
+        $dictionarySummary = $arrayResponse["dictionarySummary"]; //In $geneList we have an associative array with the keys = genes comentioned and the  value = the number of comentions of each one
 
         $paginator = $this->get('ideup.simple_paginator');
         $arrayResultsAbs = $paginator
