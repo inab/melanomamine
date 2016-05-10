@@ -99,6 +99,51 @@ class SearchController extends Controller
         return $dictionarySummary;
     }
 
+    public function insertIdMentions($dictionarySummary,$field, $geneId, $mention){
+        //First of all we search for the $field key inside dictionary
+        if (array_key_exists($field, $dictionarySummary)){
+            //First we search if the geneId exists
+            $geneIdDictionary=$dictionarySummary[$field];
+            if(array_key_exists($geneId, $geneIdDictionary)){
+                //We search for the mention
+                $mentionDictionary=$geneIdDictionary[$geneId];
+                if(array_key_exists($mention, $mentionDictionary)){
+                    //We update the counter for this mention for this geneId
+                    $counter=$mentionDictionary[$mention];
+                    $mentionDictionary[$mention]=$counter+1;
+                    $geneIdDictionary[$geneId]=$mentionDictionary;
+                    $dictionarySummary[$field]=$geneIdDictionary;
+                }else{
+                    //We create the entry for the mention
+                    $mentionDictionary[$mention]=1;
+                    $geneIdDictionary[$geneId]=$mentionDictionary;
+                    $dictionarySummary[$field]=$geneIdDictionary;
+                }
+            }else{
+                //We create the entry for the geneId
+                $tmpDictionary=[];
+                $tmpDictionary[$mention]=1;
+                $geneIdDictionary[$geneId]=$tmpDictionary;
+                $dictionarySummary[$field]=$geneIdDictionary;
+            }
+        }else{
+            //Generate a new entry for it in the specified field
+            $tmpDictionary=[];
+            $tmpDictionary[$mention]=1;
+            $tmpGeneIdDictionary=[];
+            $tmpGeneIdDictionary[$geneId]=$tmpDictionary;
+            $dictionarySummary[$field]=$tmpGeneIdDictionary;
+        }
+
+        return $dictionarySummary;
+    }
+
+    public function countMentionsInArray($arrayMentions){
+        $arrayValues=array_values($arrayMentions);
+        $sum = array_sum($arrayValues);
+        return($sum);
+    }
+
     public function getGeneId($geneName, $ncbiTaxId){
         $finder = $this->container->get('fos_elastica.index.melanomamine.genesDictionary');
         $elasticaQuery = new \Elastica\Query();
@@ -160,14 +205,21 @@ class SearchController extends Controller
             $dictionaryTmp=[];
             if ( array_key_exists("genes3", $source) ){
                 $arrayGenes=$source["genes3"];
+                #ld($arrayGenes);
                 foreach($arrayGenes as $gene){
                     $mention=$gene["mention"];
-                    $dictionarySummary=$this->insertMention($dictionarySummary,"genes3", $mention);
-                    $dictionaryTmp=$this->insertMention($dictionaryTmp,"genes", $mention);
                     $ontologyId=$gene["ontologyId"];
                     $geneIdString=$gene["ontology"];//ncbiGeneId
                     $arrayGeneId=explode(",", $geneIdString);
                     foreach($arrayGeneId as $geneId){
+                        //ld($geneId);
+                        $dictionarySummary=$this->insertIdMentions($dictionarySummary,"genes3", $geneId, $mention);
+                        $dictionaryTmp=$this->insertMention($dictionaryTmp,"genes", $geneId);
+                    }
+                    $dictionaryTmp=$this->insertMention($dictionaryTmp,"genes", $mention);
+
+                    /*foreach($arrayGeneId as $geneId){
+                        ld($geneId);
                         array_push($uniqueGenesList, $geneId);
                         if (array_key_exists($geneId, $arrayEntrezMention)){
                             //We update $arrayEntrezMention with another geneId
@@ -182,7 +234,17 @@ class SearchController extends Controller
                             array_push($arrayTmp, $mention);
                             $arrayEntrezMention[$geneId]=$arrayTmp;
                         }
-                    }
+                    }*/
+                }
+            }
+            if ( array_key_exists("diseases3", $source) ){
+                $arrayDiseases=$source["diseases3"];
+                foreach($arrayDiseases as $disease){
+                    $mention=$disease["mention"];
+                    $meshId=$disease["ontologyId"];
+
+                    $dictionarySummary=$this->insertIdMentions($dictionarySummary,"diseases3", $meshId,$mention);
+                    $dictionaryTmp=$this->insertMention($dictionaryTmp,"diseases", $mention);
                 }
             }
             if ( array_key_exists("mutations2", $source) ){
@@ -199,14 +261,6 @@ class SearchController extends Controller
                     $mention=$chemical["mention"];
                     $dictionarySummary=$this->insertMention($dictionarySummary,"chemicals2", $mention);
                     $dictionaryTmp=$this->insertMention($dictionaryTmp,"chemicals", $mention);
-                }
-            }
-            if ( array_key_exists("diseases3", $source) ){
-                $arrayDiseases=$source["diseases3"];
-                foreach($arrayDiseases as $disease){
-                    $mention=$disease["mention"];
-                    $dictionarySummary=$this->insertMention($dictionarySummary,"diseases3", $mention);
-                    $dictionaryTmp=$this->insertMention($dictionaryTmp,"diseases", $mention);
                 }
             }
             if ( array_key_exists("mutatedProteins4", $source) ){
@@ -254,27 +308,64 @@ class SearchController extends Controller
 
         if(count($dictionarySummary)!=0){
             $stringTable="<table class='summaryTable'>";
+            //ld($dictionarySummary);
             if ( array_key_exists("genes3", $dictionarySummary) ){
-                $arrayGenes=$dictionarySummary["genes3"];
-                arsort($arrayGenes);
+                $arrayGeneIdDictionary=$dictionarySummary["genes3"];
+                arsort($arrayGeneIdDictionary);
                 $stringTable.="<tr><th>
                                         <span class='genes_highlight'>Genes</span>
                                         <br/>
                                         <a href='$url' target='_blank'>GSE</a>
-                                </th><td><span class='more'>";
-                $stringCSV.="GENES\tAppearances\n";
-                foreach ($arrayGenes as $key => $value){
-                    $stringTable.="$key: $value, ";
-                    $stringCSV.="$key\t$value\n";
+                                </th>";
+                $stringCSV.="### Genes ###
+                             ### geneId:(number of times)###\n";
+                $stringTable.=" <td class='summaryTable'><span class='more'>";
+                //First we generate a new array to sort the results based on the count of mentions of every geneId
+                $arraySum=array();
+                foreach ($arrayGeneIdDictionary as $geneId => $geneIdDictionary){
+                        $counterMentions=$this->countMentionsInArray($geneIdDictionary);
+                        $arraySum[$geneId]=$counterMentions;
+                }
+                arsort($arraySum);
+                foreach($arraySum as $idGene=>$counter){
+                    $stringTable.="$idGene:($counter), ";
+                    $stringCSV.="$idGene:($counter), ";
+
+                }
                     //We take advantage of this loop to also get a list of unique genes to use it for GSE link ($uniqueGenesList)
                     //if(!array_key_exists($key, $uniqueGenesList)){
                     //    $messageEntra="No entra, la key no existe!";
                     //    array_push($uniqueGenesList, $key);
                     //}  //Not needed since it can be retrieved from dictionarySummery['genes3']
+                $stringTable=substr($stringTable, 0, -2);
+                $stringCSV=substr($stringCSV, 0, -2);
+                $stringTable.="</span></td></tr/>";
+                $stringCSV.="\n";
+            }
+            if ( array_key_exists("diseases3", $dictionarySummary) ){
+                $arrayDiseases=$dictionarySummary["diseases3"];
+                arsort($arrayDiseases);
+
+                $stringCSV.="### Diseases ###
+                             ### meshId:(number of times)###\n";
+                $stringTable.="<tr><th><span class='diseases_highlight'>Diseases</span></th><td><span class='more'>";
+                $arraySum=array();
+
+                foreach ($arrayDiseases as $meshId => $arrayDiseasesMentions ){
+                    $counterMentions=$this->countMentionsInArray($arrayDiseasesMentions);
+                    $arraySum[$meshId]=$counterMentions;
                 }
+                arsort($arraySum);
+                foreach($arraySum as $meshId=>$counter){
+                    $stringTable.="$meshId:($counter), ";
+                    $stringCSV.="$meshId:($counter), ";
+                }
+                $stringTable=substr($stringTable, 0, -2);
+                $stringCSV=substr($stringCSV, 0, -2);
                 $stringTable.="</span></td></tr>";
                 $stringCSV.="\n";
             }
+            ldd($stringCSV);
             if ( array_key_exists("mutations2", $dictionarySummary) ){
                 $arrayMutations=$dictionarySummary["mutations2"];
                 arsort($arrayMutations);
@@ -295,19 +386,6 @@ class SearchController extends Controller
                 $stringTable.="<tr><th><span class='chemicals_highlight'>Chemicals</span></th><td><span class='more'>";
                 $stringCSV.="CHEMICALS\tAppearances\n";
                 foreach ($arrayChemicals as $key => $value){
-                    $stringTable.="$key: $value, ";
-                    $stringCSV.="$key\t$value\n";
-                }
-                $stringTable.="</span></td></tr>";
-                $stringCSV.="\n";
-            }
-            if ( array_key_exists("diseases3", $dictionarySummary) ){
-                $arrayDiseases=$dictionarySummary["diseases3"];
-                arsort($arrayDiseases);
-
-                $stringTable.="<tr><th><span class='diseases_highlight'>Diseases</span></th><td><span class='more'>";
-                $stringCSV.="DISEASES\tAppearances\n";
-                foreach ($arrayDiseases as $key => $value){
                     $stringTable.="$key: $value, ";
                     $stringCSV.="$key\t$value\n";
                 }
