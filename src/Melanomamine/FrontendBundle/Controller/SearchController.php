@@ -365,7 +365,6 @@ class SearchController extends Controller
                 $stringTable.="</span></td></tr>";
                 $stringCSV.="\n";
             }
-            ldd($stringCSV);
             if ( array_key_exists("mutations2", $dictionarySummary) ){
                 $arrayMutations=$dictionarySummary["mutations2"];
                 arsort($arrayMutations);
