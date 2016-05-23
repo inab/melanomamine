@@ -117,6 +117,7 @@ class GeneSetEnrichmentController extends Controller
                 $arrayGeneSetEnrichment[$database] = $arrayResults;
             }
         }
+
         /*We have the results as an array at $arrayGeneSetEnrichment[kegg], $arrayGeneSetEnrichment[go_bp], $arrayGeneSetEnrichment[go_mf], $arrayGeneSetEnrichment[pfam]...
 
             $arrayLines=$arrayGeneSetEnrichment["kegg"]

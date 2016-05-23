@@ -275,8 +275,7 @@ class SearchController extends Controller
                     }
                     $dictionaryTmp=$this->insertMention($dictionaryTmp,"genes", $mention);
 
-                    /*foreach($arrayGeneId as $geneId){
-                        ld($geneId);
+                    foreach($arrayGeneId as $geneId){
                         array_push($uniqueGenesList, $geneId);
                         if (array_key_exists($geneId, $arrayEntrezMention)){
                             //We update $arrayEntrezMention with another geneId
@@ -291,7 +290,7 @@ class SearchController extends Controller
                             array_push($arrayTmp, $mention);
                             $arrayEntrezMention[$geneId]=$arrayTmp;
                         }
-                    }*/
+                    }
                 }
             }
             if ( array_key_exists("diseases3", $source) ){
