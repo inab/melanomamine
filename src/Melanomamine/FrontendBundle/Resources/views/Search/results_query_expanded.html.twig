@@ -35,7 +35,6 @@
                         <tr>
                             <td><strong>Query time:</strong> {{ totalTime }} ms.</td>
                         </tr>
-                    {% endif %}
 
                     {% if arrayAliases is defined %}
                         <tr>
@@ -77,7 +76,7 @@
 
                                 <td>
                                     <a href="{{ link }}" target="_blank"><img src="{{ asset(imageRoute) }}" class="outlinkLogo"/></a>
-                                    <div class="center"><td class="center">{{ score | number_format(2) | colorCodingScoreFilter | raw }}</td></div>
+                                    <div class="center">{{ score | number_format(2) | colorCodingScoreFilter | raw }}</div>
                                 </td>
                                     {% set arrayHighlightedTitle = title | retrieveHighlighted (source, entityName, 0, "title", tooltipCounter) %}
                                     {% set title = arrayHighlightedTitle[0] %}
@@ -109,7 +108,16 @@
                         )
                     }}
                 {% endif %}
-                </div>
+                {% if entityType == "chemicals" %}
+                    {{ simple_paginator_render(
+                        'search_' ~ entityType, 'abstracts',
+                            {
+                                'routeParams' : {'entityType' : entityType, 'whatToSearch' : whatToSearch, 'entityName' : entityName},
+                                'container_class' : 'pagination'
+                            }
+                        )
+                    }}
+                {% endif %}
             </div>
         {% endif %}
         {# Here we rebuild the stringStickyTooltip inside its container divs #}

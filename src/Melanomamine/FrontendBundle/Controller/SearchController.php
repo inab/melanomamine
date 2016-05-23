@@ -144,6 +144,63 @@ class SearchController extends Controller
         return($sum);
     }
 
+    public function extractGenesAndCompounds($arrayAbstracts){
+        $message="Inside of extractGenesAndCompounds";
+        $arrayGenes=array();
+        $arrayCompounds=array();
+        $arrayGenesAdded=array();
+        $arrayCompoundsAdded=array();
+        foreach($arrayAbstracts as $abstract){
+            if(array_key_exists("genes3", $abstract->getSource())){
+                $arrayGenesTmp=$abstract->getSource()["genes3"];
+                if (count($arrayGenesTmp)!=0){
+                    foreach($arrayGenesTmp as $gene){
+                        if(!in_array($gene["ontology"], $arrayGenesAdded)){
+                            array_push($arrayGenes, $gene);
+                            array_push($arrayGenesAdded,$gene["ontology"]);
+                        }
+                    }
+                }
+            }
+            if(array_key_exists("chemicals2", $abstract->getSource())){
+                $arrayCompoundsTmp=$abstract->getSource()["chemicals2"];
+                if (count($arrayCompoundsTmp)!=0){
+                    foreach($arrayCompoundsTmp as $compound){
+                        if(!in_array($compound["mention"], $arrayCompoundsAdded)){
+                            array_push($arrayCompounds, $compound);
+                            array_push($arrayCompoundsAdded,$compound["mention"]);
+                        }
+                    }
+                }
+            }
+        }
+        $arrayReturn=array();
+        $arrayReturn["arrayGenes"]=$arrayGenes;
+        $arrayReturn["arrayCompounds"]=$arrayCompounds;
+        return $arrayReturn;
+    }
+    public function getArrayIntersection($array1,$array2,$type){
+        //ld($array1);
+        //ld($array2);
+        $arrayIntersection=array();
+        foreach($array1 as $element1){
+            if($type=="genes"){
+                $id=$element1["ontology"];
+            }else{//=="compounds"
+                $id=$element1["mention"];
+                //We should have to normalize using compounddict.
+            }
+            foreach($array2 as $element2){
+                $id2=$element2["mention"];
+                if($id==$id2){
+                    //There is a match, so this gene belongs to the intersection group
+                    array_push($arrayIntersection, $element1);
+                }
+            }
+        }
+        return($arrayIntersection);
+    }
+
     public function getGeneId($geneName, $ncbiTaxId){
         $finder = $this->container->get('fos_elastica.index.melanomamine.genesDictionary');
         $elasticaQuery = new \Elastica\Query();
@@ -322,14 +379,17 @@ class SearchController extends Controller
                 $stringTable.=" <td class='summaryTable'><span class='more'>";
                 //First we generate a new array to sort the results based on the count of mentions of every geneId
                 $arraySum=array();
+                $arrayNames=array();
                 foreach ($arrayGeneIdDictionary as $geneId => $geneIdDictionary){
                         $counterMentions=$this->countMentionsInArray($geneIdDictionary);
                         $arraySum[$geneId]=$counterMentions;
                 }
                 arsort($arraySum);
+
                 foreach($arraySum as $idGene=>$counter){
-                    $stringTable.="$idGene:($counter), ";
-                    $stringCSV.="$idGene:($counter), ";
+                    $name=array_keys($arrayGeneIdDictionary[$idGene])[0];
+                    $stringTable.="$idGene ($name: $counter), "; //To get the name for the geneId. We choose the first one inside the arrayGeneIdDictionary
+                    $stringCSV.="$idGene ($name: $counter), ";
 
                 }
                     //We take advantage of this loop to also get a list of unique genes to use it for GSE link ($uniqueGenesList)
@@ -1461,6 +1521,7 @@ class SearchController extends Controller
         $entityType="chemicals";
         $message="inside searchChemicalsAction";
         //ldd($queryExpansion);
+        $searchTerm=$entityName;
         # Desambiguation is not needed for Chemical queryExpansion.
         if($queryExpansion=="true"){
             #In this case we make a query expansion for the chemicalName and retrieve an array of entityNames to search form
@@ -1472,6 +1533,7 @@ class SearchController extends Controller
                 $tmpResults=$this->performNestedSearch($entityName, "abstracts", "chemicals2", "mention");//performNestedSearch($entityName, $type, $mapping, $property)
                 $arrayAbstracts=array_merge($arrayAbstracts,$tmpResults);
             }
+            $entityName=$searchTerm;
             $totalHits=count($arrayAbstracts);
             $totalTime=0;
 
@@ -1504,13 +1566,13 @@ class SearchController extends Controller
 
             $resultSetDocuments = array();
             $arrayResultsDoc = array();
-
+            $entityName=$searchTerm;
             //$stringHtml = $this->getStringHtmlResults($arrayResultsAbs, $entityName);
-
             return $this->render('MelanomamineFrontendBundle:Search:results_query_expanded.html.twig', array(
                 'entityType' => $entityType,
                 'whatToSearch' => $whatToSearch,
                 'entityName' => $entityName,
+                'searchTerm' => $searchTerm,
                 'arrayResultsAbs' => $arrayResultsAbs,
                 'arrayResultsDoc' => $arrayResultsDoc,
                 'resultSetDocuments' => $resultSetDocuments,
@@ -1968,5 +2030,121 @@ class SearchController extends Controller
             'arraySummaryTitles' => $arraySummaryTitles,
 
         ));
+    }
+
+    public function searchKnowledgeAction($whatToSearch, $concept1, $concept2){
+        $message="Inside searchKnowledgeAction";
+
+        $finder = $this->container->get('fos_elastica.index.melanomamine.abstracts');
+
+        //Query for the first "concept"
+        $elasticaQuery = new \Elastica\Query();
+        $elasticaQuery->setSize(500);
+        $elasticaQuery->setSort(array('melanoma_score_2' => array('order' => 'desc')));
+        //BoolQuery to load 2 queries.
+        $queryBool = new \Elastica\Query\BoolQuery();
+
+        //First query to search inside nested genes.mention
+        $searchNested = new \Elastica\Query\QueryString();
+        $searchNested->setParam('query', $concept1);
+
+        if($whatToSearch=="diseasesKnowledge"){
+            $searchNested->setParam('fields', array('diseases3.mention'));
+        }elseif($whatToSearch=="genesKnowledge"){
+            $searchNested->setParam('fields', array('genes3.name','genes3.geneId'));
+        }
+
+        $nestedQuery = new \Elastica\Query\Nested();
+        $nestedQuery->setQuery($searchNested);
+        if($whatToSearch=="diseasesKnowledge"){
+            $nestedQuery->setPath('diseases3');
+        }elseif($whatToSearch=="genesKnowledge"){
+            $nestedQuery->setPath('genes3');
+        }
+        $queryBool->addMust($nestedQuery);
+        $elasticaQuery->setQuery($queryBool);
+        $data = $finder->search($elasticaQuery);
+        $totalHits = $data->getTotalHits();
+        $totalTime = $data->getTotalTime();
+        $arrayConcepts1=$data->getResults();
+
+        //Query for the second "concept"
+        $elasticaQuery = new \Elastica\Query();
+        $elasticaQuery->setSize(500);
+        $elasticaQuery->setSort(array('melanoma_score_2' => array('order' => 'desc')));
+        //BoolQuery to load 2 queries.
+        $queryBool = new \Elastica\Query\BoolQuery();
+
+        //First query to search inside nested genes.mention
+        $searchNested = new \Elastica\Query\QueryString();
+        $searchNested->setParam('query', $concept2);
+
+        if($whatToSearch=="diseasesKnowledge"){
+            $searchNested->setParam('fields', array('diseases3.mention'));
+        }elseif($whatToSearch=="genesKnowledge"){
+            $searchNested->setParam('fields', array('genes3.name','genes3.geneId'));
+        }
+
+        $nestedQuery = new \Elastica\Query\Nested();
+        $nestedQuery->setQuery($searchNested);
+        if($whatToSearch=="diseasesKnowledge"){
+            $nestedQuery->setPath('diseases3');
+        }elseif($whatToSearch=="genesKnowledge"){
+            $nestedQuery->setPath('genes3');
+        }
+        $queryBool->addMust($nestedQuery);
+        $elasticaQuery->setQuery($queryBool);
+        $data = $finder->search($elasticaQuery);
+        $totalHits = $data->getTotalHits();
+        $totalTime = $data->getTotalTime();
+        $arrayConcepts2=$data->getResults();
+
+        //ldd($arrayConcepts2);
+        //Once here we have two list. One for each disease/gene
+        //We should calculate the intersection of the two lists, taking into account different field depending on whatToSearch variable...
+
+        $arrayGenesAndCompounds1=$this->extractGenesAndCompounds($arrayConcepts1);
+        $arrayGenes1=$arrayGenesAndCompounds1["arrayGenes"];
+        $arrayCompounds1=$arrayGenesAndCompounds1["arrayCompounds"];
+
+        $arrayGenesAndCompounds2=$this->extractGenesAndCompounds($arrayConcepts2);
+        $arrayGenes2=$arrayGenesAndCompounds2["arrayGenes"];
+        $arrayCompounds2=$arrayGenesAndCompounds2["arrayCompounds"];
+
+        $arrayCompoundsIntersection=$this->getArrayIntersection($arrayCompounds1,$arrayCompounds2,"compounds");
+        $arrayGenesIntersection=$this->getArrayIntersection($arrayGenes1,$arrayGenes2,"genes");
+
+        //We sort arrays
+        usort($arrayGenes1, function($a, $b)
+        {
+            return(strcasecmp($a["mention"],$b["mention"]));
+        });
+        usort($arrayGenes2, function($a, $b)
+        {
+            return(strcasecmp($a["mention"],$b["mention"]));
+        });
+        usort($arrayCompounds1, function($a, $b)
+        {
+            return(strcasecmp($a["mention"],$b["mention"]));
+        });
+        usort($arrayCompounds2, function($a, $b)
+        {
+            return(strcasecmp($a["mention"],$b["mention"]));
+        });
+
+        return $this->render('MelanomamineFrontendBundle:Search:resultsKnowledge.html.twig', array(
+            'whatToSearch' => $whatToSearch,
+            'entityType' => "knowledge",
+            'concept1' => $concept1,
+            'concept2' => $concept2,
+            'arrayGenes1' => $arrayGenes1,
+            'arrayCompounds1' => $arrayCompounds1,
+            'arrayGenes2' => $arrayGenes2,
+            'arrayCompounds2' => $arrayCompounds2,
+            'arrayGenesIntersection' => $arrayGenesIntersection,
+            'arrayCompoundsIntersection' => $arrayCompoundsIntersection,
+
+        ));
+
     }
 }

@@ -91,9 +91,9 @@ class GeneSetEnrichmentController extends Controller
         {
             $text .=  $ncbiGeneId."\n";
         }
+        if($text==""){$text=" ";}
         $fp = fopen($pathToFile, "w") or die("Could not open log file.");
         $results = fwrite($fp, $text) or die("Could not write file!"); //Now in results we have the output from fwrite
-
         //Once we have the file with the list of the EntrezGeneIDs, we call translate service to get translations for this ids to EnsemblGeneIDs, the type of output for the next step, therefore we have translations for EnsembleGeneIDs to EntrezGeneIDs.
 
         $pathTranslations = $this->get('kernel')->getRootDir(). "/../web/files/enrichment/translations";

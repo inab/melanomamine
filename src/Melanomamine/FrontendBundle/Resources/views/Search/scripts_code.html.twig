@@ -90,6 +90,25 @@
                 $('.searchNormalizedMutatedProteins').attr('href',link);
             }
         })
+
+        $(".searchKnowledge").click(function(e) {
+            var whatToSearch = $('input[name=knowledgeWhatToSearch]:checked').val();
+            var concept1 = $('#inputConcept1').val();
+            var concept2 = $('#inputConcept2').val();
+            if (concept1==""){
+                what = whatToSearch.substring(0, whatToSearch.length - 1);
+                alert("Please fill in the first "+what+" input");
+                return false;
+            }
+            if (concept2==""){
+                what = whatToSearch.substring(0, whatToSearch.length - 1);
+                alert("Please fill in the second "+what+" input");
+                return false;
+            }
+
+            link='{{ path('search') }}'+'knowledge'+'/'+whatToSearch+'/'+concept1+'/'+concept2+'/';
+            $('.searchKnowledge').attr('href',link);
+        })
     </script>
     <script type="application/javascript">
         $(document).ready(function() {
@@ -102,7 +121,6 @@
 
             $('.more').each(function() {
                 var content = $(this).html();
-
                 if(content.length > showChar) {
 
                     var c = content.substr(0, showChar);
@@ -127,6 +145,29 @@
                 $(this).prev().toggle();
                 return false;
             });
+
+            $(".knowledgeDiseases").click(function(){
+                //alert($('input[name=knowledgeWhatToSearch]:checked').val());
+                //alert("diseases");
+                $('#concept1').text("Disease 1");
+                $('#concept2').text("Disease 2");
+                $('#inputConcept1').val("{{ default_disease1 }}");
+                $('#inputConcept1').attr("placeholder","e.g. {{ default_disease1 }}");
+                $('#inputConcept2').val("{{ default_disease2 }}");
+                $('#inputConcept2').attr("placeholder","e.g. {{ default_disease2 }}");
+            });
+
+            $(".knowledgeGenes").click(function(){
+                //alert($('input[name=knowledgeWhatToSearch]:checked').val());
+                //alert("genes");
+                $('#concept1').text("Gene 1");
+                $('#concept2').text("Gene 2");
+                $('#inputConcept1').val("{{ default_gene1 }}");
+                $('#inputConcept1').attr("placeholder","e.g. {{ default_gene1 }}");
+                $('#inputConcept2').val("{{ default_gene2 }}");
+                $('#inputConcept1').attr("placeholder","e.g. {{ default_gene2 }}");
+            });
+
         });
     </script>
     <script>

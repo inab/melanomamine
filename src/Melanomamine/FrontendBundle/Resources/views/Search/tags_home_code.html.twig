@@ -6,6 +6,7 @@
         <dd><a href="#diseases" name="diseases" class="tab">Diseases</a></dd>
         <dd><a href="#mutatedProteins" name="mutatedProteins" class="tab">Mutated Proteins</a></dd>
         <dd><a href="#otherCancer" name="otherCancer" class="tab">Other Cancer</a></dd>
+        <dd><a href="#knowledge" name="knowledge" class="tab">Knowledge</a></dd>
 </dl>
 <ul class="tabs-content">
     <li class="active" id="keywordsTab">
@@ -320,6 +321,44 @@
                     </fieldset>
                 </form>
             </div>
+        </div>
+    </li>
+
+    <li id="knowledgeTab">
+        <div class="ui-widget">
+            <div class="vis-break cntrtxt">
+                    <input id="tags-knowledge" class="ui-autocomplete-input text tags" onclick="this.value=''" placeholder="{{ knowledgeSearch_message }}" aria-haspopup="true" aria-autocomplete="list" role="textbox" autocomplete="off" value="" disabled>
+            </div>
+
+        </div>
+        <div class="advanceSearch row">
+            <form class="custom">
+                <div class="large-3 columns">
+                    <fieldset>
+                        <legend>Extract knowledge from:</legend>
+                                <span class="has-tip knowledgeDiseases" title="Extract knowledge from diseases"><label for="radioWhatToSearch"><input name="knowledgeWhatToSearch" type="radio" id="radioKnowledgeWhatToSearch" style="display:none;" value="diseasesKnowledge" CHECKED><span class="custom radio"></span> Diseases</label></span>
+                                <span class="has-tip knowledgeGenes" title="Extract knowledge from genes"><label for="radioWhatToSearch"><input name="knowledgeWhatToSearch" type="radio" id="radioKnowledgeWhatToSearch" style="display:none;" value="genes"><span class="custom radio"></span> Genes</label></span>
+                    </fieldset>
+                </div>
+                <div class="large-3 end columns">
+                    <fieldset>
+                        <legend><div id="legendKnowledge">Diseases</div></legend>
+                        <table class="knowledge">
+                            <tr>
+                                <td><div id="concept1">Disease&nbsp;1</div></td>
+                                <td><span class="has-tip tipKnowledge1" title="Insert first Disease/Gene"><input id="inputConcept1" onclick="this.value=''" class="ui-autocomplete-input text" value="{{ default_disease1 }}" placeholder="e.g. {{ default_disease1 }}"></span></td>
+                            </tr>
+                            <tr>
+                                <td><div id="concept2">Disease&nbsp;2</div></td>
+                                <td><span class="has-tip tipKnowledge2" title="Insert second Disease/Gene"><input id="inputConcept2" onclick="this.value=''" class="ui-autocomplete-input text" value="{{ default_disease2 }}" placeholder="e.g. {{ default_disease2 }}"></span></td>
+                            </tr>
+                            <tr>
+                                <td colspan="2"><a class="button orange searchKnowledge right">Search</a></td>
+                            </tr>
+                        </table>
+                    </fieldset>
+                </div>
+            </form>
         </div>
     </li>
 </ul>
