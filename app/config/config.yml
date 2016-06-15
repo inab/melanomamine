@@ -50,8 +50,8 @@ twig:
         default_mutatedProteinSearch: "ABCB4"
         default_otherCancerSearch: "metastasis"
         knowledgeSearch_message: "Use the below input interface"
-        default_disease1: "Parkinson"
-        default_disease2: "Alzheimer"
+        default_term1: "Parkinson"
+        default_term2: "Alzheimer"
         default_gene1: "ABCB4"
         default_gene2: "C8161"
         default_mutatedProteinMeshIdSearch: "{default_mutatedProtein_MeshId_search_value}"
@@ -171,6 +171,22 @@ fos_elastica:
                                     type: string
                                 existEvidence:
                                     type: integer
+                        diseases3:
+                            type: nested
+                            include_in_parent: true
+                            properties:
+                                startMention:
+                                    type: integer
+                                endMention:
+                                    type: integer
+                                mention:
+                                    type: string
+                                typeOf:
+                                    type: string
+                                ontology:
+                                    type: string
+                                ontologyId:
+                                    type: string
                     persistence:
                         driver: orm
                         model: Melanomamine\DocumentBundle\Entity\Abstracts
@@ -188,6 +204,14 @@ fos_elastica:
                             type: string
                         ncbiTaxId:
                             type: integer
+                diseasesDictionary:
+                    mappings:
+                        ontology:
+                            type: string
+                        ontologyId:
+                            type: string
+                        disease:
+                            type: string
                 chemicalsDictionary:
                     mappings:
                         chemicalName:

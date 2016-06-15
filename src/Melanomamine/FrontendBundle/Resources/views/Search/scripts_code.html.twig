@@ -92,23 +92,45 @@
         })
 
         $(".searchKnowledge").click(function(e) {
-            var whatToSearch = $('input[name=knowledgeWhatToSearch]:checked').val();
+            //var whatToSearch = $('input[name=knowledgeWhatToSearch]:checked').val();
             var concept1 = $('#inputConcept1').val();
             var concept2 = $('#inputConcept2').val();
             if (concept1==""){
-                what = whatToSearch.substring(0, whatToSearch.length - 1);
-                alert("Please fill in the first "+what+" input");
+                alert("Please fill in the first term");
                 return false;
             }
             if (concept2==""){
-                what = whatToSearch.substring(0, whatToSearch.length - 1);
-                alert("Please fill in the second "+what+" input");
+                alert("Please fill in the second term");
                 return false;
             }
+            whatToSearch1 = $('input[name=knowledgeWhatToSearchTerm1]:checked').val();
+            whatToSearch2 = $('input[name=knowledgeWhatToSearchTerm2]:checked').val();
 
-            link='{{ path('search') }}'+'knowledge'+'/'+whatToSearch+'/'+concept1+'/'+concept2+'/';
+            link='{{ path('search') }}'+'knowledge'+'/'+concept1+'/'+whatToSearch1+'/'+concept2+'/'+whatToSearch2+'/';
             $('.searchKnowledge').attr('href',link);
         })
+
+        $(".disambiguate").click(function(e) {
+
+            var concept1=$('input[name=disambiguated1]:checked').val();
+            if(typeof concept1 === "undefined"){
+                concept1=$('.concept1').val();
+            }
+            var concept2=$('input[name=disambiguated2]:checked').val();
+            if(typeof concept2 === "undefined"){
+                concept2=$('.concept2').val();
+            }
+            entityType1=$('.entityType1').val();
+            entityType2=$('.entityType2').val();
+
+            link='{{ path('search') }}'+'knowledge'+'/'+concept1+'/'+entityType1+'/'+concept2+'/'+entityType2+'/';
+            $('.disambiguate').attr('href',link);
+        })
+
+        $(".show-hide").click(function(){
+            $(this).parent().toggle();
+        });
+
     </script>
     <script type="application/javascript">
         $(document).ready(function() {
@@ -145,31 +167,12 @@
                 $(this).prev().toggle();
                 return false;
             });
-
-            $(".knowledgeDiseases").click(function(){
-                //alert($('input[name=knowledgeWhatToSearch]:checked').val());
-                //alert("diseases");
-                $('#legendKnowledge').text("Diseases");
-                $('#concept1').text("Disease 1");
-                $('#concept2').text("Disease 2");
-                $('#inputConcept1').val("{{ default_disease1 }}");
-                $('#inputConcept1').attr("placeholder","e.g. {{ default_disease1 }}");
-                $('#inputConcept2').val("{{ default_disease2 }}");
-                $('#inputConcept2').attr("placeholder","e.g. {{ default_disease2 }}");
+            jQuery('.popup').popupWindow({
+                height:500,
+                width:800,
+                top:50,
+                left:50
             });
-
-            $(".knowledgeGenes").click(function(){
-                //alert($('input[name=knowledgeWhatToSearch]:checked').val());
-                //alert("genes");
-                $('#legendKnowledge').text("Genes");
-                $('#concept1').text("Gene 1");
-                $('#concept2').text("Gene 2");
-                $('#inputConcept1').val("{{ default_gene1 }}");
-                $('#inputConcept1').attr("placeholder","e.g. {{ default_gene1 }}");
-                $('#inputConcept2').val("{{ default_gene2 }}");
-                $('#inputConcept1').attr("placeholder","e.g. {{ default_gene2 }}");
-            });
-
         });
     </script>
     <script>

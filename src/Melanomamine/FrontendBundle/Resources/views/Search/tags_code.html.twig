@@ -37,7 +37,7 @@
     {% if entityType=="knowledge" %}
         <dd class="active"><a href="#knowledge" name="knowledge" class="tab">Knowledge</a></dd>
     {% else %}
-        <dd><a href="#knowledge" name="knowledge" class="tab">Knowledge</a></dd>
+        <dd><a href="#knowledge" name="knowledge" class="tab">Knowledge Discovery</a></dd>
     {% endif %}
 
 
@@ -141,7 +141,7 @@
             </div>
 
         </div>
-        <div class="advanceSearch row">
+        <div class="advanceSearch">
             <form class="custom">
                 <div class="large-3 columns">
                     <fieldset>
@@ -217,7 +217,7 @@
             </div>
 
         </div>
-        <div class="advanceSearch row">
+        <div class="advanceSearch">
             <form class="custom">
                 <div class="large-3 columns">
                     <fieldset>
@@ -459,7 +459,7 @@
             </div>
 
         </div>
-        <div class="advanceSearch row">
+        <div class="advanceSearch">
             <form class="custom">
                 <div class="large-3 columns">
                     <fieldset>
@@ -665,31 +665,27 @@
             </div>
 
         </div>
-        <div class="advanceSearch row">
+        <div class="advanceSearch">
             <form class="custom">
                 <div class="large-3 columns">
                     <fieldset>
-                        <legend>Extract knowledge from:</legend>
-                                {% if whatToSearch=="diseasesKnowledge" %}
-                                    <span class="has-tip knowledgeDiseases" title="Extract knowledge from diseases"><label for="radioWhatToSearch"><input name="knowledgeWhatToSearch" type="radio" id="radioKnowledgeWhatToSearch" style="display:none;" value="diseasesKnowledge" CHECKED><span class="custom radio"></span> Diseases</label></span>
-                                    <span class="has-tip knowledgeGenes" title="Extract knowledge from genes"><label for="radioWhatToSearch"><input name="knowledgeWhatToSearch" type="radio" id="radioKnowledgeWhatToSearch" style="display:none;" value="genesKnowledge"><span class="custom radio"></span> Genes</label></span>
-                                {% elseif whatToSearch=="genesKnowledge" %}
-                                    <span class="has-tip knowledgeDiseases" title="Extract knowledge from diseases"><label for="radioWhatToSearch"><input name="knowledgeWhatToSearch" type="radio" id="radioKnowledgeWhatToSearch" style="display:none;" value="diseasesKnowledge"><span class="custom radio"></span> Diseases</label></span>
-                                    <span class="has-tip knowledgeGenes" title="Extract knowledge from genes"><label for="radioWhatToSearch"><input name="knowledgeWhatToSearch" type="radio" id="radioKnowledgeWhatToSearch" style="display:none;" value="genesKnowledge" CHECKED><span class="custom radio"></span> Genes</label></span>
-                                {% endif %}
-                    </fieldset>
-                </div>
-                <div class="large-3 end columns">
-                    <fieldset>
-                        <legend><div id="legendKnowledge">Diseases</div></legend>
+                        <legend><div id="legendKnowledge">Terms</div></legend>
                         <table class="knowledge">
                             <tr>
-                                <td><div id="concept1">Disease&nbsp;1</div></td>
-                                <td><span class="has-tip tipKnowledge1" title="Insert first Disease/Gene"><input id="inputConcept1" onclick="this.value=''" class="ui-autocomplete-input text" value="{% if concept1 is defined %}{{ concept1 }}{% else %}{{ default_disease1 }}{% endif %}" placeholder="e.g. {{ default_disease1 }}"></span></td>
+                                <td>
+                                    <span class="has-tip knowledgeTerms left" title="Extract knowledge searching for diseases"><label for="radioWhatToSearch"><input name="knowledgeWhatToSearchTerm1" type="radio" id="radioKnowledgeWhatToSearchTerm1" style="display:none;" value="disease" {% if entityType1 is defined %} {% if entityType1=="disease" %} CHECKED {% endif %} {% endif %}><span class="custom radio"></span> Disease&nbsp;</label></span>
+                                    <span class="has-tip knowledgeTerms left" title="Extract knowledge searching for genes"><label for="radioWhatToSearch"><input name="knowledgeWhatToSearchTerm1" type="radio" id="radioKnowledgeWhatToSearchTerm1" style="display:none;" value="gene" {% if entityType1 is defined %} {% if entityType1=="gene" %} CHECKED {% endif %} {% endif %}><span class="custom radio"></span> Gene&nbsp;</label></span>
+                                    <span class="has-tip knowledgeTerms left" title="Extract knowledge from Free-text search"><label for="radioWhatToSearch"><input name="knowledgeWhatToSearchTerm1" type="radio" id="radioKnowledgeWhatToSearchTerm1" style="display:none;" value="freeText" {% if entityType1 is defined %} {% if entityType1=="freeText" %} CHECKED {% endif %} {% endif %}><span class="custom radio"></span> Free-text&nbsp;</label></span>
+                                </td>
+                                <td><span class="has-tip tipKnowledge1" title="Insert first Disease/Gene/Term"><input id="inputConcept1" onclick="this.value=''" class="ui-autocomplete-input text" value="{% if concept1 is defined %}{{ concept1 }}{% else %}{{ default_term1 }}{% endif %}" placeholder="e.g. {% if concept1 is defined %}{{ concept1 }}{% else %}{{ default_term1 }}{% endif %}"></span></td>
                             </tr>
                             <tr>
-                                <td><div id="concept2">Disease&nbsp;2</div></td>
-                                <td><span class="has-tip tipKnowledge2" title="Insert second Disease/Gene"><input id="inputConcept2" onclick="this.value=''" class="ui-autocomplete-input text" value="{% if concept2 is defined %}{{ concept2 }}{% else %}{{ default_disease2 }}{% endif %}" placeholder="e.g. {{ default_disease2 }}"></span></td>
+                                <td>
+                                    <span class="has-tip knowledgeTerms left" title="Extract knowledge searching for diseases"><label for="radioWhatToSearch"><input name="knowledgeWhatToSearchTerm2" type="radio" id="radioKnowledgeWhatToSearchTerm2" style="display:none;" value="disease" {% if entityType2 is defined %} {% if entityType2=="disease" %} CHECKED {% endif %} {% endif %}><span class="custom radio"></span> Disease&nbsp;</label></span>
+                                    <span class="has-tip knowledgeTerms left" title="Extract knowledge searching for genes"><label for="radioWhatToSearch"><input name="knowledgeWhatToSearchTerm2" type="radio" id="radioKnowledgeWhatToSearchTerm2" style="display:none;" value="gene" {% if entityType2 is defined %} {% if entityType2=="gene" %} CHECKED {% endif %} {% endif %}><span class="custom radio"></span> Gene&nbsp;</label></span>
+                                    <span class="has-tip knowledgeTerms left" title="Extract knowledge from Free-text search"><label for="radioWhatToSearch"><input name="knowledgeWhatToSearchTerm2" type="radio" id="radioKnowledgeWhatToSearchTerm2" style="display:none;" value="freeText" {% if entityType2 is defined %} {% if entityType2=="freeText" %} CHECKED {% endif %} {% endif %}><span class="custom radio"></span> Free-text&nbsp;</label></span>
+                                </td>
+                                <td><span class="has-tip tipKnowledge2" title="Insert second Disease/Gene"><input id="inputConcept2" onclick="this.value=''" class="ui-autocomplete-input text" value="{% if concept2 is defined %}{{ concept2 }}{% else %}{{ default_term2 }}{% endif %}" placeholder="e.g. {% if concept2 is defined %}{{ concept2 }}{% else %}{{ default_term2 }}{% endif %}"></span></td>
                             </tr>
                             <tr>
                                 <td colspan="2"><a class="button orange searchKnowledge right">Search</a></td>

@@ -95,7 +95,7 @@ search_otherCancer:
     defaults: { _controller: MelanomamineFrontendBundle:Search:searchOtherCancer, orderBy: "nsclc"}
 
 search_knowledge:
-    path: /search/knowledge/{whatToSearch}/{concept1}/{concept2}/
+    path: /search/knowledge/{concept1}/{entityType1}/{concept2}/{entityType2}/
     defaults: { _controller: MelanomamineFrontendBundle:Search:searchKnowledge}
 
 download_summary_table:
